@@ -1,11 +1,13 @@
+#pragma once
 #include <variant>
 
-typedef TokenValue std::variant<std::monostate, int, std::string>
+typedef std::variant<std::monostate, int, std::string> TokenValue;
 
 enum TokenType {
     INTEGER_VALUE,
     INTEGER_TYPE,
-    TEXT,
+    STRING,
+    NAME,
     RETURN,
     LBRACE,
     RBRACE,
@@ -19,6 +21,3 @@ struct Token {
     TokenValue value;
 };
 
-int main() {
-    return 2;
-}

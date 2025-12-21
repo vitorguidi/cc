@@ -4,7 +4,6 @@ cc_test(
     srcs = ["lexer_test.cc"],
     deps = [
         "@googletest//:gtest",
-        "@googletest//:gtest_main",
         "//src/lexer:lexer",
     ],
 )

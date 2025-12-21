@@ -4,7 +4,7 @@ load("@rules_cc//cc:cc_library.bzl", "cc_library")
 cc_library(
     name = "lexer",
     srcs = ["lexer.cc"],
-    hdrs = ["lexer.h"],
+    hdrs = ["lexer.h", "token.h"],
     deps = [],
     visibility = ["//visibility:public"],
 )
