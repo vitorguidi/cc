@@ -3,25 +3,48 @@
 #include <variant>
 #include <ranges>
 
-// Demonstrate some basic assertions.
-TEST(LexerTest, BasicProgram) {
-    const std::string basic_program = 
-        "int main() {"
-        "   return 2;"
-        "}";
+const std::string basic_program = 
+    "int main() {"
+    "   return 2;"
+    "}";
+
+TEST(LexerTest, BasicProgramLex) {
     std::unique_ptr<Lexer> l = std::make_unique<ManualLexer>(basic_program);
     std::vector<Token> expected_results = {
         Token{TokenType::INTEGER_TYPE, std::monostate{}},
         Token{TokenType::NAME, std::string("main")},
+        Token{TokenType::LPAREN,  std::monostate{}},
+        Token{TokenType::RPAREN,  std::monostate{}},
         Token{TokenType::LBRACE, std::monostate{}},
         Token{TokenType::RETURN, std::monostate{}},
         Token{TokenType::INTEGER_VALUE, 2},
         Token{TokenType::SEMICOLON, std::monostate{}},
         Token{TokenType::RBRACE, std::monostate{}},
+        Token{TokenType::END_OF_FILE, std::monostate{}},
     };
-    auto results = l->tokenize();
-    for(auto x : results) {
-        auto y = std::move(x);
+    auto results = l->Lex();
+    int idx_at = 0;
+    for(auto expected_token: expected_results) {
+        size_t delta = 0;
+        // Peaks from current position to the end of expected results yields the actual
+        // expected tokens
+        for(; delta + idx_at < expected_results.size(); delta++) {
+            Token peeked_token = results.peek(delta);
+            Token expected_peek_token = expected_results[idx_at + delta];
+            EXPECT_EQ(peeked_token.kind, expected_peek_token.kind);
+            EXPECT_EQ(peeked_token.value, expected_peek_token.value);
+        }
+        // Ensure peeking beyond the expected results yields END_OF_FILE
+        for(; idx_at + delta < 3*expected_results.size(); delta++) {
+            Token peeked_token = results.peek(delta);
+            EXPECT_EQ(peeked_token.kind, TokenType::END_OF_FILE);
+            EXPECT_EQ(peeked_token.value, TokenValue(std::monostate{}));
+        }
+        // Finally, consumes return what we expect
+        Token consumed_token = results.consume();
+        EXPECT_EQ(consumed_token.kind, expected_token.kind);
+        EXPECT_EQ(consumed_token.value, expected_token.value);
+        idx_at++;
     }
 }
 

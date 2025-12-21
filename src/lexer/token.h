@@ -14,6 +14,7 @@ enum TokenType {
     LPAREN,
     RPAREN,
     SEMICOLON,
+    END_OF_FILE,
 };
 
 struct Token {

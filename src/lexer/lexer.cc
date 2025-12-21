@@ -5,14 +5,47 @@
 #include <variant>
 #include <cctype>
 #include <stdexcept>
+#include <memory>
+
+TokenStream::TokenStream(std::generator<Token> tokens) : 
+    tokens_(std::move(tokens)),
+    buffer_(std::unordered_map<int, Token>()),
+    idx_at_(0),
+    idx_buffered_(-1),
+    tokens_it_(nullptr) {
+        tokens_it_ = std::make_unique<std::ranges::iterator_t<std::generator<Token>>>(tokens_.begin());
+}
+Token TokenStream::consume() {
+    if (buffer_.empty()) {
+        if (*tokens_it_ == tokens_.end()) {
+            return Token{TokenType::END_OF_FILE, std::monostate{}};
+        }
+        buffer_[idx_buffered_] = **tokens_it_;
+        idx_buffered_++;
+        (*tokens_it_)++;
+    }
+    Token t = buffer_[idx_at_];
+    buffer_.erase(idx_at_);
+    idx_at_++;
+    return t;
+}
+
+Token TokenStream::peek(int pos_ahead) {
+    while (idx_buffered_ < idx_at_ + pos_ahead) {
+        if (*tokens_it_ == tokens_.end()) {
+            return Token{TokenType::END_OF_FILE, std::monostate{}};
+        }
+        buffer_[++idx_buffered_] = **tokens_it_;
+        (*tokens_it_)++;
+    }
+    return buffer_[idx_at_ + pos_ahead];
+}
 
 ManualLexer::ManualLexer(const std::string code) : idx_(0), code_(code) {}
 auto ManualLexer::tokenize() -> std::generator<Token>  {
     while (idx_ < code_.size()) {
-        for(auto c : skippable_characters_) {
-            if (peek(c)) {
-                idx_++;
-            }
+        while (skip()) {
+            idx_++;
         }
         if (idx_ >= code_.size()) {
             break;
@@ -77,8 +110,20 @@ auto ManualLexer::tokenize() -> std::generator<Token>  {
         }
         co_yield Token{TokenType::NAME, value};
     }
+    co_yield Token{TokenType::END_OF_FILE, std::monostate{}};
+    co_return;
 }
-
+bool ManualLexer::skip() {
+    if (idx_ >= code_.size()) {
+        return false;
+    }
+    for (auto c : skippable_characters_) {
+        if (peek(c)) {
+            return true;
+        }
+    }
+    return false;
+}
 bool ManualLexer::peek(std::string expected) {
     if (expected.size() + idx_ > code_.size()) {
         return false;
@@ -90,4 +135,7 @@ bool ManualLexer::peek(char c) {
         return false;
     }
     return code_[idx_] == c;
+}
+auto ManualLexer::Lex() -> TokenStream {
+    return TokenStream(tokenize());
 }
