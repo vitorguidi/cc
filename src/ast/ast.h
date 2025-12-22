@@ -16,7 +16,7 @@ struct ProgramNode;
 
 class Visitor {
 public:
-    virtual ~Visitor() = 0;
+    virtual ~Visitor() = default;
     virtual void visit(TypeNode& node) = 0;
     virtual void visit(FunctionArgumentsNode& node) = 0;
     virtual void visit(StatementNode& node) = 0;
