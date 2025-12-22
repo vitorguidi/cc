@@ -39,12 +39,12 @@ auto RecursiveDescentParser::parseFunction() -> std::optional<FunctionNode> {
     if (!body_opt.has_value()) {
         throw std::runtime_error("Expected function body");
     }
-    return FunctionNode{
-        .name_ = std::get<std::string>(function_name.value),
-        .return_type_ = return_type_opt.value(),
-        .arguments_ = arguments_opt.value(),
-        .body_ = body_opt.value()
-    };
+    return FunctionNode(
+        std::get<std::string>(function_name.value),
+        return_type_opt.value(),
+        arguments_opt.value(),
+        body_opt.value()
+    );
 }
 
 auto RecursiveDescentParser::parseType() -> std::optional<TypeNode> {
@@ -52,7 +52,7 @@ auto RecursiveDescentParser::parseType() -> std::optional<TypeNode> {
         case TokenType::INTEGER_TYPE: {
             auto t = tokens_.consume();
             assert(t.kind == TokenType::INTEGER_TYPE);
-            return std::make_optional(TypeNode{ .return_type_ = Type::INTEGER });
+            return std::make_optional(TypeNode(Type::INTEGER));
         }
         default:
             return std::nullopt;
@@ -117,12 +117,11 @@ auto RecursiveDescentParser::parseStatement() -> std::optional<StatementNode> {
         throw std::runtime_error("Expected semicolon after return statement");
     }
     tokens_.consume();
-    StatementNode return_stmt{
-        .type_ = StatementType::RETURN_STATEMENT,
-        .parameters_ = ReturnParameters{
+    StatementNode return_stmt(
+        StatementType::RETURN_STATEMENT,
+        ReturnParameters{
             .return_type_ = Type::INTEGER,
             .return_value_ = std::get<int>(return_value_token.value),
-        }
-    };
-    return std::make_optional<StatementNode>(return_stmt);
+        });
+    return std::make_optional<StatementNode>(std::move(return_stmt));
 }
