@@ -6,18 +6,6 @@
 #include <ranges>
 #include <memory>
 
-class TokenStream {
-public:
-    explicit TokenStream(std::generator<Token> tokens);
-    Token consume();
-    Token peek(int pos_ahead);
-private:
-    std::generator<Token> tokens_;
-    std::unordered_map<int, Token> buffer_;
-    int idx_at_, idx_buffered_;
-    std::unique_ptr<std::ranges::iterator_t<std::generator<Token>>> tokens_it_;
-};
-
 class Lexer {
 public:
     virtual ~Lexer() = default;

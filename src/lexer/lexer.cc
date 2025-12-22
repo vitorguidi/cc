@@ -6,6 +6,7 @@
 #include <cctype>
 #include <stdexcept>
 #include <memory>
+#include <algorithm>
 
 TokenStream::TokenStream(std::generator<Token> tokens) : 
     tokens_(std::move(tokens)),
@@ -20,8 +21,7 @@ Token TokenStream::consume() {
         if (*tokens_it_ == tokens_.end()) {
             return Token{TokenType::END_OF_FILE, std::monostate{}};
         }
-        buffer_[idx_buffered_] = **tokens_it_;
-        idx_buffered_++;
+        buffer_[++idx_buffered_] = **tokens_it_;
         (*tokens_it_)++;
     }
     Token t = buffer_[idx_at_];
