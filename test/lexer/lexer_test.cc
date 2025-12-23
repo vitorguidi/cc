@@ -8,6 +8,37 @@ const std::string basic_program =
     "   return 2;"
     "}";
 
+const std::string another_basic_program = 
+    "int negate(int val) {"
+    "   return ~(-(--x));"
+    "}";
+
+TEST(LexerTest, AnotherBasicLex) {
+    std::unique_ptr<Lexer> l = std::make_unique<ManualLexer>(another_basic_program);
+    std::vector<Token> expected_results = {
+        Token{TokenType::INTEGER_TYPE, std::monostate{}},
+        Token{TokenType::NAME, std::string("negate")},
+        Token{TokenType::LPAREN,  std::monostate{}},
+        Token{TokenType::INTEGER_TYPE, std::monostate{}},
+        Token{TokenType::NAME, std::string("val")},
+        Token{TokenType::RPAREN,  std::monostate{}},
+        Token{TokenType::LBRACE, std::monostate{}},
+        Token{TokenType::RETURN, std::monostate{}},
+        Token{TokenType::TILDE, std::monostate{}},
+        Token{TokenType::LPAREN, std::monostate{}},
+        Token{TokenType::MINUS, std::monostate{}},
+        Token{TokenType::LPAREN, std::monostate{}},
+        Token{TokenType::DOUBLE_MINUS, std::monostate{}},
+        Token{TokenType::NAME, std::string("x")},
+        Token{TokenType::RPAREN, std::monostate{}},
+        Token{TokenType::RPAREN, std::monostate{}},
+        Token{TokenType::SEMICOLON, std::monostate{}},
+        Token{TokenType::RBRACE, std::monostate{}},
+        Token{TokenType::END_OF_FILE, std::monostate{}},
+    };
+
+}
+
 TEST(LexerTest, BasicProgramLex) {
     std::unique_ptr<Lexer> l = std::make_unique<ManualLexer>(basic_program);
     std::vector<Token> expected_results = {

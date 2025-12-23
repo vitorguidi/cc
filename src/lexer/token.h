@@ -19,6 +19,9 @@ enum TokenType {
     LPAREN,
     RPAREN,
     SEMICOLON,
+    TILDE,
+    MINUS,
+    DOUBLE_MINUS,
     END_OF_FILE,
 };
 
