@@ -13,9 +13,10 @@ const std::string basic_program =
 TEST(AstToAsmTest, BasicProgram) {
     std::unique_ptr<Lexer> l = std::make_unique<ManualLexer>(basic_program);
     std::unique_ptr<Parser> p = std::make_unique<RecursiveDescentParser>(std::move(l->Lex()));
-    std::optional<ProgramNode> program_opt = p->parse();
+    std::optional<std::shared_ptr<ProgramNode>> program_opt = p->parse();
+    ASSERT_TRUE(program_opt.has_value());
     auto visitor = AstToAsmVisitor();
-    visitor.visit(program_opt.value());
+    visitor.visit(std::ref(*program_opt.value()));
     const std::vector<std::string>& assembly_output = visitor.get_assembly_output();
     std::vector<std::string> expected_output = {
         "\t.globl main",

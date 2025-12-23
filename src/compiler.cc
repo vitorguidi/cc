@@ -39,8 +39,8 @@ int main(int argc, char** argv) {
     }
 
     // 4. Code Generation (Visitor)
-    AstToAsmVisitor visitor;
-    visitor.visit(program_node.value());
+    auto visitor = AstToAsmVisitor();
+    visitor.visit(*program_node.value());
     const auto& assembly = visitor.get_assembly_output();
 
     // 5. Write to output file

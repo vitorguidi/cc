@@ -3,6 +3,7 @@
 #include <string>
 #include "src/ast/type.h"
 #include <variant>
+#include <memory>
 
 #pragma once
 
@@ -10,39 +11,87 @@ class Visitor;
 struct TypeNode;
 struct FunctionArgumentsNode;
 struct StatementNode;
+struct ReturnStatementNode;
+struct ExpressionNode;
+struct ConstantValueNode;
+struct IntegerValueNode;
+struct UnaryExpressionNode;
+struct TildeUnaryExpressionNode;
+struct MinusUnaryExpressionNode;
 struct StatementBlockNode;
 struct FunctionNode;
 struct ProgramNode;
+
+// TODO: make nodes reference each other via unique pointers
+// so we can have polymorphism.
 
 class Visitor {
 public:
     virtual ~Visitor() = default;
     virtual void visit(TypeNode& node) = 0;
     virtual void visit(FunctionArgumentsNode& node) = 0;
-    virtual void visit(StatementNode& node) = 0;
+    virtual void visit(ReturnStatementNode& node) = 0;
     virtual void visit(StatementBlockNode& node) = 0;
     virtual void visit(FunctionNode& node) = 0;
     virtual void visit(ProgramNode& node) = 0;
+    virtual void visit(TildeUnaryExpressionNode& node) = 0;
+    virtual void visit(MinusUnaryExpressionNode& node) = 0;
+    virtual void visit(IntegerValueNode& node) = 0;
 };
 
 class ASTNode {
 public:
-    virtual ~ASTNode() = default;
+    virtual ~ASTNode() = 0;
     virtual void accept(Visitor& v) = 0;
 };
 
-typedef std::variant<int> Value;
-
-enum StatementType {
-    RETURN_STATEMENT,
+class ExpressionNode : public ASTNode {
+public:
+    virtual ~ExpressionNode() = 0;
+    virtual void accept(Visitor& v) = 0;
 };
 
-struct ReturnParameters {
-    Type return_type_;
-    Value return_value_;
+class ConstantValueNode : public ExpressionNode {
+public:
+    virtual ~ConstantValueNode() = 0;
+    virtual void accept(Visitor& v) = 0;
 };
 
-typedef std::variant<std::monostate, ReturnParameters> StatementParameters;
+class IntegerValueNode : public ConstantValueNode {
+public:
+    int value_;
+    IntegerValueNode(int value) : value_(value) {}
+    void accept(Visitor& v) override {
+        v.visit(*this);
+    }
+    ~IntegerValueNode() override = default;
+};
+
+class UnaryExpressionNode : public ExpressionNode {
+public:
+    virtual ~UnaryExpressionNode() = 0;
+    virtual void accept(Visitor& v) = 0;
+};
+
+class TildeUnaryExpressionNode : public UnaryExpressionNode {
+public:
+    std::shared_ptr<ExpressionNode> operand_;
+    TildeUnaryExpressionNode(std::shared_ptr<ExpressionNode> operand) : operand_(std::move(operand)) {}
+    void accept(Visitor& v) override {
+        v.visit(*this);
+    }
+    ~TildeUnaryExpressionNode() override = default;
+};
+
+class MinusUnaryExpressionNode : public UnaryExpressionNode {
+public:
+    std::shared_ptr<ExpressionNode> operand_;
+    MinusUnaryExpressionNode(std::shared_ptr<ExpressionNode> operand) : operand_(std::move(operand)) {}
+    void accept(Visitor& v) override {
+        v.visit(*this);
+    }
+    ~MinusUnaryExpressionNode() override = default;
+};
 
 struct FunctionArgument {
     Type type;
@@ -52,11 +101,11 @@ struct FunctionArgument {
 
 struct TypeNode: public ASTNode {
 public:
-    Type return_type_;
+    Type type_;
     void accept(Visitor& v) override {
         v.visit(*this);
     }
-    TypeNode(Type return_type_): return_type_(return_type_) {}
+    TypeNode(Type type_): type_(type_) {}
 };
 
 
@@ -67,24 +116,32 @@ public:
         v.visit(*this);
     }
     FunctionArgumentsNode() = default;
-    FunctionArgumentsNode(std::list<FunctionArgument> &&arguments_) : arguments_(std::move(arguments_)) {}
+    FunctionArgumentsNode(std::list<FunctionArgument> &&arguments) : arguments_(std::move(arguments)) {}
 };
 
 struct StatementNode: public ASTNode {
 public:
-    StatementType type_;
-    StatementParameters parameters_;
-    StatementNode(StatementType type, StatementParameters parameters) : type_(type), parameters_(parameters) {}
+    virtual ~StatementNode() = 0;
+    void accept(Visitor& v) = 0;
+};
+
+struct ReturnStatementNode: public StatementNode {
+public:
+    Type type_;
+    std::shared_ptr<ExpressionNode> return_value_;
+    ReturnStatementNode(Type return_type, std::shared_ptr<ExpressionNode> return_value)
+        : type_(return_type), return_value_(std::move(return_value)) {}
     void accept(Visitor& v) override {
         v.visit(*this);
     }
+    ~ReturnStatementNode() override = default;
 };
 
 struct StatementBlockNode: public ASTNode {
 public:
-    std::vector<StatementNode> statements_;
+    std::vector<std::shared_ptr<StatementNode>> statements_;
     StatementBlockNode() = default;
-    StatementBlockNode(std::vector<StatementNode> statements) : statements_(std::move(statements)) {}
+    StatementBlockNode(std::vector<std::shared_ptr<StatementNode>> statements) : statements_(std::move(statements)) {}
     void accept(Visitor& v) override {
         v.visit(*this);
     }
@@ -93,11 +150,11 @@ public:
 struct FunctionNode: public ASTNode {
 public:
     std::string name_;
-    TypeNode return_type_;
-    FunctionArgumentsNode arguments_;
-    StatementBlockNode body_;
-    FunctionNode(std::string name, TypeNode return_type, FunctionArgumentsNode arguments, StatementBlockNode body)
-        : name_(std::move(name)), return_type_(std::move(return_type)), arguments_(std::move(arguments)), body_(std::move(body)) {}
+    std::shared_ptr<TypeNode> type_node_;
+    std::shared_ptr<FunctionArgumentsNode> arguments_node_;
+    std::shared_ptr<StatementBlockNode> body_;
+    FunctionNode(std::string name, std::shared_ptr<TypeNode> type_node, std::shared_ptr<FunctionArgumentsNode> arguments, std::shared_ptr<StatementBlockNode> body)
+        : name_(std::move(name)), type_node_(std::move(type_node)), arguments_node_(std::move(arguments)), body_(std::move(body)) {}
     void accept(Visitor& v) override {
         v.visit(*this);
     }
@@ -105,10 +162,16 @@ public:
 
 struct ProgramNode: public ASTNode {
 public:
-    std::vector<FunctionNode> functions_;
+    std::vector<std::shared_ptr<FunctionNode>> functions_;
     ProgramNode() = default;
-    ProgramNode(std::vector<FunctionNode> functions) : functions_(std::move(functions)) {}
+    ProgramNode(std::vector<std::shared_ptr<FunctionNode>> functions) : functions_(std::move(functions)) {}
     void accept(Visitor& v) override {
         v.visit(*this);
     }
 };
+
+ASTNode::~ASTNode() {}
+ExpressionNode::~ExpressionNode() {}
+ConstantValueNode::~ConstantValueNode() {}
+UnaryExpressionNode::~UnaryExpressionNode() {}
+StatementNode::~StatementNode() {}
