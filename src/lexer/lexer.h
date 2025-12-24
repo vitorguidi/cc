@@ -6,6 +6,8 @@
 #include <ranges>
 #include <memory>
 
+namespace Lexer {
+
 class Lexer {
 public:
     virtual ~Lexer() = default;
@@ -26,3 +28,5 @@ private:
     bool skip();
     auto tokenize() -> std::generator<Token>;
 };
+
+} // namespace Lexer

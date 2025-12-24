@@ -2,20 +2,24 @@
 
 #include "src/ast/ast.h"
 
-class AstToAsmVisitor: public Visitor {
+namespace Codegen {
+
+class AstToAsmVisitor: public CAst::Visitor {
 public:
     AstToAsmVisitor() = default;
     ~AstToAsmVisitor() = default;
-    void visit(ProgramNode& node) override;
-    void visit(FunctionNode& node) override;
-    void visit(TypeNode& node) override;
-    void visit(FunctionArgumentsNode& node) override;
-    void visit(StatementBlockNode& node) override;
-    void visit(ReturnStatementNode& node) override;
-    void visit(TildeUnaryExpressionNode& node) override;
-    void visit(MinusUnaryExpressionNode& node) override;
-    void visit(IntegerValueNode& node) override;
+    void visit(CAst::ProgramNode& node) override;
+    void visit(CAst::FunctionNode& node) override;
+    void visit(CAst::TypeNode& node) override;
+    void visit(CAst::FunctionArgumentsNode& node) override;
+    void visit(CAst::StatementBlockNode& node) override;
+    void visit(CAst::ReturnStatementNode& node) override;
+    void visit(CAst::TildeUnaryExpressionNode& node) override;
+    void visit(CAst::MinusUnaryExpressionNode& node) override;
+    void visit(CAst::IntegerValueNode& node) override;
     const std::vector<std::string>& get_assembly_output() const;
 private:
     std::vector<std::string> assembly_output_;
 };
+
+} //namespace Codegen

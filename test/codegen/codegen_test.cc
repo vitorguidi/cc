@@ -10,10 +10,12 @@ const std::string basic_program =
     "   return 2;"
     "}";
 
+namespace Codegen {
+
 TEST(AstToAsmTest, BasicProgram) {
-    std::unique_ptr<Lexer> l = std::make_unique<ManualLexer>(basic_program);
-    std::unique_ptr<Parser> p = std::make_unique<RecursiveDescentParser>(std::move(l->Lex()));
-    std::optional<std::shared_ptr<ProgramNode>> program_opt = p->parse();
+    std::unique_ptr<Lexer::Lexer> l = std::make_unique<Lexer::ManualLexer>(basic_program);
+    std::unique_ptr<Parser::Parser> p = std::make_unique<Parser::RecursiveDescentParser>(std::move(l->Lex()));
+    std::optional<std::shared_ptr<CAst::ProgramNode>> program_opt = p->parse();
     ASSERT_TRUE(program_opt.has_value());
     auto visitor = AstToAsmVisitor();
     visitor.visit(std::ref(*program_opt.value()));
@@ -30,6 +32,8 @@ TEST(AstToAsmTest, BasicProgram) {
         ASSERT_EQ(assembly_output[i], expected_output[i]);
     }
 }
+
+} // namespace Codegen
 
 int main(int argc, char **argv) {
     testing::InitGoogleTest(&argc, argv);

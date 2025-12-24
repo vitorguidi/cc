@@ -6,6 +6,8 @@
 #include <memory>
 #include "src/ast/type.h"
 
+namespace CAst {
+
 // Forward declarations
 class Visitor;
 struct TypeNode;
@@ -136,3 +138,5 @@ struct ProgramNode : public ASTNode {
     ProgramNode(std::vector<std::shared_ptr<FunctionNode>> functions);
     void accept(Visitor& v) override;
 };
+
+} // namespace CAst

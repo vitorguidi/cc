@@ -1,5 +1,7 @@
 #include "src/ast/ast.h"
 
+namespace CAst {
+
 // --- Pure Virtual Destructors ---
 // Even though they are pure virtual, they MUST have a body in the .cpp file.
 ASTNode::~ASTNode() {}
@@ -47,3 +49,5 @@ void FunctionNode::accept(Visitor& v) { v.visit(*this); }
 ProgramNode::ProgramNode(std::vector<std::shared_ptr<FunctionNode>> functions) 
     : functions_(std::move(functions)) {}
 void ProgramNode::accept(Visitor& v) { v.visit(*this); }
+
+} // namespace CAst;

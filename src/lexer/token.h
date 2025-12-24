@@ -6,6 +6,8 @@
 #include <unordered_map>
 #include <memory>
 
+namespace Lexer {
+
 typedef std::variant<std::monostate, int, std::string> TokenValue;
 
 enum TokenType {
@@ -41,3 +43,5 @@ private:
     int idx_at_, idx_buffered_;
     std::unique_ptr<std::ranges::iterator_t<std::generator<Token>>> tokens_it_;
 };
+
+} //namespace Lexer

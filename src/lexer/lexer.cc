@@ -8,6 +8,8 @@
 #include <memory>
 #include <algorithm>
 
+namespace Lexer {
+
 TokenStream::TokenStream(std::generator<Token> tokens) : 
     tokens_(std::move(tokens)),
     buffer_(std::unordered_map<int, Token>()),
@@ -154,3 +156,5 @@ bool ManualLexer::peek(char c) {
 auto ManualLexer::Lex() -> TokenStream {
     return TokenStream(tokenize());
 }
+
+} // namespace Lexer

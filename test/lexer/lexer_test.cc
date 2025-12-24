@@ -13,6 +13,8 @@ const std::string another_basic_program =
     "   return ~(-(--x));"
     "}";
 
+namespace Lexer {
+
 TEST(LexerTest, AnotherBasicLex) {
     std::unique_ptr<Lexer> l = std::make_unique<ManualLexer>(another_basic_program);
     std::vector<Token> expected_results = {
@@ -78,6 +80,8 @@ TEST(LexerTest, BasicProgramLex) {
         idx_at++;
     }
 }
+
+} // namespace Lexer
 
 int main(int argc, char **argv) {
     testing::InitGoogleTest(&argc, argv);
