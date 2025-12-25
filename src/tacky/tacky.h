@@ -74,7 +74,6 @@ public:
     ~ReturnNode() = default;
     ReturnNode(std::shared_ptr<ValueNode> value) : value_(std::move(value)) {}
     void accept(Visitor& v) override { v.visit(*this); }
-private:
     std::shared_ptr<ValueNode> value_;
 };
 
@@ -84,7 +83,6 @@ public:
     UnaryNode(std::shared_ptr<ValueNode> src, std::shared_ptr<ValueNode> dst)
         :src_(std::move(src)), dst_(std::move(dst)) {}
     virtual void accept(Visitor& v) = 0;
-private:
     std::shared_ptr<ValueNode> src_, dst_;
 };
 
@@ -113,7 +111,6 @@ public:
     ~IntegerNode() = default;
     IntegerNode(int value) : value_(value) {}
     void accept(Visitor& v) override { v.visit(*this); }
-private:
     int value_;
 };
 
@@ -122,7 +119,6 @@ public:
     ~VariableNode() = default;
     VariableNode(std::string name) : name_(std::move(name)) {}
     void accept(Visitor& v) override { v.visit(*this); }
-private:
     std::string name_;
 };
 

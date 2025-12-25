@@ -98,7 +98,7 @@ void AstToTackyVisitor::visit(CAst::TildeUnaryExpressionNode& node) {
     auto inner_expression_result = get_result<Tacky::ValueNode>();
     auto dst = generate_temp_var_name();
 
-    auto tacky_op = std::make_shared<Tacky::NegateNode>(
+    auto tacky_op = std::make_shared<Tacky::ComplementNode>(
         inner_expression_result,
         std::make_shared<Tacky::VariableNode>(dst)
     );
@@ -117,7 +117,7 @@ void AstToTackyVisitor::visit(CAst::MinusUnaryExpressionNode& node) {
 
     auto dst = generate_temp_var_name();
 
-    auto tacky_op = std::make_shared<Tacky::ComplementNode>(
+    auto tacky_op = std::make_shared<Tacky::NegateNode>(
         inner_expression_result,
         std::make_shared<Tacky::VariableNode>(dst)
     );
