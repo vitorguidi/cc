@@ -32,7 +32,7 @@ void AstToAsmVisitor::visit(CAst::StatementBlockNode& node) {
     }
 }
 void AstToAsmVisitor::visit(CAst::ReturnStatementNode& node) {
-    if (node.type_ != Type::INTEGER) {
+    if (node.type_ != CAst::Type::INTEGER) {
         throw std::runtime_error("Unsupported return type in code generation");
     }
     node.return_value_->accept(*this);

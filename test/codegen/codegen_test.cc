@@ -4,7 +4,6 @@
 #include "src/codegen/ast_to_asm_visitor.h"
 #include "gtest/gtest.h"
 
-
 const std::string basic_program = 
     "int main() {"
     "   return 2;"

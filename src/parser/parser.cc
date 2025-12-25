@@ -67,7 +67,7 @@ auto RecursiveDescentParser::parseType() -> std::optional<std::shared_ptr<CAst::
         case Lexer::TokenType::INTEGER_TYPE: {
             auto t = tokens_.consume();
             assert(t.kind == Lexer::TokenType::INTEGER_TYPE);
-            return std::make_optional(std::make_shared<CAst::TypeNode>(Type::INTEGER));
+            return std::make_optional(std::make_shared<CAst::TypeNode>(CAst::Type::INTEGER));
         }
         default:
             return std::nullopt;
@@ -133,7 +133,7 @@ auto RecursiveDescentParser::parseStatement() -> std::optional<std::shared_ptr<C
     }
     tokens_.consume();
     return std::make_optional(std::make_shared<CAst::ReturnStatementNode>(
-        Type::INTEGER,
+        CAst::Type::INTEGER,
         expr.value()
     ));
 }

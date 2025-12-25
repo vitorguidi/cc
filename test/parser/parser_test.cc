@@ -19,7 +19,7 @@ TEST(ParserTest, BasicProgram) {
     ASSERT_EQ(program->functions_.size(), 1);
     std::shared_ptr<CAst::FunctionNode> main_function = program->functions_[0];
     ASSERT_EQ(main_function->name_, "main");
-    ASSERT_EQ(main_function->type_node_->type_, Type::INTEGER);
+    ASSERT_EQ(main_function->type_node_->type_, CAst::Type::INTEGER);
     ASSERT_EQ(main_function->arguments_node_->arguments_.size(), 0);
     ASSERT_EQ(main_function->body_->statements_.size(), 1);
     auto return_stmt = std::dynamic_pointer_cast<CAst::ReturnStatementNode>(main_function->body_->statements_[0]);
