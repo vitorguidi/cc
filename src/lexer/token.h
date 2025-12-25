@@ -21,6 +21,7 @@ enum TokenType {
     LPAREN,
     RPAREN,
     SEMICOLON,
+    COMMA,
     TILDE,
     MINUS,
     DOUBLE_MINUS,

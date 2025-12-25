@@ -77,6 +77,11 @@ auto ManualLexer::tokenize() -> std::generator<Token>  {
             idx_++;
             continue;
         }
+        if (peek(',')) {
+            co_yield Token{TokenType::COMMA, std::monostate{}};
+            idx_++;
+            continue;
+        }
         if (peek('~')) {
             co_yield Token{TokenType::TILDE, std::monostate{}};
             idx_++;

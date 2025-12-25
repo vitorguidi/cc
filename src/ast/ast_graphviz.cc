@@ -50,15 +50,15 @@ void GraphvizCAstVisitor::visit(TypeNode& node) {
 
 void GraphvizCAstVisitor::visit(FunctionArgumentsNode& node) {
     of << "\tn" << node_count_ << " [label=\"{";
-    of << "FunctionArgs }\"];\n";
-    if (!parents.empty()) {
-        of << "\tn" << parents.back() << " -> n" << node_count_ << ";\n";
-    }
+    of << "FunctionArgs ";
     for(auto x : node.arguments_) {
         std::string type_name = type_as_str(x.type);
         of << " | { " << type_name <<  " | " << x.name << " } ";
     }
-
+    of << " }\"];\n";
+    if (!parents.empty()) {
+        of << "\tn" << parents.back() << " -> n" << node_count_ << ";\n";
+    }
     node_count_++;
 }
 

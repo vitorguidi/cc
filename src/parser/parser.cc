@@ -83,6 +83,9 @@ auto RecursiveDescentParser::parseFunctionArguments() -> std::optional<std::shar
     tokens_.consume();
     CAst::FunctionArgumentsNode function_args;
     while(tokens_.peek(0).kind != Lexer::TokenType::RPAREN) {
+        if (tokens_.peek(0).kind == Lexer::TokenType::COMMA) {
+            tokens_.consume();
+        }
         auto type_node = parseType();
         if (!type_node.has_value()) {
             throw std::runtime_error("Expected argument type");
