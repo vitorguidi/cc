@@ -15,3 +15,9 @@ expected:
 vitor@vitor-ubuntu:~/projects/cc$ echo $?
 
 2
+
+This will produce graphviz for the C Ast, under output.dot
+
+To see graphviz:
+
+dot -Tpng output.dot -o output.png
