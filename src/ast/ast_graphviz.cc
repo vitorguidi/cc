@@ -88,7 +88,7 @@ void GraphvizCAstVisitor::visit(ReturnStatementNode& node) {
 
 void GraphvizCAstVisitor::visit(TildeUnaryExpressionNode& node) {
     of << "\tn" << node_count_ << " [label=\" ";
-    of << "Negation Expression\"]\n";
+    of << "Negation Expression\"];\n";
     if (!parents.empty()) {
         of << "\tn" << parents.back() << " -> n" << node_count_ << ";\n";
     }
@@ -99,7 +99,7 @@ void GraphvizCAstVisitor::visit(TildeUnaryExpressionNode& node) {
 
 void GraphvizCAstVisitor::visit(MinusUnaryExpressionNode& node) {
     of << "\tn" << node_count_ << " [label=\" ";
-    of << "Complement Expression\"]\n";
+    of << "Complement Expression\"];\n";
     if (!parents.empty()) {
         of << "\tn" << parents.back() << " -> n" << node_count_ << ";\n";
     }
