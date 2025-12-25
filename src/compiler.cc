@@ -5,6 +5,7 @@
 #include <filesystem>
 
 #include "src/ast/ast.h"
+#include "src/ast/ast_graphviz.h"
 #include "src/codegen/ast_to_asm_visitor.h"
 #include "src/lexer/lexer.h"
 #include "src/parser/parser.h"
@@ -26,11 +27,11 @@ int main(int argc, char** argv) {
     buffer << input_file.rdbuf();
     std::string source_code = buffer.str();
 
-    auto lexer = std::make_unique<ManualLexer>(source_code);
+    auto lexer = std::make_unique<Lexer::ManualLexer>(source_code);
     auto tokens = lexer->Lex();
 
     // 3. Parsing
-    auto parser = std::make_unique<RecursiveDescentParser>(std::move(tokens));
+    auto parser = std::make_unique<Parser::RecursiveDescentParser>(std::move(tokens));
     auto program_node = parser->parse();
 
     if (!program_node.has_value()) {
@@ -38,8 +39,13 @@ int main(int argc, char** argv) {
         return 1;
     }
 
+    {
+        CAst::GraphvizCAstVisitor graphviz(std::string("test_graph.dot"));
+        auto program_raw = *(program_node.value());
+        graphviz.visit(program_raw);
+    }
     // 4. Code Generation (Visitor)
-    auto visitor = AstToAsmVisitor();
+    auto visitor = Codegen::AstToAsmVisitor();
     visitor.visit(*program_node.value());
     const auto& assembly = visitor.get_assembly_output();
 

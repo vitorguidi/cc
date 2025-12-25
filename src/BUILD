@@ -5,7 +5,7 @@ cc_binary(
         "//src/lexer:lexer",
         "//src/parser:parser",
         "//src/ast:ast",
-        "//src/codegen:codegen",
+        "//src/codegen:codegen"
     ],
     visibility = ["//visibility:public"],
 )
