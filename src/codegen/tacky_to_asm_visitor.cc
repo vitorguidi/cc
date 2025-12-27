@@ -17,14 +17,11 @@ std::shared_ptr<ASM::ProgramNode> TackyToAsmVisitor::get_asm_from_tacky(std::sha
         throw std::runtime_error("Expected buffer to be empty before generating asm from tacky.");
     }
     tacky_program->accept(*this);
-    auto asm_program = std::dynamic_pointer_cast<ASM::ProgramNode>(buffer_.back());
+    auto asm_program = As<ASM::ProgramNode>(
+        buffer_.back(), "Expected buffer to be empty after generating asm from tacky.");
     buffer_.pop_back();
-    if (!buffer_.empty()) {
-        throw std::runtime_error("Expected buffer to be empty after generating asm from tacky.");
-    }
     return asm_program;
 }
-
 
 void TackyToAsmVisitor::visit(Tacky::ProgramNode& node) {
     for(auto& function : node.functions_) {
@@ -63,9 +60,12 @@ void TackyToAsmVisitor::visit(Tacky::ReturnNode& node) {
     node.value_->accept(*this);
     auto casted_value = As<ASM::OperandNode>(
         buffer_.back(), "Failed to cast buffered value to ASM::OperandNode");
+    buffer_.pop_back();
     auto return_destination = std::make_shared<ASM::RegisterNode>(ASM::Register::R10);
     auto mov_instruction = std::make_shared<ASM::MovNode>(casted_value, return_destination);
+    auto ret_instruction = std::make_shared<ASM::RetNode>();
     buffer_.push_back(std::move(mov_instruction));
+    buffer_.push_back(std::move(ret_instruction));
 }
 
 void TackyToAsmVisitor::visit(Tacky::ComplementNode& node) {

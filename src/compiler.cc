@@ -52,9 +52,13 @@ int main(int argc, char** argv) {
         Graphviz::GraphvizTackyVisitor tacky_graphviz(std::string("tacky.dot"));
         tacky_graphviz.visit(*tacky_program);
     }
-    // auto asm_visitor = Codegen::TackyToAsmVisitor();
-    // std::shared_ptr<ASM::ProgramNode> asm_program = asm_visitor.get_asm_from_tacky(tacky_program);
+    auto asm_visitor = Codegen::TackyToAsmVisitor();
+    std::shared_ptr<ASM::ProgramNode> asm_program = asm_visitor.get_asm_from_tacky(tacky_program);
 
+    {
+        Graphviz::GraphvizASMVisitor asm_graphviz(std::string("asm.dot"));
+        asm_graphviz.visit(*asm_program);
+    }
 
     return 0;
 }

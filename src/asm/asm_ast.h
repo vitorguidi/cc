@@ -93,6 +93,17 @@ enum Register {
     R10,
 };
 
+inline std::string register_as_string(Register reg) {
+    switch(reg) {
+        case Register::AX:
+            return "AX";
+        case Register::R10:
+            return "R10";
+        default:
+            throw std::runtime_error("Unexpected register type for string conversion");
+    }
+}
+
 class RegisterNode : public OperandNode {
 public:
     ~RegisterNode() = default;
@@ -110,6 +121,7 @@ public:
 };
 
 class StackNode : public OperandNode {
+public:
     ~StackNode() = default;
     StackNode(int size) : size_(size) {}
     void accept(Visitor& v) override {v.visit(*this);}

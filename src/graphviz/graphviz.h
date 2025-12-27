@@ -3,6 +3,7 @@
 
 #include "src/ast/ast.h"
 #include "src/tacky/tacky.h"
+#include "src/asm/asm_ast.h"
 #include <fstream>
 #include <utility>
 #include <string>
@@ -43,6 +44,26 @@ public:
     void visit(Tacky::NegateNode& node) override;
     void visit(Tacky::IntegerNode& node) override;
     void visit(Tacky::VariableNode& node) override;
+    std::vector<std::string> buffer_;
+    std::ofstream of;
+    int node_count_;
+};
+
+class GraphvizASMVisitor : public ASM::Visitor {
+public:
+    ~GraphvizASMVisitor();
+    GraphvizASMVisitor(std::string filename);
+    void visit(ASM::ProgramNode& node) override;
+    void visit(ASM::FunctionNode& node) override;
+    void visit(ASM::NegNode& node) override;
+    void visit(ASM::NotNode& node) override;
+    void visit(ASM::MovNode& node) override;
+    void visit(ASM::RetNode& node) override;
+    void visit(ASM::AllocateStackNode& node) override;
+    void visit(ASM::ImmNode& node) override;
+    void visit(ASM::StackNode& node) override;
+    void visit(ASM::RegisterNode& node) override;
+    void visit(ASM::PseudoNode& node) override;
     std::vector<std::string> buffer_;
     std::ofstream of;
     int node_count_;
