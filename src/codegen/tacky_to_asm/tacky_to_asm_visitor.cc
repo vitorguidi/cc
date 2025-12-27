@@ -52,7 +52,7 @@ void TackyToAsmVisitor::visit(Tacky::ReturnNode& node) {
     auto casted_value = As<ASM::OperandNode>(
         buffer_.back(), "Failed to cast buffered value to ASM::OperandNode");
     buffer_.pop_back();
-    auto return_destination = std::make_shared<ASM::RegisterNode>(ASM::Register::R10);
+    auto return_destination = std::make_shared<ASM::RegisterNode>(ASM::Register::AX);
     auto mov_instruction = std::make_shared<ASM::MovNode>(casted_value, return_destination);
     auto ret_instruction = std::make_shared<ASM::RetNode>();
     buffer_.push_back(std::move(mov_instruction));
