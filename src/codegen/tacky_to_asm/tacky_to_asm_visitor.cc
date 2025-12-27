@@ -3,15 +3,6 @@
 
 namespace Codegen {
 
-template<typename T>
-std::shared_ptr<T> As(std::shared_ptr<ASM::AstNode>& node, const std::string& error_msg) {
-    auto casted_ptr = std::dynamic_pointer_cast<T>(node);
-    if (!casted_ptr) {
-        throw std::runtime_error(error_msg);
-    }
-    return casted_ptr;
-}
-
 std::shared_ptr<ASM::ProgramNode> TackyToAsmVisitor::get_asm_from_tacky(std::shared_ptr<Tacky::ProgramNode> tacky_program) {
     if (!buffer_.empty()) {
         throw std::runtime_error("Expected buffer to be empty before generating asm from tacky.");
@@ -105,7 +96,6 @@ void TackyToAsmVisitor::visit(Tacky::IntegerNode& node) {
 }
 
 void TackyToAsmVisitor::visit(Tacky::VariableNode& node) {
-    seen_pseudovars_.insert(node.name_);
     buffer_.push_back(std::make_shared<ASM::PseudoNode>(node.name_));
 }
 

@@ -6,7 +6,10 @@ cc_library(
     srcs = [
         "c_ast_to_asm/c_ast_to_asm_visitor.cc",
         "c_ast_to_tacky/c_ast_to_tacky_visitor.cc",
-        "tacky_to_asm/tacky_to_asm_visitor.cc"
+        "tacky_to_asm/tacky_to_asm_visitor.cc",
+        "tacky_to_asm/pseudo_replacer_visitor.cc",
+        "tacky_to_asm/instruction_fixup_visitor.cc",
+        "tacky_to_asm/asm_rewrite_visitor.cc",
     ],
     hdrs = [
         "c_ast_to_asm/c_ast_to_asm.h",
