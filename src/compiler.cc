@@ -8,6 +8,7 @@
 #include "src/graphviz/graphviz.h"
 #include "src/codegen/c_ast_to_tacky/c_ast_to_tacky.h"
 #include "src/codegen/tacky_to_asm/tacky_to_asm.h"
+#include "src/codegen/asm_dump/asm_dump.h"
 #include "src/lexer/lexer.h"
 #include "src/parser/parser.h"
 
@@ -76,6 +77,11 @@ int main(int argc, char** argv) {
     {
         Graphviz::GraphvizASMVisitor asm_graphviz(std::string("asm_3rd_pass.dot"));
         asm_graphviz.visit(*fixed_asm_program);
+    }
+
+    {
+        auto asm_dump_visitor = Codegen::ASMDumper(std::string(output_asm_file));
+        asm_dump_visitor.dump_assembly(fixed_asm_program);
     }
 
     return 0;
