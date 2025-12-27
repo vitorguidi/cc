@@ -8,6 +8,8 @@ cc_test(
         "//src/codegen:codegen",
         "//src/lexer:lexer",
         "//src/parser:parser",
+        "//src/tacky:tacky",
+        "//src/asm:asm",
     ],
 )
 
@@ -22,5 +24,6 @@ cc_test(
         "//src/lexer:lexer",
         "//src/parser:parser",
         "//src/tacky:tacky",
+        "//src/asm:asm",
     ],
 )

@@ -7,24 +7,39 @@
 
 namespace ASM {
 
+class AstNode;
+class ProgramNode;
+class FunctionNode;
+class InstructionNode;
+class NegNode;
+class NotNode;
+class MovNode;
+class RetNode;
+class AllocateStackNode;
+class ImmNode;
+class StackNode;
+class RegisterNode;
+class PseudoNode;
+
 class Visitor {
 public:
-    void visit(ProgramNode& node);
-    void visit(FunctionNode& node);
-    void visit(NegNode& node);
-    void visit(NotNode& node);
-    void visit(MovNode& node);
-    void visit(RetNode& node);
-    void visit(AllocateStackNode& node);
-    void visit(ImmNode& node);
-    void visit(StackNode& node);
-    void visit(RegisterNode& node);
-    void visit(PseudoNode& node);
+    virtual ~Visitor() = default;
+    virtual void visit(ProgramNode& node) = 0;
+    virtual void visit(FunctionNode& node) = 0;
+    virtual void visit(NegNode& node) = 0;
+    virtual void visit(NotNode& node) = 0;
+    virtual void visit(MovNode& node) = 0;
+    virtual void visit(RetNode& node) = 0;
+    virtual void visit(AllocateStackNode& node) = 0;
+    virtual void visit(ImmNode& node) = 0;
+    virtual void visit(StackNode& node) = 0;
+    virtual void visit(RegisterNode& node) = 0;
+    virtual void visit(PseudoNode& node) = 0;
 };
 
 class AstNode {
 public:
-    virtual ~AstNode() = 0;
+    virtual ~AstNode() = default;
     virtual void accept(Visitor& v) = 0;
     AstNode() = default;
     AstNode(AstNode&& that) = delete;
@@ -45,24 +60,23 @@ public:
 class FunctionNode : public AstNode {
 public:
     ~FunctionNode() = default;
-    void accept(Visitor& v) override;
     FunctionNode(std::string name, std::vector<std::shared_ptr<InstructionNode>> instructions)
         : name_(name), instructions_(std::move(instructions)) {}
     void accept(Visitor& v) override {v.visit(*this);}
-    std::vector<std::shared_ptr<InstructionNode>> instructions_;
     std::string name_;
+    std::vector<std::shared_ptr<InstructionNode>> instructions_;
 };
 
 class InstructionNode : public AstNode {
 public:
-    virtual ~InstructionNode() = 0;
+    virtual ~InstructionNode() = default;
     virtual void accept(Visitor& v) = 0;
     InstructionNode() = default;
 };
 
 class OperandNode : public AstNode {
 public:
-    virtual ~OperandNode() = 0;
+    virtual ~OperandNode() = default;
     virtual void accept(Visitor& v) = 0;
 };
 
@@ -104,7 +118,7 @@ class StackNode : public OperandNode {
 
 class UnaryInstructionNode : public InstructionNode {
 public:
-    virtual ~UnaryInstructionNode() = 0;
+    virtual ~UnaryInstructionNode() = default;
     UnaryInstructionNode(std::shared_ptr<OperandNode> src) : src_(src) {}
     std::shared_ptr<OperandNode> src_;
 };
@@ -128,6 +142,7 @@ public:
     ~MovNode() = default;
     MovNode(std::shared_ptr<OperandNode> src, std::shared_ptr<OperandNode> dst)
         : src_(src), dst_(dst) {}
+    void accept(Visitor& v) override {v.visit(*this);}
     std::shared_ptr<OperandNode> src_, dst_;
 };
 

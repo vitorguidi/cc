@@ -23,7 +23,7 @@ class VariableNode;
 
 class Visitor {
 public:
-    virtual ~Visitor() = 0;
+    virtual ~Visitor() = default;
     virtual void visit(ProgramNode& node) = 0;
     virtual void visit(FunctionNode& node) = 0;
     virtual void visit(ReturnNode& node) = 0;
@@ -36,7 +36,7 @@ public:
 
 class AstNode {
 public:
-    virtual ~AstNode() = 0;
+    virtual ~AstNode() = default;
     AstNode() = default;
     AstNode(AstNode&& that) = delete;
     AstNode operator=(AstNode&& that) = delete;
@@ -65,7 +65,7 @@ public:
 
 class InstructionNode : public AstNode {
 public:
-    virtual ~InstructionNode() = 0;
+    virtual ~InstructionNode() = default;
     virtual void accept(Visitor& v) = 0;
 };
 
@@ -79,7 +79,7 @@ public:
 
 class UnaryNode : public InstructionNode {
 public:
-    virtual ~UnaryNode() = 0;
+    virtual ~UnaryNode() = default;
     UnaryNode(std::shared_ptr<ValueNode> src, std::shared_ptr<ValueNode> dst)
         :src_(std::move(src)), dst_(std::move(dst)) {}
     virtual void accept(Visitor& v) = 0;
@@ -102,7 +102,7 @@ public:
 
 class ValueNode : public AstNode {
 public:
-    virtual ~ValueNode() = 0;
+    virtual ~ValueNode() = default;
     virtual void accept(Visitor& v) = 0;
 };
 

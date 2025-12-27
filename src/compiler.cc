@@ -5,8 +5,9 @@
 #include <filesystem>
 
 #include "src/ast/ast.h"
-#include "src/ast/ast_graphviz.h"
-#include "src/codegen/ast_to_asm_visitor.h"
+#include "src/graphviz/graphviz.h"
+#include "src/codegen/ast_to_tacky_visitor.h"
+#include "src/codegen/tacky_to_asm_visitor.h"
 #include "src/lexer/lexer.h"
 #include "src/parser/parser.h"
 
@@ -40,25 +41,20 @@ int main(int argc, char** argv) {
     }
 
     {
-        CAst::GraphvizCAstVisitor graphviz(std::string("test_graph.dot"));
+        Graphviz::GraphvizCAstVisitor c_ast_graphviz(std::string("cast.dot"));
         auto program_raw = *(program_node.value());
-        graphviz.visit(program_raw);
-    }
-    // 4. Code Generation (Visitor)
-    auto visitor = Codegen::AstToAsmVisitor();
-    visitor.visit(*program_node.value());
-    const auto& assembly = visitor.get_assembly_output();
-
-    // 5. Write to output file
-    std::ofstream output_file(output_asm_file);
-    if (!output_file.is_open()) {
-        std::cerr << "Error: Could not open output file " << output_asm_file << std::endl;
-        return 1;
+        c_ast_graphviz.visit(program_raw);
     }
 
-    for (const auto& line : assembly) {
-        output_file << line << "\n";
+    auto tacky_visitor = Codegen::AstToTackyVisitor();
+    std::shared_ptr<Tacky::ProgramNode> tacky_program = tacky_visitor.get_tacky_from_c_ast(program_node.value());
+    {
+        Graphviz::GraphvizTackyVisitor tacky_graphviz(std::string("tacky.dot"));
+        tacky_graphviz.visit(*tacky_program);
     }
+    // auto asm_visitor = Codegen::TackyToAsmVisitor();
+    // std::shared_ptr<ASM::ProgramNode> asm_program = asm_visitor.get_asm_from_tacky(tacky_program);
+
 
     return 0;
 }
