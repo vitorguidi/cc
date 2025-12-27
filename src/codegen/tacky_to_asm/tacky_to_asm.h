@@ -5,6 +5,7 @@
 #include "src/asm/asm_ast.h"
 #include <stdexcept>
 #include <unordered_map>
+#include <deque>
 
 namespace Codegen {
 
@@ -48,7 +49,7 @@ public:
     void visit(ASM::RegisterNode& node) override;
     void visit(ASM::PseudoNode& node) override;
     std::shared_ptr<ASM::ProgramNode> get_rewritten_asm_program(std::shared_ptr<ASM::ProgramNode> program);
-    std::vector<std::shared_ptr<ASM::AstNode>> buffer_;
+    std::deque<std::shared_ptr<ASM::AstNode>> buffer_;
 };
 
 class PseudoReplacerVisitor : public ASMRewriteVisitor {

@@ -75,7 +75,7 @@ int main(int argc, char** argv) {
 
     {
         Graphviz::GraphvizASMVisitor asm_graphviz(std::string("asm_3rd_pass.dot"));
-        asm_graphviz.visit(*no_pseudo_asm_program);
+        asm_graphviz.visit(*fixed_asm_program);
     }
 
     return 0;

@@ -4,11 +4,11 @@ namespace Codegen {
 
 void PseudoReplacerVisitor::visit(ASM::PseudoNode& node) {
     if (stack_offsets_.count(node.name_) == 0) {
-        current_offset_ -= 4;
         stack_offsets_[node.name_] = current_offset_;
+        current_offset_ -= 4;
     }
     buffer_.push_back(
-        std::make_shared<ASM::StackNode>(current_offset_)
+        std::make_shared<ASM::StackNode>(stack_offsets_[node.name_])
     );
 }
 

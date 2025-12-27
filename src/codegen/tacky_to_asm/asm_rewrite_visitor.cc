@@ -18,12 +18,14 @@ void ASMRewriteVisitor::visit(ASM::FunctionNode& node) {
     std::vector<std::shared_ptr<ASM::InstructionNode>> replaced_instructions;
     for(auto& instruction : node.instructions_) {
         instruction->accept(*this);
-        auto casted_instruction = As<ASM::InstructionNode>(
-            buffer_.back(),
-            std::string("Failed to cast buffered node into ASM::InstructionNode.")
-        );
-        buffer_.pop_back();
-        replaced_instructions.push_back(std::move(casted_instruction));
+        while(!buffer_.empty()) {
+            auto casted_instruction = As<ASM::InstructionNode>(
+                buffer_.front(),
+                std::string("Failed to cast buffered node into ASM::InstructionNode.")
+            );
+            buffer_.pop_front();
+            replaced_instructions.push_back(std::move(casted_instruction));
+        }
     }
     buffer_.push_back(
         std::make_shared<ASM::FunctionNode>(
