@@ -4,6 +4,7 @@
 #include "src/tacky/tacky.h"
 #include "src/asm/asm_ast.h"
 #include <stdexcept>
+#include <set>
 
 namespace Codegen {
 
@@ -20,6 +21,7 @@ public:
     void visit(Tacky::VariableNode& node) override;
     std::shared_ptr<ASM::ProgramNode> get_asm_from_tacky(std::shared_ptr<Tacky::ProgramNode> tacky_program);
     std::vector<std::shared_ptr<ASM::AstNode>> buffer_;
+    std::set<std::string> seen_pseudovars_;
 };
 
 } // namespace Codegen

@@ -1,4 +1,4 @@
-#include "src/codegen/tacky_to_asm_visitor.h"
+#include "src/codegen/tacky_to_asm/tacky_to_asm.h"
 #include <algorithm>
 
 namespace Codegen {
@@ -105,6 +105,7 @@ void TackyToAsmVisitor::visit(Tacky::IntegerNode& node) {
 }
 
 void TackyToAsmVisitor::visit(Tacky::VariableNode& node) {
+    seen_pseudovars_.insert(node.name_);
     buffer_.push_back(std::make_shared<ASM::PseudoNode>(node.name_));
 }
 

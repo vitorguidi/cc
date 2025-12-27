@@ -6,8 +6,8 @@
 
 #include "src/ast/ast.h"
 #include "src/graphviz/graphviz.h"
-#include "src/codegen/ast_to_tacky_visitor.h"
-#include "src/codegen/tacky_to_asm_visitor.h"
+#include "src/codegen/c_ast_to_tacky/c_ast_to_tacky_visitor.h"
+#include "src/codegen/tacky_to_asm/tacky_to_asm_visitor.h"
 #include "src/lexer/lexer.h"
 #include "src/parser/parser.h"
 

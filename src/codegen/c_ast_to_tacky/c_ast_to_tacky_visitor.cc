@@ -1,4 +1,4 @@
-#include "src/codegen/ast_to_tacky_visitor.h"
+#include "src/codegen/c_ast_to_tacky/c_ast_to_tacky.h"
 #include "src/tacky/tacky.h"
 #include <memory>
 #include <algorithm>

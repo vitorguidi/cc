@@ -4,14 +4,14 @@ load("@rules_cc//cc:cc_library.bzl", "cc_library")
 cc_library(
     name = "codegen",
     srcs = [
-        "ast_to_asm_visitor.cc",
-        "ast_to_tacky_visitor.cc",
-        "tacky_to_asm_visitor.cc"
+        "c_ast_to_asm/c_ast_to_asm_visitor.cc",
+        "c_ast_to_tacky/c_ast_to_tacky_visitor.cc",
+        "tacky_to_asm/tacky_to_asm_visitor.cc"
     ],
     hdrs = [
-        "ast_to_asm_visitor.h",
-        "ast_to_tacky_visitor.h",
-        "tacky_to_asm_visitor.h"
+        "c_ast_to_asm/c_ast_to_asm.h",
+        "c_ast_to_tacky/c_ast_to_tacky.h",
+        "tacky_to_asm/tacky_to_asm.h"
     ],
     deps = [
         "//src/ast:ast",

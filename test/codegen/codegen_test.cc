@@ -1,7 +1,7 @@
 #include "src/ast/ast.h"
 #include "src/parser/parser.h"
 #include "src/lexer/lexer.h"
-#include "src/codegen/ast_to_asm_visitor.h"
+#include "src/codegen/c_ast_to_asm/c_ast_to_asm.h"
 #include "gtest/gtest.h"
 
 const std::string basic_program = 

@@ -3,7 +3,7 @@
 #include "src/lexer/lexer.h"
 #include "gtest/gtest.h"
 #include "src/tacky/tacky.h"
-#include "src/codegen/ast_to_tacky_visitor.h"
+#include "src/codegen/c_ast_to_tacky/c_ast_to_tacky.h"
 #include <string>
 
 namespace Codegen {
