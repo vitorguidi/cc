@@ -4,19 +4,19 @@
 #include <ranges>
 
 const std::string basic_program = 
-    "int main() {"
-    "   return 2;"
-    "}";
+    "int main() {\n"
+    "   return 2;\n"
+    "}\n";
 
 const std::string another_basic_program = 
-    "int negate(int val) {"
-    "   return ~(-(--x));"
-    "}";
+    "int negate(int val) {\n"
+    "   return ~(-(--x));\n"
+    "}\n";
 
 const std::string some_binexps = 
-    "int function(int a, int b) {"
-    "   return 2*7%5 + 10 - 11;"
-    "}";
+    "int function(int a, int b) {\n"
+    "   return 2*7%5 + 10 - 11;\n"
+    "}\n";
 
 namespace Lexer {
 
