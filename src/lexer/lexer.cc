@@ -97,6 +97,26 @@ auto ManualLexer::tokenize() -> std::generator<Token>  {
             idx_++;
             continue;
         }
+        if (peek('+')) {
+            co_yield Token{TokenType::PLUS, std::monostate{}};
+            idx_++;
+            continue;
+        }
+        if (peek('*')) {
+            co_yield Token{TokenType::MULT, std::monostate{}};
+            idx_++;
+            continue;
+        }
+        if (peek('/')) {
+            co_yield Token{TokenType::DIV, std::monostate{}};
+            idx_++;
+            continue;
+        }
+        if (peek('%')) {
+            co_yield Token{TokenType::MOD, std::monostate{}};
+            idx_++;
+            continue;
+        }
         if (peek(std::string("int"))) {
             co_yield Token{TokenType::INTEGER_TYPE, std::monostate{}};
             idx_+=3;

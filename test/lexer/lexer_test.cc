@@ -13,7 +13,68 @@ const std::string another_basic_program =
     "   return ~(-(--x));"
     "}";
 
+const std::string some_binexps = 
+    "int function(int a, int b) {"
+    "   return 2*7%5 + 10 - 11;"
+    "}";
+
 namespace Lexer {
+
+void assert_expected_lex_results(std::vector<Token>& expected_results, TokenStream& results) {
+    int idx_at = 0;
+    for(auto expected_token: expected_results) {
+        size_t delta = 0;
+        // Peaks from current position to the end of expected results yields the actual
+        // expected tokens
+        for(; delta + idx_at < expected_results.size(); delta++) {
+            Token peeked_token = results.peek(delta);
+            Token expected_peek_token = expected_results[idx_at + delta];
+            EXPECT_EQ(peeked_token.kind, expected_peek_token.kind);
+            EXPECT_EQ(peeked_token.value, expected_peek_token.value);
+        }
+        // Ensure peeking beyond the expected results yields END_OF_FILE
+        for(; idx_at + delta < 3*expected_results.size(); delta++) {
+            Token peeked_token = results.peek(delta);
+            EXPECT_EQ(peeked_token.kind, TokenType::END_OF_FILE);
+            EXPECT_EQ(peeked_token.value, TokenValue(std::monostate{}));
+        }
+        // Finally, consumes return what we expect
+        Token consumed_token = results.consume();
+        EXPECT_EQ(consumed_token.kind, expected_token.kind);
+        EXPECT_EQ(consumed_token.value, expected_token.value);
+        idx_at++;
+    }
+}
+
+TEST(LexerTest, SomeBinexps) {
+    std::unique_ptr<Lexer> l = std::make_unique<ManualLexer>(some_binexps);
+    std::vector<Token> expected_results = {
+        Token{TokenType::INTEGER_TYPE, std::monostate{}},
+        Token{TokenType::NAME, std::string("function")},
+        Token{TokenType::LPAREN, std::monostate{}},
+        Token{TokenType::INTEGER_TYPE, std::monostate{}},
+        Token{TokenType::NAME, std::string("a")},
+        Token{TokenType::COMMA, std::monostate{}},
+        Token{TokenType::INTEGER_TYPE, std::monostate{}},
+        Token{TokenType::NAME, std::string("b")},
+        Token{TokenType::RPAREN, std::monostate{}},
+        Token{TokenType::LBRACE, std::monostate{}},
+        Token{TokenType::RETURN, std::monostate{}},
+        Token{TokenType::INTEGER_VALUE, 2},
+        Token{TokenType::MULT, std::monostate{}},
+        Token{TokenType::INTEGER_VALUE, 7},
+        Token{TokenType::MOD, std::monostate{}},
+        Token{TokenType::INTEGER_VALUE, 5},
+        Token{TokenType::PLUS, std::monostate{}},
+        Token{TokenType::INTEGER_VALUE, 10},
+        Token{TokenType::MINUS, std::monostate{}},
+        Token{TokenType::INTEGER_VALUE, 11},
+        Token{TokenType::SEMICOLON, std::monostate{}},
+        Token{TokenType::RBRACE, std::monostate{}},
+    };
+    auto results = l->Lex();
+    assert_expected_lex_results(expected_results, results);
+}
 
 TEST(LexerTest, AnotherBasicLex) {
     std::unique_ptr<Lexer> l = std::make_unique<ManualLexer>(another_basic_program);
@@ -38,7 +99,8 @@ TEST(LexerTest, AnotherBasicLex) {
         Token{TokenType::RBRACE, std::monostate{}},
         Token{TokenType::END_OF_FILE, std::monostate{}},
     };
-
+    auto results = l->Lex();
+    assert_expected_lex_results(expected_results, results);
 }
 
 TEST(LexerTest, BasicProgramLex) {
@@ -56,29 +118,7 @@ TEST(LexerTest, BasicProgramLex) {
         Token{TokenType::END_OF_FILE, std::monostate{}},
     };
     auto results = l->Lex();
-    int idx_at = 0;
-    for(auto expected_token: expected_results) {
-        size_t delta = 0;
-        // Peaks from current position to the end of expected results yields the actual
-        // expected tokens
-        for(; delta + idx_at < expected_results.size(); delta++) {
-            Token peeked_token = results.peek(delta);
-            Token expected_peek_token = expected_results[idx_at + delta];
-            EXPECT_EQ(peeked_token.kind, expected_peek_token.kind);
-            EXPECT_EQ(peeked_token.value, expected_peek_token.value);
-        }
-        // Ensure peeking beyond the expected results yields END_OF_FILE
-        for(; idx_at + delta < 3*expected_results.size(); delta++) {
-            Token peeked_token = results.peek(delta);
-            EXPECT_EQ(peeked_token.kind, TokenType::END_OF_FILE);
-            EXPECT_EQ(peeked_token.value, TokenValue(std::monostate{}));
-        }
-        // Finally, consumes return what we expect
-        Token consumed_token = results.consume();
-        EXPECT_EQ(consumed_token.kind, expected_token.kind);
-        EXPECT_EQ(consumed_token.value, expected_token.value);
-        idx_at++;
-    }
+    assert_expected_lex_results(expected_results, results);
 }
 
 } // namespace Lexer

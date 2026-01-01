@@ -25,6 +25,10 @@ enum TokenType {
     TILDE,
     MINUS,
     DOUBLE_MINUS,
+    PLUS,
+    MULT,
+    DIV,
+    MOD,
     END_OF_FILE,
 };
 
