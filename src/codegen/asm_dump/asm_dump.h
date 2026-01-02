@@ -20,6 +20,11 @@ public:
     void visit(ASM::StackNode& node) override;
     void visit(ASM::RegisterNode& node) override;
     void visit(ASM::PseudoNode& node) override;
+    void visit(ASM::DivNode& node) override;
+    void visit(ASM::MultNode& node) override;
+    void visit(ASM::AddNode& node) override;
+    void visit(ASM::SubNode& node) override;
+    void visit(ASM::CDQNode& node) override;
     void dump_assembly(std::shared_ptr<ASM::ProgramNode> asm_program);
     std::vector<std::string> asm_text_dump_, buffer_;
     std::string target_filename_;

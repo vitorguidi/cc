@@ -154,6 +154,121 @@ void GraphvizCAstVisitor::visit(CAst::MinusUnaryExpressionNode& node) {
     buffer_.push_back(my_id);
 }
 
+void GraphvizCAstVisitor::visit(CAst::DivNode& node) {
+    auto my_id = std::to_string(node_count_++);
+    auto node_repr = labeled_node_with_kv_pairs(
+        my_id,
+        "DivNode",
+        {}
+    );
+    of << node_repr;
+
+    node.left_->accept(*this);
+    auto left_child_id = buffer_.back();
+    buffer_.pop_back();
+    auto edge = labeled_edge(my_id, left_child_id, "left");
+    of << edge;
+
+    node.right_->accept(*this);
+    auto right_child_id = buffer_.back();
+    buffer_.pop_back();
+    edge = labeled_edge(my_id, right_child_id, "right");
+    of << edge;
+    buffer_.push_back(my_id);
+}
+
+void GraphvizCAstVisitor::visit(CAst::MultNode& node) {
+    auto my_id = std::to_string(node_count_++);
+    auto node_repr = labeled_node_with_kv_pairs(
+        my_id,
+        "MultNode",
+        {}
+    );
+    of << node_repr;
+
+    node.left_->accept(*this);
+    auto left_child_id = buffer_.back();
+    buffer_.pop_back();
+    auto edge = labeled_edge(my_id, left_child_id, "left");
+    of << edge;
+
+    node.right_->accept(*this);
+    auto right_child_id = buffer_.back();
+    buffer_.pop_back();
+    edge = labeled_edge(my_id, right_child_id, "right");
+    of << edge;
+    buffer_.push_back(my_id);
+}
+
+void GraphvizCAstVisitor::visit(CAst::ModNode& node) {
+    auto my_id = std::to_string(node_count_++);
+    auto node_repr = labeled_node_with_kv_pairs(
+        my_id,
+        "ModNode",
+        {}
+    );
+    of << node_repr;
+
+    node.left_->accept(*this);
+    auto left_child_id = buffer_.back();
+    buffer_.pop_back();
+    auto edge = labeled_edge(my_id, left_child_id, "left");
+    of << edge;
+
+    node.right_->accept(*this);
+    auto right_child_id = buffer_.back();
+    buffer_.pop_back();
+    edge = labeled_edge(my_id, right_child_id, "right");
+    of << edge;
+    buffer_.push_back(my_id);
+}
+
+void GraphvizCAstVisitor::visit(CAst::MinusNode& node) {
+    auto my_id = std::to_string(node_count_++);
+    auto node_repr = labeled_node_with_kv_pairs(
+        my_id,
+        "MinusNode",
+        {}
+    );
+    of << node_repr;
+
+    node.left_->accept(*this);
+    auto left_child_id = buffer_.back();
+    buffer_.pop_back();
+    auto edge = labeled_edge(my_id, left_child_id, "left");
+    of << edge;
+
+    node.right_->accept(*this);
+    auto right_child_id = buffer_.back();
+    buffer_.pop_back();
+    edge = labeled_edge(my_id, right_child_id, "right");
+    of << edge;
+    buffer_.push_back(my_id);
+}
+
+void GraphvizCAstVisitor::visit(CAst::PlusNode& node) {
+    auto my_id = std::to_string(node_count_++);
+    auto node_repr = labeled_node_with_kv_pairs(
+        my_id,
+        "PlusNode",
+        {}
+    );
+    of << node_repr;
+
+    node.left_->accept(*this);
+    auto left_child_id = buffer_.back();
+    buffer_.pop_back();
+    auto edge = labeled_edge(my_id, left_child_id, "left");
+    of << edge;
+
+    node.right_->accept(*this);
+    auto right_child_id = buffer_.back();
+    buffer_.pop_back();
+    edge = labeled_edge(my_id, right_child_id, "right");
+    of << edge;
+    buffer_.push_back(my_id);
+}
+
 void GraphvizCAstVisitor::visit(CAst::IntegerValueNode& node) {
     auto my_id = std::to_string(node_count_++);
     auto node_repr = labeled_node_with_kv_pairs(

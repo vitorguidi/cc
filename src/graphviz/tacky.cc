@@ -115,6 +115,152 @@ void GraphvizTackyVisitor::visit(Tacky::NegateNode& node) {
     buffer_.push_back(my_id);
 }
 
+void GraphvizTackyVisitor::visit(Tacky::DivNode& node) {
+    auto my_id = std::to_string(node_count_++);
+    std::string node_repr = labeled_node_with_kv_pairs(
+        my_id,
+        "DivNode",
+        {}
+    );
+    of << node_repr;
+
+    node.left_->accept(*this);
+    auto left_id = buffer_.back();
+    buffer_.pop_back();
+    auto left_edge = labeled_edge(my_id, left_id, "left");
+
+    node.right_->accept(*this);
+    auto right_id = buffer_.back();
+    buffer_.pop_back();
+    auto right_edge = labeled_edge(my_id, right_id, "right");
+
+    node.dst_->accept(*this);
+    auto dst_id = buffer_.back();
+    buffer_.pop_back();
+    auto dst_edge = labeled_edge(my_id, dst_id, "dst");
+    of << left_edge;
+    of << right_edge;
+    of << dst_edge;
+    buffer_.push_back(my_id);
+}
+
+void GraphvizTackyVisitor::visit(Tacky::MultNode& node) {
+    auto my_id = std::to_string(node_count_++);
+    std::string node_repr = labeled_node_with_kv_pairs(
+        my_id,
+        "MultNode",
+        {}
+    );
+    of << node_repr;
+
+    node.left_->accept(*this);
+    auto left_id = buffer_.back();
+    buffer_.pop_back();
+    auto left_edge = labeled_edge(my_id, left_id, "left");
+
+    node.right_->accept(*this);
+    auto right_id = buffer_.back();
+    buffer_.pop_back();
+    auto right_edge = labeled_edge(my_id, right_id, "right");
+
+    node.dst_->accept(*this);
+    auto dst_id = buffer_.back();
+    buffer_.pop_back();
+    auto dst_edge = labeled_edge(my_id, dst_id, "dst");
+    of << left_edge;
+    of << right_edge;
+    of << dst_edge;
+    buffer_.push_back(my_id);
+}
+
+void GraphvizTackyVisitor::visit(Tacky::ModNode& node) {
+    auto my_id = std::to_string(node_count_++);
+    std::string node_repr = labeled_node_with_kv_pairs(
+        my_id,
+        "ModNode",
+        {}
+    );
+    of << node_repr;
+
+    node.left_->accept(*this);
+    auto left_id = buffer_.back();
+    buffer_.pop_back();
+    auto left_edge = labeled_edge(my_id, left_id, "left");
+
+    node.right_->accept(*this);
+    auto right_id = buffer_.back();
+    buffer_.pop_back();
+    auto right_edge = labeled_edge(my_id, right_id, "right");
+
+    node.dst_->accept(*this);
+    auto dst_id = buffer_.back();
+    buffer_.pop_back();
+    auto dst_edge = labeled_edge(my_id, dst_id, "dst");
+    of << left_edge;
+    of << right_edge;
+    of << dst_edge;
+    buffer_.push_back(my_id);
+}
+
+void GraphvizTackyVisitor::visit(Tacky::PlusNode& node) {
+    auto my_id = std::to_string(node_count_++);
+    std::string node_repr = labeled_node_with_kv_pairs(
+        my_id,
+        "PlusNode",
+        {}
+    );
+    of << node_repr;
+
+    node.left_->accept(*this);
+    auto left_id = buffer_.back();
+    buffer_.pop_back();
+    auto left_edge = labeled_edge(my_id, left_id, "left");
+
+    node.right_->accept(*this);
+    auto right_id = buffer_.back();
+    buffer_.pop_back();
+    auto right_edge = labeled_edge(my_id, right_id, "right");
+
+    node.dst_->accept(*this);
+    auto dst_id = buffer_.back();
+    buffer_.pop_back();
+    auto dst_edge = labeled_edge(my_id, dst_id, "dst");
+    of << left_edge;
+    of << right_edge;
+    of << dst_edge;
+    buffer_.push_back(my_id);
+}
+
+void GraphvizTackyVisitor::visit(Tacky::MinusNode& node) {
+    auto my_id = std::to_string(node_count_++);
+    std::string node_repr = labeled_node_with_kv_pairs(
+        my_id,
+        "MinusNode",
+        {}
+    );
+    of << node_repr;
+
+    node.left_->accept(*this);
+    auto left_id = buffer_.back();
+    buffer_.pop_back();
+    auto left_edge = labeled_edge(my_id, left_id, "left");
+
+    node.right_->accept(*this);
+    auto right_id = buffer_.back();
+    buffer_.pop_back();
+    auto right_edge = labeled_edge(my_id, right_id, "right");
+
+    node.dst_->accept(*this);
+    auto dst_id = buffer_.back();
+    buffer_.pop_back();
+    auto dst_edge = labeled_edge(my_id, dst_id, "dst");
+    of << left_edge;
+    of << right_edge;
+    of << dst_edge;
+    buffer_.push_back(my_id);
+}
+
+
 void GraphvizTackyVisitor::visit(Tacky::IntegerNode& node) {
     auto my_id = std::to_string(node_count_++);
     std::string node_repr = labeled_node_with_kv_pairs(

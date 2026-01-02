@@ -20,6 +20,12 @@ class NegateNode;
 class ValueNode;
 class IntegerNode;
 class VariableNode;
+class BinaryOpNode;
+class DivNode;
+class ModNode;
+class MultNode;
+class PlusNode;
+class MinusNode;
 
 class Visitor {
 public:
@@ -31,6 +37,11 @@ public:
     virtual void visit(NegateNode& node) = 0;
     virtual void visit(IntegerNode& node) = 0;
     virtual void visit(VariableNode& node) = 0;
+    virtual void visit(DivNode& node) = 0;
+    virtual void visit(ModNode& node) = 0;
+    virtual void visit(MultNode& node) = 0;
+    virtual void visit(PlusNode& node) = 0;
+    virtual void visit(MinusNode& node) = 0;
 };
 
 
@@ -98,6 +109,55 @@ public:
     ~NegateNode() = default;
     NegateNode(std::shared_ptr<ValueNode> src, std::shared_ptr<ValueNode> dst) : UnaryNode(src, dst) {}
     void accept(Visitor& v) override { v.visit(*this); }
+};
+
+class BinaryOpNode : public InstructionNode {
+public:
+    std::shared_ptr<ValueNode> left_, right_, dst_;
+    ~BinaryOpNode() = default;
+    BinaryOpNode(std::shared_ptr<ValueNode> left, std::shared_ptr<ValueNode> right, std::shared_ptr<ValueNode> dst)
+        : left_(left), right_(right), dst_(dst) {}
+    virtual void accept(Visitor& v) = 0;
+};
+
+class DivNode : public BinaryOpNode {
+public:
+    ~DivNode() = default;
+    DivNode(std::shared_ptr<ValueNode> left, std::shared_ptr<ValueNode> right, std::shared_ptr<ValueNode> dst)
+        : BinaryOpNode(left, right, dst) {}
+    void accept(Visitor& v) {v.visit(*this);}
+};
+
+class ModNode : public BinaryOpNode {
+public:
+    ~ModNode() = default;
+    ModNode(std::shared_ptr<ValueNode> left, std::shared_ptr<ValueNode> right, std::shared_ptr<ValueNode> dst)
+        : BinaryOpNode(left, right, dst) {}
+    void accept(Visitor& v) {v.visit(*this);}
+};
+
+class MultNode : public BinaryOpNode {
+public:
+    ~MultNode() = default;
+    MultNode(std::shared_ptr<ValueNode> left, std::shared_ptr<ValueNode> right, std::shared_ptr<ValueNode> dst)
+        : BinaryOpNode(left, right, dst) {}
+    void accept(Visitor& v) {v.visit(*this);}
+};
+
+class MinusNode : public BinaryOpNode {
+public:
+    ~MinusNode() = default;
+    MinusNode(std::shared_ptr<ValueNode> left, std::shared_ptr<ValueNode> right, std::shared_ptr<ValueNode> dst)
+        : BinaryOpNode(left, right, dst) {}
+    void accept(Visitor& v) {v.visit(*this);}
+};
+
+class PlusNode : public BinaryOpNode {
+public:
+    ~PlusNode() = default;
+    PlusNode(std::shared_ptr<ValueNode> left, std::shared_ptr<ValueNode> right, std::shared_ptr<ValueNode> dst)
+        : BinaryOpNode(left, right, dst) {}
+    void accept(Visitor& v) {v.visit(*this);}
 };
 
 class ValueNode : public AstNode {

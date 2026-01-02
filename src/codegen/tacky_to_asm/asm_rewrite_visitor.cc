@@ -84,6 +84,80 @@ void ASMRewriteVisitor::visit(ASM::MovNode& node) {
     );
 }
 
+void ASMRewriteVisitor::visit(ASM::MultNode& node) {
+    node.left_->accept(*this);
+    std::shared_ptr<ASM::OperandNode> casted_left = As<ASM::OperandNode>(
+        buffer_.back(),
+        "Failed to cast buffered operand into ASM::OperandNode"
+    );
+    buffer_.pop_back();
+    node.right_->accept(*this);
+    std::shared_ptr<ASM::OperandNode> casted_right = As<ASM::OperandNode>(
+        buffer_.back(),
+        "Failed to cast buffered operand into ASM::OperandNode"
+    );
+    buffer_.pop_back();
+    buffer_.push_back(std::make_shared<ASM::MultNode>(
+        casted_left,
+        casted_right
+    ));
+}
+
+void ASMRewriteVisitor::visit(ASM::DivNode& node) {
+    node.src_->accept(*this);
+    std::shared_ptr<ASM::OperandNode> casted_src = As<ASM::OperandNode>(
+        buffer_.back(),
+        "Failed to cast buffered operand into ASM::OperandNode"
+    );
+    buffer_.pop_back();
+    buffer_.push_back(std::make_shared<ASM::DivNode>(
+        casted_src
+    ));
+}
+
+void ASMRewriteVisitor::visit(ASM::AddNode& node) {
+    node.left_->accept(*this);
+    std::shared_ptr<ASM::OperandNode> casted_left = As<ASM::OperandNode>(
+        buffer_.back(),
+        "Failed to cast buffered operand into ASM::OperandNode"
+    );
+    buffer_.pop_back();
+    node.right_->accept(*this);
+    std::shared_ptr<ASM::OperandNode> casted_right = As<ASM::OperandNode>(
+        buffer_.back(),
+        "Failed to cast buffered operand into ASM::OperandNode"
+    );
+    buffer_.pop_back();
+    buffer_.push_back(std::make_shared<ASM::AddNode>(
+        casted_left,
+        casted_right
+    ));
+}
+
+void ASMRewriteVisitor::visit(ASM::SubNode& node) {
+    node.left_->accept(*this);
+    std::shared_ptr<ASM::OperandNode> casted_left = As<ASM::OperandNode>(
+        buffer_.back(),
+        "Failed to cast buffered operand into ASM::OperandNode"
+    );
+    buffer_.pop_back();
+    node.right_->accept(*this);
+    std::shared_ptr<ASM::OperandNode> casted_right = As<ASM::OperandNode>(
+        buffer_.back(),
+        "Failed to cast buffered operand into ASM::OperandNode"
+    );
+    buffer_.pop_back();
+    buffer_.push_back(std::make_shared<ASM::SubNode>(
+        casted_left,
+        casted_right
+    ));
+}
+
+void ASMRewriteVisitor::visit(ASM::CDQNode& node) {
+    buffer_.push_back(std::make_shared<ASM::CDQNode>());
+}
+
+
 void ASMRewriteVisitor::visit(ASM::RetNode& node) {
     buffer_.push_back(std::make_shared<ASM::RetNode>());
 }

@@ -55,7 +55,7 @@ void ASMDumper::visit(ASM::MovNode& node) {
     node.dst_->accept(*this);
     auto dst_as_str = buffer_.back();
     buffer_.pop_back();    
-    of << "\tmovl   " + src_as_str + "," + dst_as_str + "\n";
+    of << "\tmovl   " + src_as_str + ",  " + dst_as_str + "\n";
 }
 
 void ASMDumper::visit(ASM::RetNode& node) {
@@ -81,15 +81,63 @@ void ASMDumper::visit(ASM::RegisterNode& node) {
         case ASM::Register::AX:
             buffer_.push_back("\%eax");
             break;
+        case ASM::Register::DX:
+            buffer_.push_back("\%edx");
+            break;
         case ASM::Register::R10:
             buffer_.push_back("\%r10d");
+            break;
+        case ASM::Register::R11:
+            buffer_.push_back("\%r11d");
             break;
         default:
             throw std::runtime_error("Unknown register type");
     }
 }
 
+void ASMDumper::visit(ASM::DivNode& node) {
+    node.src_->accept(*this);
+    auto operand = buffer_.back();
+    buffer_.pop_back();
+    of << "\tidivl  " + operand + "\n";
+}
+
+void ASMDumper::visit(ASM::MultNode& node) {
+    node.left_->accept(*this);
+    auto left = buffer_.back();
+    buffer_.pop_back();
+    node.right_->accept(*this);
+    auto right = buffer_.back();
+    buffer_.pop_back();
+    of << "\timull  " + left + ",  " + right + "\n";
+}
+
+void ASMDumper::visit(ASM::AddNode& node) {
+    node.left_->accept(*this);
+    auto left = buffer_.back();
+    buffer_.pop_back();
+    node.right_->accept(*this);
+    auto right = buffer_.back();
+    buffer_.pop_back();
+    of << "\taddl  " + left + ",  " + right + "\n";
+}
+
+void ASMDumper::visit(ASM::SubNode& node) {
+    node.left_->accept(*this);
+    auto left = buffer_.back();
+    buffer_.pop_back();
+    node.right_->accept(*this);
+    auto right = buffer_.back();
+    buffer_.pop_back();
+    of << "\tsubl  " + left + ",  " + right + "\n";
+}
+
+void ASMDumper::visit(ASM::CDQNode& node) {
+    of << "\tcdq\n";
+}
+
 void ASMDumper::visit(ASM::PseudoNode& node) {
+    throw std::runtime_error("Pseudo nodes should have vanished in the first asm pass.");
 }
 
 void ASMDumper::dump_assembly(std::shared_ptr<ASM::ProgramNode> asm_program) {

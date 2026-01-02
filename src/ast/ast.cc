@@ -23,6 +23,12 @@ MinusUnaryExpressionNode::MinusUnaryExpressionNode(std::shared_ptr<ExpressionNod
     : operand_(std::move(operand)) {}
 void MinusUnaryExpressionNode::accept(Visitor& v) { v.visit(*this); }
 
+void DivNode::accept(Visitor& v) { v.visit(*this); }
+void MultNode::accept(Visitor& v) { v.visit(*this); }
+void ModNode::accept(Visitor& v) { v.visit(*this); }
+void PlusNode::accept(Visitor& v) { v.visit(*this); }
+void MinusNode::accept(Visitor& v) { v.visit(*this); }
+
 // --- Structural Nodes ---
 TypeNode::TypeNode(Type type) : type_(type) {}
 void TypeNode::accept(Visitor& v) { v.visit(*this); }

@@ -28,6 +28,11 @@ public:
     void visit(CAst::TildeUnaryExpressionNode& node) override;
     void visit(CAst::MinusUnaryExpressionNode& node) override;
     void visit(CAst::IntegerValueNode& node) override;
+    void visit(CAst::DivNode& node);
+    void visit(CAst::MultNode& node);
+    void visit(CAst::ModNode& node);
+    void visit(CAst::MinusNode& node);
+    void visit(CAst::PlusNode& node);
     std::vector<std::string> buffer_;
     int node_count_;
     std::ofstream of;
@@ -44,6 +49,11 @@ public:
     void visit(Tacky::NegateNode& node) override;
     void visit(Tacky::IntegerNode& node) override;
     void visit(Tacky::VariableNode& node) override;
+    void visit(Tacky::DivNode& node) override;
+    void visit(Tacky::MultNode& node) override;
+    void visit(Tacky::ModNode& node) override;
+    void visit(Tacky::PlusNode& node) override;
+    void visit(Tacky::MinusNode& node) override;
     std::vector<std::string> buffer_;
     std::ofstream of;
     int node_count_;
@@ -64,6 +74,11 @@ public:
     void visit(ASM::StackNode& node) override;
     void visit(ASM::RegisterNode& node) override;
     void visit(ASM::PseudoNode& node) override;
+    void visit(ASM::DivNode& node) override;
+    void visit(ASM::MultNode& node) override;
+    void visit(ASM::AddNode& node) override;
+    void visit(ASM::SubNode& node) override;
+    void visit(ASM::CDQNode& node) override;
     std::vector<std::string> buffer_;
     std::ofstream of;
     int node_count_;

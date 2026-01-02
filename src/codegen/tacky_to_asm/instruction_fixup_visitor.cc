@@ -1,5 +1,7 @@
 #include "src/codegen/tacky_to_asm/tacky_to_asm.h"
 
+#include <iostream>
+
 namespace Codegen {
 
 void InstructionFixUpVisitor::visit(ASM::FunctionNode& node) {
@@ -15,7 +17,7 @@ void InstructionFixUpVisitor::visit(ASM::FunctionNode& node) {
             processed_instructions.push_back(processed_instruction);
         }
     }
-    int aligned_stack_size = (max_stack_offset_ + 15)/16;
+    int aligned_stack_size = (8 + max_stack_offset_ + 15)/16;
     aligned_stack_size *= 16;
     processed_instructions.insert(
         processed_instructions.begin(),
@@ -52,6 +54,97 @@ void InstructionFixUpVisitor::visit(ASM::MovNode& node) {
     }
     buffer_.push_back(std::make_shared<ASM::MovNode>(node.src_, node.dst_));
 }
+
+void InstructionFixUpVisitor::visit(ASM::DivNode& node) {
+    auto src_as_imm = std::dynamic_pointer_cast<ASM::ImmNode>(node.src_);
+    if (src_as_imm) {
+        auto new_target_location = std::make_shared<ASM::RegisterNode>(ASM::Register::R10);
+        buffer_.push_back(std::make_shared<ASM::MovNode>(
+            node.src_,
+            new_target_location
+        ));
+        buffer_.push_back(std::make_shared<ASM::DivNode>(
+            new_target_location
+        ));
+    } else {
+        buffer_.push_back(std::make_shared<ASM::DivNode>(
+            node.src_
+        ));
+    }
+}
+
+void InstructionFixUpVisitor::visit(ASM::AddNode& node) {
+    auto left_as_stack_locations = std::dynamic_pointer_cast<ASM::StackNode>(node.left_);
+    auto right_as_stack_locations = std::dynamic_pointer_cast<ASM::StackNode>(node.right_);
+    if (
+        left_as_stack_locations &&
+        right_as_stack_locations
+    ) {
+        auto r10 = std::make_shared<ASM::RegisterNode>(ASM::Register::R10);
+        buffer_.push_back(std::make_shared<ASM::MovNode>(
+            node.left_,
+            r10
+        ));
+        buffer_.push_back(std::make_shared<ASM::AddNode>(
+            r10,
+            node.right_
+        ));
+    } else {
+        buffer_.push_back(std::make_shared<ASM::AddNode>(
+            node.left_,
+            node.right_
+        ));
+    }
+}
+
+void InstructionFixUpVisitor::visit(ASM::SubNode& node) {
+    auto left_as_stack_locations = std::dynamic_pointer_cast<ASM::StackNode>(node.left_);
+    auto right_as_stack_locations = std::dynamic_pointer_cast<ASM::StackNode>(node.right_);
+    if (
+        left_as_stack_locations &&
+        right_as_stack_locations
+    ) {
+        auto r10 = std::make_shared<ASM::RegisterNode>(ASM::Register::R10);
+        buffer_.push_back(std::make_shared<ASM::MovNode>(
+            node.left_,
+            r10
+        ));
+        buffer_.push_back(std::make_shared<ASM::SubNode>(
+            r10,
+            node.right_
+        ));
+    } else {
+        buffer_.push_back(std::make_shared<ASM::SubNode>(
+            node.left_,
+            node.right_
+        ));
+    }
+}
+
+void InstructionFixUpVisitor::visit(ASM::MultNode& node) {
+    auto right_operand_as_stack = std::dynamic_pointer_cast<ASM::StackNode>(node.right_);
+    if (right_operand_as_stack) {
+        auto r11 = std::make_shared<ASM::RegisterNode>(ASM::Register::R11);
+        buffer_.push_back(std::make_shared<ASM::MovNode>(
+            node.right_,
+            r11
+        ));
+        buffer_.push_back(std::make_shared<ASM::MultNode>(
+            node.left_,
+            r11
+        ));
+        buffer_.push_back(std::make_shared<ASM::MovNode>(
+            r11,
+            node.right_
+        ));
+    } else {
+        buffer_.push_back(std::make_shared<ASM::MultNode>(
+            node.left_,
+            node.right_
+        ));
+    }
+}
+
 
 
 } // namespace Codegen

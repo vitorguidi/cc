@@ -16,6 +16,12 @@ public:
     void visit(CAst::TildeUnaryExpressionNode& node);
     void visit(CAst::MinusUnaryExpressionNode& node);
     void visit(CAst::IntegerValueNode& node);
+    void visit(CAst::DivNode& node);
+    void visit(CAst::MultNode& node);
+    void visit(CAst::ModNode& node);
+    void visit(CAst::MinusNode& node);
+    void visit(CAst::PlusNode& node);
+
     std::shared_ptr<Tacky::ProgramNode> get_tacky_from_c_ast(std::shared_ptr<CAst::ProgramNode> root_node);
     std::string generate_temp_var_name();
     std::vector<std::shared_ptr<Tacky::AstNode>> result_buffer_;

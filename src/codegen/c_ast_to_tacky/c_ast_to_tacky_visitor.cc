@@ -134,6 +134,102 @@ void AstToTackyVisitor::visit(CAst::IntegerValueNode& node) {
     );
 }
 
+void AstToTackyVisitor::visit(CAst::DivNode& node) {
+    node.left_->accept(*this);
+    auto left_expression_result = get_result<Tacky::ValueNode>();
+    node.right_->accept(*this);
+    auto right_expression_result = get_result<Tacky::ValueNode>();
+    auto dst = generate_temp_var_name();
+
+    auto dst_node = std::make_shared<Tacky::VariableNode>(dst);
+
+    auto tacky_op = std::make_shared<Tacky::DivNode>(
+        left_expression_result,
+        right_expression_result,
+        dst_node
+    );
+
+    result_buffer_.push_back(tacky_op);
+    result_buffer_.push_back(dst_node);
+
+}
+
+void AstToTackyVisitor::visit(CAst::MultNode& node) {
+    node.left_->accept(*this);
+    auto left_expression_result = get_result<Tacky::ValueNode>();
+    node.right_->accept(*this);
+    auto right_expression_result = get_result<Tacky::ValueNode>();
+    auto dst = generate_temp_var_name();
+
+    auto dst_node = std::make_shared<Tacky::VariableNode>(dst);
+
+    auto tacky_op = std::make_shared<Tacky::MultNode>(
+        left_expression_result,
+        right_expression_result,
+        dst_node
+    );
+
+    result_buffer_.push_back(tacky_op);
+    result_buffer_.push_back(dst_node);
+}
+
+void AstToTackyVisitor::visit(CAst::ModNode& node) {
+    node.left_->accept(*this);
+    auto left_expression_result = get_result<Tacky::ValueNode>();
+    node.right_->accept(*this);
+    auto right_expression_result = get_result<Tacky::ValueNode>();
+    auto dst = generate_temp_var_name();
+
+    auto dst_node = std::make_shared<Tacky::VariableNode>(dst);
+
+    auto tacky_op = std::make_shared<Tacky::ModNode>(
+        left_expression_result,
+        right_expression_result,
+        dst_node
+    );
+
+    result_buffer_.push_back(tacky_op);
+    result_buffer_.push_back(dst_node);
+}
+
+void AstToTackyVisitor::visit(CAst::MinusNode& node) {
+    node.left_->accept(*this);
+    auto left_expression_result = get_result<Tacky::ValueNode>();
+    node.right_->accept(*this);
+    auto right_expression_result = get_result<Tacky::ValueNode>();
+    auto dst = generate_temp_var_name();
+
+    auto dst_node = std::make_shared<Tacky::VariableNode>(dst);
+
+    auto tacky_op = std::make_shared<Tacky::MinusNode>(
+        left_expression_result,
+        right_expression_result,
+        dst_node
+    );
+
+    result_buffer_.push_back(tacky_op);
+    result_buffer_.push_back(dst_node);
+}
+
+void AstToTackyVisitor::visit(CAst::PlusNode& node) {
+    node.left_->accept(*this);
+    auto left_expression_result = get_result<Tacky::ValueNode>();
+    node.right_->accept(*this);
+    auto right_expression_result = get_result<Tacky::ValueNode>();
+    auto dst = generate_temp_var_name();
+
+    auto dst_node = std::make_shared<Tacky::VariableNode>(dst);
+
+    auto tacky_op = std::make_shared<Tacky::PlusNode>(
+        left_expression_result,
+        right_expression_result,
+        dst_node
+    );
+
+    result_buffer_.push_back(tacky_op);
+    result_buffer_.push_back(dst_node);    
+}
+
 void AstToTackyVisitor::visit(CAst::TypeNode& node) {}
 
 void AstToTackyVisitor::visit(CAst::FunctionArgumentsNode& node) {}

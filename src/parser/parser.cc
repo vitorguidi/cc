@@ -17,7 +17,24 @@ Expression: INTEGER_VALUE | Unary Expression | (Expression)
 Unary: ('~' | '-')
 */
 
+/*
+Moving to precedence climbing
+Program: [Function]*
+Function: Type NAME '(' FunctionArguments ')' StatementBlock
+Type: 'int'
+FunctionArguments: Type NAME [, Type NAME]*
+StatementBlock: '{' [Statement]* '}'
+Statement: 'return' EXPR ';'
+EXPR: FACTOR | UNOP EXPR | EXPR BINOP EXPR
+FACTOR: INTEGER_VALUE | UNOP FACTOR | (EXPR)
+BINOP: + | - | * | / | %
+UNOP: ('~' | '-')
+*/
+
 namespace Parser {
+
+//  TODO(vitorguidi): just throw exceptions instead of returning empty optional, if we parse we already
+//  did the peek check and actually expect the result.
 
 RecursiveDescentParser::RecursiveDescentParser(Lexer::TokenStream tokens) : tokens_(std::move(tokens)) {}
 
@@ -127,7 +144,7 @@ auto RecursiveDescentParser::parseStatement() -> std::optional<std::shared_ptr<C
         return std::nullopt;
     }
     tokens_.consume();
-    auto expr = parseExpression();
+    auto expr = parseExpression(0);
     if (!expr.has_value()) {
         throw std::runtime_error("Expected return expression");
     }
@@ -141,48 +158,112 @@ auto RecursiveDescentParser::parseStatement() -> std::optional<std::shared_ptr<C
     ));
 }
 
-auto RecursiveDescentParser::parseExpression() -> std::optional<std::shared_ptr<CAst::ExpressionNode>> {
-    if (tokens_.peek(0).kind == Lexer::TokenType::TILDE || 
-        tokens_.peek(0).kind == Lexer::TokenType::MINUS) {
-        return parseUnaryExpression();
-    }
-    if (tokens_.peek(0).kind == Lexer::TokenType::LPAREN) {
-        tokens_.consume(); // consume '('
-        auto expr = parseExpression();
-        if (!expr.has_value()) {
-            throw std::runtime_error("Expected expression after '('");
+auto RecursiveDescentParser::parseFactor() -> std::optional<std::shared_ptr<CAst::ExpressionNode>> {
+    auto cur_token = tokens_.peek(0);
+    switch (cur_token.kind) {
+        case Lexer::TokenType::INTEGER_VALUE:
+            return parseConstantValue();
+        case Lexer::TokenType::TILDE:
+        case Lexer::TokenType::MINUS: {
+            auto unop = parseUnaryExpression();
+            if (!unop) {
+                throw std::runtime_error("Expected unary expression during factor parsing.");
+            }
+            return unop;
         }
-        if (tokens_.peek(0).kind != Lexer::TokenType::RPAREN) {
-            throw std::runtime_error("Expected ')' after expression");
+        case Lexer::TokenType::LPAREN: {
+            tokens_.consume();
+            auto inner_exp = parseExpression(0);
+            if (!inner_exp) {
+                throw std::runtime_error("Expected expression within parens while expr parsing.");
+            }
+            if (tokens_.peek(0).kind != Lexer::TokenType::RPAREN) {
+                throw std::runtime_error("Expected RPAREN to close parenthetised expr while factor parsing.");
+            }
+            tokens_.consume();
+            return inner_exp;
         }
-        tokens_.consume(); // consume ')'
-        return expr;
+        default:
+            throw std::runtime_error("Failed to parse factor, malformed input.");
     }
-    auto constant_value = parseConstantValue();
-    if (constant_value.has_value()) {
-        return constant_value;
-    }
-    return std::nullopt;
 }
 
+auto RecursiveDescentParser::parseExpression(int min_precedence) -> std::optional<std::shared_ptr<CAst::ExpressionNode>> {
+    auto left = parseFactor();
+    if (!left) {
+        throw std::runtime_error("Expected a left factor during expr parsing");
+    }
+    auto next_token = tokens_.peek(0).kind;
+    auto next_token_precedence = precedence(next_token);
+    while(is_bin_op(next_token) && next_token_precedence.value() >= min_precedence) {
+        Lexer::Token op = tokens_.consume();
+        std::optional<std::shared_ptr<CAst::ExpressionNode>> right = parseExpression(next_token_precedence.value() + 1);
+        if (!right) {
+            throw std::runtime_error("Expected to parse right expression during precedence climbing");
+        }
+        switch (next_token) {
+            case Lexer::TokenType::PLUS:
+                left = std::make_optional(std::make_shared<CAst::PlusNode>(left.value(), right.value()));
+                break;
+            case Lexer::TokenType::MINUS:
+                left = std::make_optional(std::make_shared<CAst::MinusNode>(left.value(), right.value()));
+                break;
+            case Lexer::TokenType::MOD:
+                left = std::make_optional(std::make_shared<CAst::ModNode>(left.value(), right.value()));
+                break;
+            case Lexer::TokenType::DIV:
+                left = std::make_optional(std::make_shared<CAst::DivNode>(left.value(), right.value()));
+                break;
+            case Lexer::TokenType::MULT:
+                left = std::make_optional(std::make_shared<CAst::MultNode>(left.value(), right.value()));
+                break;
+            default:
+                throw std::runtime_error("Unable to build bin exp from given token.");
+        }
+        next_token = tokens_.peek(0).kind;
+        next_token_precedence = precedence(next_token);
+    }
+    return left;
+}
+
+// auto RecursiveDescentParser::parseExpression() -> std::optional<std::shared_ptr<CAst::ExpressionNode>> {
+//     if (tokens_.peek(0).kind == Lexer::TokenType::TILDE || 
+//         tokens_.peek(0).kind == Lexer::TokenType::MINUS) {
+//         return parseUnaryExpression();
+//     }
+//     if (tokens_.peek(0).kind == Lexer::TokenType::LPAREN) {
+//         tokens_.consume(); // consume '('
+//         auto expr = parseExpression();
+//         if (!expr.has_value()) {
+//             throw std::runtime_error("Expected expression after '('");
+//         }
+//         if (tokens_.peek(0).kind != Lexer::TokenType::RPAREN) {
+//             throw std::runtime_error("Expected ')' after expression");
+//         }
+//         tokens_.consume(); // consume ')'
+//         return expr;
+//     }
+//     auto constant_value = parseConstantValue();
+//     if (constant_value.has_value()) {
+//         return constant_value;
+//     }
+//     return std::nullopt;
+// }
+
 auto RecursiveDescentParser::parseUnaryExpression() -> std::optional<std::shared_ptr<CAst::UnaryExpressionNode>> {
-    if (tokens_.peek(0).kind == Lexer::TokenType::TILDE) {
-        tokens_.consume();
-        auto operand = parseExpression();
-        if (!operand.has_value()) {
-            throw std::runtime_error("Expected operand for unary ~");
-        }
-        return std::make_optional(std::make_shared<CAst::TildeUnaryExpressionNode>(operand.value()));
+    auto token = tokens_.consume();
+    auto operand = parseExpression(0);
+    if (!operand.has_value()) {
+        throw std::runtime_error("Expected operand for unary op");
     }
-    if (tokens_.peek(0).kind == Lexer::TokenType::MINUS) {
-        tokens_.consume();
-        auto operand = parseExpression();
-        if (!operand.has_value()) {
-            throw std::runtime_error("Expected operand for unary -");
-        }
-        return std::make_optional(std::make_shared<CAst::MinusUnaryExpressionNode>(operand.value()));
+    switch (token.kind) {
+        case Lexer::TokenType::TILDE:
+            return std::make_optional(std::make_shared<CAst::TildeUnaryExpressionNode>(operand.value()));
+        case Lexer::TokenType::MINUS:
+            return std::make_optional(std::make_shared<CAst::MinusUnaryExpressionNode>(operand.value()));
+        default:
+            throw std::runtime_error("Unexpecetd operation token while emiting a unary expr.");
     }
-    return std::nullopt;
 }
 
 auto RecursiveDescentParser::parseConstantValue() -> std::optional<std::shared_ptr<CAst::ConstantValueNode>> {
@@ -191,7 +272,7 @@ auto RecursiveDescentParser::parseConstantValue() -> std::optional<std::shared_p
         int value = std::get<int>(token.value);
         return std::make_optional(std::make_shared<CAst::IntegerValueNode>(value));
     }
-    return std::nullopt;
+    throw std::runtime_error("Expected integer token while parsing constant value");
 }
 
 } // namespace Parser;

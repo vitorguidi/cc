@@ -20,6 +20,11 @@ class ImmNode;
 class StackNode;
 class RegisterNode;
 class PseudoNode;
+class AddNode;
+class SubNode;
+class DivNode;
+class MultNode;
+class CDQNode;
 
 class Visitor {
 public:
@@ -35,6 +40,11 @@ public:
     virtual void visit(StackNode& node) = 0;
     virtual void visit(RegisterNode& node) = 0;
     virtual void visit(PseudoNode& node) = 0;
+    virtual void visit(AddNode& node) = 0;
+    virtual void visit(SubNode& node) = 0;
+    virtual void visit(MultNode& node) = 0;
+    virtual void visit(DivNode& node) = 0;
+    virtual void visit(CDQNode& node) = 0;
 };
 
 class AstNode {
@@ -90,15 +100,21 @@ public:
 
 enum Register {
     AX,
+    DX,
     R10,
+    R11,
 };
 
 inline std::string register_as_string(Register reg) {
     switch(reg) {
         case Register::AX:
             return "AX";
+        case Register::DX:
+            return "DX";
         case Register::R10:
             return "R10";
+        case Register::R11:
+            return "R11";
         default:
             throw std::runtime_error("Unexpected register type for string conversion");
     }
@@ -146,6 +162,62 @@ class NotNode : public UnaryInstructionNode {
 public:
     ~NotNode() = default;
     NotNode(std::shared_ptr<OperandNode> src) : UnaryInstructionNode(src) {}
+    void accept(Visitor& v) override {v.visit(*this);}
+};
+
+class BinInstructionNode : public InstructionNode {
+public:
+    std::shared_ptr<OperandNode> left_, right_;
+    BinInstructionNode(
+        std::shared_ptr<OperandNode> left,
+        std::shared_ptr<OperandNode> right)
+            : left_(left), right_(right) {}
+    virtual ~BinInstructionNode() = default;
+    virtual void accept(Visitor& v) = 0;
+};
+
+class AddNode : public BinInstructionNode {
+public:
+    ~AddNode() = default;
+    AddNode(
+        std::shared_ptr<OperandNode> left,
+        std::shared_ptr<OperandNode> right)
+            : BinInstructionNode(left, right) {}
+    void accept(Visitor& v) override {v.visit(*this);}
+};
+
+class SubNode : public BinInstructionNode {
+public:
+    ~SubNode() = default;
+    SubNode(
+        std::shared_ptr<OperandNode> left,
+        std::shared_ptr<OperandNode> right)
+            : BinInstructionNode(left, right) {}
+    void accept(Visitor& v) override {v.visit(*this);}
+};
+
+class DivNode : public InstructionNode {
+public:
+    std::shared_ptr<OperandNode> src_;
+    ~DivNode() = default;
+    DivNode(std::shared_ptr<OperandNode> src) : src_(src) {}
+    void accept(Visitor& v) override {v.visit(*this);}
+};
+
+class MultNode : public BinInstructionNode {
+public:
+    ~MultNode() = default;
+    MultNode(
+        std::shared_ptr<OperandNode> left,
+        std::shared_ptr<OperandNode> right)
+            : BinInstructionNode(left, right) {}
+    void accept(Visitor& v) override {v.visit(*this);}
+};
+
+class CDQNode : public InstructionNode {
+public:
+    ~CDQNode() = default;
+    CDQNode() = default;
     void accept(Visitor& v) override {v.visit(*this);}
 };
 

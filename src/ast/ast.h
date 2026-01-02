@@ -19,6 +19,11 @@ struct ProgramNode;
 struct IntegerValueNode;
 struct TildeUnaryExpressionNode;
 struct MinusUnaryExpressionNode;
+struct DivNode;
+struct ModNode;
+struct MultNode;
+struct PlusNode;
+struct MinusNode;
 
 // --- Visitor Interface ---
 class Visitor {
@@ -29,10 +34,15 @@ public:
     virtual void visit(ReturnStatementNode& node) = 0;
     virtual void visit(StatementBlockNode& node) = 0;
     virtual void visit(FunctionNode& node) = 0;
-    virtual void visit(ProgramNode& node) = 0;
     virtual void visit(TildeUnaryExpressionNode& node) = 0;
     virtual void visit(MinusUnaryExpressionNode& node) = 0;
     virtual void visit(IntegerValueNode& node) = 0;
+    virtual void visit(ModNode& node) = 0;
+    virtual void visit(DivNode& node) = 0;
+    virtual void visit(MultNode& node) = 0;
+    virtual void visit(PlusNode& node) = 0;
+    virtual void visit(MinusNode& node) = 0;
+    virtual void visit(ProgramNode& node) = 0;
 };
 
 // --- Base Nodes ---
@@ -83,6 +93,55 @@ class MinusUnaryExpressionNode : public UnaryExpressionNode {
 public:
     std::shared_ptr<ExpressionNode> operand_;
     MinusUnaryExpressionNode(std::shared_ptr<ExpressionNode> operand);
+    void accept(Visitor& v) override;
+};
+
+class BinaryExpressionNode : public ExpressionNode {
+public:
+    std::shared_ptr<ExpressionNode> left_, right_;
+    BinaryExpressionNode(std::shared_ptr<ExpressionNode> left, std::shared_ptr<ExpressionNode> right)
+        :   left_(left), right_(right) {}
+    virtual void accept(Visitor& v) = 0;
+    virtual ~BinaryExpressionNode() = default;
+};
+
+class ModNode : public BinaryExpressionNode {
+public:
+    ModNode(std::shared_ptr<ExpressionNode> left, std::shared_ptr<ExpressionNode> right)
+        :   BinaryExpressionNode(left, right) {}
+    ~ModNode() = default;
+    void accept(Visitor& v) override;
+};
+
+class DivNode : public BinaryExpressionNode {
+public:
+    DivNode(std::shared_ptr<ExpressionNode> left, std::shared_ptr<ExpressionNode> right)
+        :   BinaryExpressionNode(left, right) {}
+    ~DivNode() = default;
+    void accept(Visitor& v) override;
+};
+
+class MultNode : public BinaryExpressionNode {
+public:
+    MultNode(std::shared_ptr<ExpressionNode> left, std::shared_ptr<ExpressionNode> right)
+        :   BinaryExpressionNode(left, right) {}
+    ~MultNode() = default;
+    void accept(Visitor& v) override;
+};
+
+class PlusNode : public BinaryExpressionNode {
+public:
+    PlusNode(std::shared_ptr<ExpressionNode> left, std::shared_ptr<ExpressionNode> right)
+        :   BinaryExpressionNode(left, right) {}
+    ~PlusNode() = default;
+    void accept(Visitor& v) override;
+};
+
+class MinusNode : public BinaryExpressionNode {
+public:
+    MinusNode(std::shared_ptr<ExpressionNode> left, std::shared_ptr<ExpressionNode> right)
+        :   BinaryExpressionNode(left, right) {}
+    ~MinusNode() = default;
     void accept(Visitor& v) override;
 };
 
