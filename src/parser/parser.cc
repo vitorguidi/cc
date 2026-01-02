@@ -226,33 +226,9 @@ auto RecursiveDescentParser::parseExpression(int min_precedence) -> std::optiona
     return left;
 }
 
-// auto RecursiveDescentParser::parseExpression() -> std::optional<std::shared_ptr<CAst::ExpressionNode>> {
-//     if (tokens_.peek(0).kind == Lexer::TokenType::TILDE || 
-//         tokens_.peek(0).kind == Lexer::TokenType::MINUS) {
-//         return parseUnaryExpression();
-//     }
-//     if (tokens_.peek(0).kind == Lexer::TokenType::LPAREN) {
-//         tokens_.consume(); // consume '('
-//         auto expr = parseExpression();
-//         if (!expr.has_value()) {
-//             throw std::runtime_error("Expected expression after '('");
-//         }
-//         if (tokens_.peek(0).kind != Lexer::TokenType::RPAREN) {
-//             throw std::runtime_error("Expected ')' after expression");
-//         }
-//         tokens_.consume(); // consume ')'
-//         return expr;
-//     }
-//     auto constant_value = parseConstantValue();
-//     if (constant_value.has_value()) {
-//         return constant_value;
-//     }
-//     return std::nullopt;
-// }
-
 auto RecursiveDescentParser::parseUnaryExpression() -> std::optional<std::shared_ptr<CAst::UnaryExpressionNode>> {
     auto token = tokens_.consume();
-    auto operand = parseExpression(0);
+    auto operand = parseFactor();
     if (!operand.has_value()) {
         throw std::runtime_error("Expected operand for unary op");
     }
