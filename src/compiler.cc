@@ -29,10 +29,14 @@ int main(int argc, char** argv) {
     buffer << input_file.rdbuf();
     std::string source_code = buffer.str();
 
+    std::cout << "Lexing input file..." << std::endl;
+
     auto lexer = std::make_unique<Lexer::ManualLexer>(source_code);
     auto tokens = lexer->Lex();
 
     // 3. Parsing
+    std::cout << "Parsing input file..." << std::endl;
+
     auto parser = std::make_unique<Parser::RecursiveDescentParser>(std::move(tokens));
     auto program_node = parser->parse();
 
@@ -42,47 +46,86 @@ int main(int argc, char** argv) {
     }
 
     {
-        Graphviz::GraphvizCAstVisitor c_ast_graphviz(std::string("cast.dot"));
+        std::cout << "Generating graphviz visualization for CAst..." << std::endl;
+        Graphviz::GraphvizCAstVisitor c_ast_graphviz(std::string("asm_output/cast.dot"));
         auto program_raw = *(program_node.value());
         c_ast_graphviz.visit(program_raw);
     }
 
     auto tacky_visitor = Codegen::AstToTackyVisitor();
+    std::cout << "Generating TACKY AST from C AST..." << std::endl;
     std::shared_ptr<Tacky::ProgramNode> tacky_program = tacky_visitor.get_tacky_from_c_ast(program_node.value());
     {
-        Graphviz::GraphvizTackyVisitor tacky_graphviz(std::string("tacky.dot"));
+        std::cout << "Generating graphviz visualization for Tacky AST..." << std::endl;
+        Graphviz::GraphvizTackyVisitor tacky_graphviz(std::string("asm_output/tacky.dot"));
         tacky_graphviz.visit(*tacky_program);
     }
+
+    std::cout << "First pass: ASM from Tacky..." << std::endl;
     auto asm_visitor = Codegen::TackyToAsmVisitor();
     std::shared_ptr<ASM::ProgramNode> asm_program = asm_visitor.get_asm_from_tacky(tacky_program);
 
     {
-        Graphviz::GraphvizASMVisitor asm_graphviz(std::string("asm_1st_pass.dot"));
+        std::cout << "Generating graphviz visualization for ASM AST first pass..." << std::endl;
+        Graphviz::GraphvizASMVisitor asm_graphviz(std::string("asm_output/asm_1st_pass.dot"));
         asm_graphviz.visit(*asm_program);
     }
 
     auto pseudo_replacement_visitor = Codegen::PseudoReplacerVisitor();
+    std::cout << "Second pass: removing pseudo registers from ASM..." << std::endl;
     auto no_pseudo_asm_program = pseudo_replacement_visitor.get_rewritten_asm_program(asm_program);
 
     {
-        Graphviz::GraphvizASMVisitor asm_graphviz(std::string("asm_2nd_pass.dot"));
+        std::cout << "Generating graphviz visualization for ASM AST second pass..." << std::endl;
+        Graphviz::GraphvizASMVisitor asm_graphviz(std::string("asm_output/asm_2nd_pass.dot"));
         asm_graphviz.visit(*no_pseudo_asm_program);
     }
 
     int max_offset = pseudo_replacement_visitor.get_offset();
 
+    std::cout << "Third pass: ASM instruction fixup..." << std::endl;
     auto instruction_fixup_visitor = Codegen::InstructionFixUpVisitor(max_offset);
     auto fixed_asm_program = instruction_fixup_visitor.get_rewritten_asm_program(no_pseudo_asm_program);
 
     {
-        Graphviz::GraphvizASMVisitor asm_graphviz(std::string("asm_3rd_pass.dot"));
+        std::cout << "Generating graphviz visualization for ASM AST third pass..." << std::endl;
+        Graphviz::GraphvizASMVisitor asm_graphviz(std::string("asm_output/asm_3rd_pass.dot"));
         asm_graphviz.visit(*fixed_asm_program);
     }
 
     {
+        std::cout << "Dumping ASM code..." << std::endl;
         auto asm_dump_visitor = Codegen::ASMDumper(std::string(output_asm_file));
         asm_dump_visitor.dump_assembly(fixed_asm_program);
     }
+
+    // generate the graphviz pngs
+
+    const char* pwd = std::getenv("PWD");
+    std::filesystem::path base_path = (pwd) ? std::filesystem::path(pwd) / "asm_output" : std::filesystem::current_path() / "asm_output";
+
+    std::cout << "Generating graphviz images from graph descriptions..." << std::endl;
+
+    if (!std::filesystem::exists(base_path)) {
+        std::cerr << "Error: Folder " << base_path << " does not exist." << std::endl;
+        return 1;
+    }
+    for (const auto& entry : std::filesystem::directory_iterator(base_path)) {
+        if (entry.path().extension() == ".dot") {
+            
+            std::string source = entry.path().string();
+            std::string output = std::filesystem::path(entry.path()).replace_extension(".png").string();            
+            // Constructing the "dirty" shell command
+            std::string command = "dot -Tpng " + source + " -o " + output;
+            
+            std::cout << "Processing: " << source << "..." << std::endl;
+            
+            // Fire and forget via system shell
+            std::system(command.c_str());
+        }
+    }
+
+    std::cout << "Compilation successful!" << std::endl;
 
     return 0;
 }
