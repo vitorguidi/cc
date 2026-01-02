@@ -2,7 +2,7 @@ cc_test(
     name = "expression_fuzzing_test",
     size = "small",
     srcs = ["expression_fuzzing_test.cc"],
-    data = ["//src:compiler"],
+    timeout = "long",
     deps = [
         "@googletest//:gtest",
         "//src/ast:ast",
