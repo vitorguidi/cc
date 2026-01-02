@@ -1,23 +1,15 @@
-How to use this (for now):
+To compile a C program:
 
-bazel build //src:compiler
 
-./bazel-bin/src/compiler examples/return_2.c return_2.s
+./bazel-bin/src/compiler $PWD/examples/complex_expression.c $PWD/asm_output/complex_expression.S
 
-gcc return_2.s -o return_2
+cd asm_output
 
-./return_2
+gcc -o complex_expression complex_expression.S
 
-echo $?
+graphviz plots for all stages of AST will be dumped into /asm_output (provided you have dot installed)
 
-expected:
 
-vitor@vitor-ubuntu:~/projects/cc$ echo $?
+For end to end tests of the expression logic:
 
-2
-
-This will produce graphviz for the C Ast, under output.dot
-
-To see graphviz:
-
-dot -Tpng output.dot -o output.png
+bazel test --test_arg=--seed=400 --test_arg=--iterations=5000 --test_arg=--max_height=40 //test/fuzzing:expression_fuzzing_test
