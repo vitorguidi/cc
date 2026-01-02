@@ -14,7 +14,7 @@ cc_test(
     ],
     args = [
         "--seed=42",
-        "--iterations=10",
-        "--max-height=10"
+        "--iterations=1000",
+        "--max-height=30"
     ],
 )

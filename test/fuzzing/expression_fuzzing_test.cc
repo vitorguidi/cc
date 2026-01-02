@@ -209,12 +209,19 @@ TEST(FuzzTest, ExpressionFuzzingTest) {
         dump_asm_to_file(s_file, prog);
 
         // 2. Reference Execution (GCC)
-        std::system(("gcc " + c_file + " -o " + gcc_bin).c_str());
-        int gcc_exit_code = WEXITSTATUS(std::system(gcc_bin.c_str()));
-
+        std::string compile_cmd = "gcc " + c_file + " -o " + gcc_bin + " 2> " + work_dir + "/gcc_err.txt";
+        std::system(compile_cmd.c_str());
+        // Read the error file
+        std::ifstream err_file(work_dir + "/gcc_err.txt");
+        std::string err_content((std::istreambuf_iterator<char>(err_file)), std::istreambuf_iterator<char>());
+        if (err_content.find("division by zero") != std::string::npos) {
+            std::cout << "Skipping: GCC detected division by zero at compile-time." << std::endl;
+            continue; // Skip iteration
+        }
         // 4. Assemble your output and Run
         std::system(("gcc " + s_file + " -o " + my_bin).c_str());
         int my_exit_code = WEXITSTATUS(std::system(my_bin.c_str()));
+        int gcc_exit_code = WEXITSTATUS(std::system(gcc_bin.c_str()));
 
         // 5. Compare
         EXPECT_EQ(gcc_exit_code, my_exit_code) << "Mismatch for: " << prog;
