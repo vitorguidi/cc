@@ -18,6 +18,43 @@ GraphvizCAstVisitor::~GraphvizCAstVisitor() {
     }
 }
 
+template <std::derived_from<CAst::ASTNode> T>
+std::string GraphvizCAstVisitor::visit_child(std::string parent_id, std::string edge_label, std::shared_ptr<T> child_node) {
+    child_node->accept(*this);
+    auto child_id = buffer_.back();
+    auto edge = labeled_edge(parent_id, child_id, edge_label);
+    of << edge;
+    buffer_.pop_back();
+    return child_id;
+}
+
+void GraphvizCAstVisitor::visit_un_exp(std::string node_name, CAst::UnaryExpressionNode& node) {
+    auto my_id = std::to_string(node_count_++);
+    auto node_repr = labeled_node_with_kv_pairs(
+        my_id,
+        node_name,
+        {}
+    );
+    of << node_repr;
+    visit_child<CAst::ExpressionNode>(my_id, std::string("operand"), node.operand_);
+    buffer_.push_back(my_id);
+}
+
+void GraphvizCAstVisitor::visit_bin_exp(std::string node_name, CAst::BinaryExpressionNode& node) {
+    auto my_id = std::to_string(node_count_++);
+    auto node_repr = labeled_node_with_kv_pairs(
+        my_id,
+        node_name,
+        {}
+    );
+    of << node_repr;
+
+    visit_child<CAst::ExpressionNode>(my_id, std::string("left"), node.left_);
+    visit_child<CAst::ExpressionNode>(my_id, std::string("right"), node.right_);
+
+    buffer_.push_back(my_id);
+}
+
 void GraphvizCAstVisitor::visit(CAst::ProgramNode& node) {
     auto my_id = std::to_string(node_count_++);
     auto node_repr = labeled_node_with_kv_pairs(
@@ -27,11 +64,7 @@ void GraphvizCAstVisitor::visit(CAst::ProgramNode& node) {
     );
     of << node_repr;
     for(auto& function: node.functions_) {
-        function->accept(*this);
-        auto child_id = buffer_.back();
-        buffer_.pop_back();
-        auto edge = labeled_edge(my_id, child_id, "function");
-        of << edge;
+        visit_child<CAst::FunctionNode>(my_id, std::string("function"), function);
     }
     buffer_.push_back(my_id);
 }
@@ -44,18 +77,11 @@ void GraphvizCAstVisitor::visit(CAst::FunctionNode& node) {
         {std::make_pair("Name", node.name_)}
     );
     of << node_repr;
-    std::vector<std::shared_ptr<CAst::ASTNode>> children = {
-        node.arguments_node_,
-        node.body_,
-        node.type_node_
-    };
-    for(auto& child : children) {
-        child->accept(*this);
-        auto child_id = buffer_.back();
-        buffer_.pop_back();
-        auto edge = labeled_edge(my_id, child_id, "");
-        of << edge;
-    }
+
+    visit_child<CAst::FunctionArgumentsNode>(my_id, "args", node.arguments_node_);
+    visit_child<CAst::StatementBlockNode>(my_id, "stmts", node.body_);
+    visit_child<CAst::TypeNode>(my_id, "args", node.type_node_);
+
     buffer_.push_back(my_id);
 }
 
@@ -95,12 +121,7 @@ void GraphvizCAstVisitor::visit(CAst::StatementBlockNode& node) {
     of << node_repr;
     auto last_parent = my_id;
     for(auto& stmt : node.statements_) {
-        stmt->accept(*this);
-        auto child_id = buffer_.back();
-        buffer_.pop_back();
-        auto edge = labeled_edge(last_parent, child_id, "next statement");
-        of << edge;
-        last_parent = child_id;
+        last_parent = visit_child<CAst::StatementNode>(last_parent, std::string("next statement"), stmt);
     }
     buffer_.push_back(my_id);
 }
@@ -114,160 +135,33 @@ void GraphvizCAstVisitor::visit(CAst::ReturnStatementNode& node) {
         {}
     );
     of << node_repr;
-    node.return_value_->accept(*this);
-    auto child_id = buffer_.back();
-    buffer_.pop_back();
-    auto edge = labeled_edge(my_id, child_id, "return value");
-    of << edge;
+    visit_child<CAst::ExpressionNode>(my_id, std::string("return value"), node.return_value_);
     buffer_.push_back(my_id);
 }
 
-void GraphvizCAstVisitor::visit(CAst::TildeUnaryExpressionNode& node) {
-    auto my_id = std::to_string(node_count_++);
-    auto node_repr = labeled_node_with_kv_pairs(
-        my_id,
-        "TildeUnaryExpressionNode",
-        {}
-    );
-    of << node_repr;
-    node.operand_->accept(*this);
-    auto child_id = buffer_.back();
-    buffer_.pop_back();
-    auto edge = labeled_edge(my_id, child_id, "operand");
-    of << edge;
-    buffer_.push_back(my_id);
-}
+// Unary Expressions
+void GraphvizCAstVisitor::visit(CAst::TildeUnaryExpressionNode& node) {visit_un_exp(std::string("TildeUnaryExpressionNode"), node);}
+void GraphvizCAstVisitor::visit(CAst::NotUnaryExpressionNode& node) {visit_un_exp(std::string("NotUnaryExpressionNode"), node);}
+void GraphvizCAstVisitor::visit(CAst::MinusUnaryExpressionNode& node) {visit_un_exp(std::string("MinusUnaryExpressionNode"), node);}
 
-void GraphvizCAstVisitor::visit(CAst::MinusUnaryExpressionNode& node) {
-    auto my_id = std::to_string(node_count_++);
-    auto node_repr = labeled_node_with_kv_pairs(
-        my_id,
-        "MinusUnaryExpressionNode",
-        {}
-    );
-    of << node_repr;
-    node.operand_->accept(*this);
-    auto child_id = buffer_.back();
-    buffer_.pop_back();
-    auto edge = labeled_edge(my_id, child_id, "operand");
-    of << edge;
-    buffer_.push_back(my_id);
-}
+// Binary arithmetic Expressions
+void GraphvizCAstVisitor::visit(CAst::DivNode& node) {visit_bin_exp("DivNode", node);}
+void GraphvizCAstVisitor::visit(CAst::MultNode& node) {visit_bin_exp("MultNode", node);}
+void GraphvizCAstVisitor::visit(CAst::ModNode& node) {visit_bin_exp("ModNode", node);}
+void GraphvizCAstVisitor::visit(CAst::MinusNode& node) {visit_bin_exp("MinusNode", node);}
+void GraphvizCAstVisitor::visit(CAst::PlusNode& node) {visit_bin_exp("PlusNode", node);}
 
-void GraphvizCAstVisitor::visit(CAst::DivNode& node) {
-    auto my_id = std::to_string(node_count_++);
-    auto node_repr = labeled_node_with_kv_pairs(
-        my_id,
-        "DivNode",
-        {}
-    );
-    of << node_repr;
+// Binary bitwise expressions
+void GraphvizCAstVisitor::visit(CAst::AndNode& node) {visit_bin_exp("AndNode", node);}
+void GraphvizCAstVisitor::visit(CAst::OrNode& node) {visit_bin_exp("OrNode", node);}
+void GraphvizCAstVisitor::visit(CAst::BitwiseAndNode& node) {visit_bin_exp("BitwiseAndNode", node);}
+void GraphvizCAstVisitor::visit(CAst::BitwiseOrNode& node) {visit_bin_exp("BitwiseOrNode", node);}
+void GraphvizCAstVisitor::visit(CAst::BitwiseXorNode& node) {visit_bin_exp("BitwiseXorNode", node);}
+void GraphvizCAstVisitor::visit(CAst::BitwiseLeftShiftNode& node) {visit_bin_exp("BitwiseLeftShiftNode", node);}
+void GraphvizCAstVisitor::visit(CAst::BitwiseRightShiftNode& node) {visit_bin_exp("BitwiseRightShiftNode", node);}
 
-    node.left_->accept(*this);
-    auto left_child_id = buffer_.back();
-    buffer_.pop_back();
-    auto edge = labeled_edge(my_id, left_child_id, "left");
-    of << edge;
 
-    node.right_->accept(*this);
-    auto right_child_id = buffer_.back();
-    buffer_.pop_back();
-    edge = labeled_edge(my_id, right_child_id, "right");
-    of << edge;
-    buffer_.push_back(my_id);
-}
-
-void GraphvizCAstVisitor::visit(CAst::MultNode& node) {
-    auto my_id = std::to_string(node_count_++);
-    auto node_repr = labeled_node_with_kv_pairs(
-        my_id,
-        "MultNode",
-        {}
-    );
-    of << node_repr;
-
-    node.left_->accept(*this);
-    auto left_child_id = buffer_.back();
-    buffer_.pop_back();
-    auto edge = labeled_edge(my_id, left_child_id, "left");
-    of << edge;
-
-    node.right_->accept(*this);
-    auto right_child_id = buffer_.back();
-    buffer_.pop_back();
-    edge = labeled_edge(my_id, right_child_id, "right");
-    of << edge;
-    buffer_.push_back(my_id);
-}
-
-void GraphvizCAstVisitor::visit(CAst::ModNode& node) {
-    auto my_id = std::to_string(node_count_++);
-    auto node_repr = labeled_node_with_kv_pairs(
-        my_id,
-        "ModNode",
-        {}
-    );
-    of << node_repr;
-
-    node.left_->accept(*this);
-    auto left_child_id = buffer_.back();
-    buffer_.pop_back();
-    auto edge = labeled_edge(my_id, left_child_id, "left");
-    of << edge;
-
-    node.right_->accept(*this);
-    auto right_child_id = buffer_.back();
-    buffer_.pop_back();
-    edge = labeled_edge(my_id, right_child_id, "right");
-    of << edge;
-    buffer_.push_back(my_id);
-}
-
-void GraphvizCAstVisitor::visit(CAst::MinusNode& node) {
-    auto my_id = std::to_string(node_count_++);
-    auto node_repr = labeled_node_with_kv_pairs(
-        my_id,
-        "MinusNode",
-        {}
-    );
-    of << node_repr;
-
-    node.left_->accept(*this);
-    auto left_child_id = buffer_.back();
-    buffer_.pop_back();
-    auto edge = labeled_edge(my_id, left_child_id, "left");
-    of << edge;
-
-    node.right_->accept(*this);
-    auto right_child_id = buffer_.back();
-    buffer_.pop_back();
-    edge = labeled_edge(my_id, right_child_id, "right");
-    of << edge;
-    buffer_.push_back(my_id);
-}
-
-void GraphvizCAstVisitor::visit(CAst::PlusNode& node) {
-    auto my_id = std::to_string(node_count_++);
-    auto node_repr = labeled_node_with_kv_pairs(
-        my_id,
-        "PlusNode",
-        {}
-    );
-    of << node_repr;
-
-    node.left_->accept(*this);
-    auto left_child_id = buffer_.back();
-    buffer_.pop_back();
-    auto edge = labeled_edge(my_id, left_child_id, "left");
-    of << edge;
-
-    node.right_->accept(*this);
-    auto right_child_id = buffer_.back();
-    buffer_.pop_back();
-    edge = labeled_edge(my_id, right_child_id, "right");
-    of << edge;
-    buffer_.push_back(my_id);
-}
+// Terminal nodes
 
 void GraphvizCAstVisitor::visit(CAst::IntegerValueNode& node) {
     auto my_id = std::to_string(node_count_++);
@@ -280,4 +174,4 @@ void GraphvizCAstVisitor::visit(CAst::IntegerValueNode& node) {
     buffer_.push_back(my_id);
 }
 
-} // namespace CAst
+} // namespace Graphviz

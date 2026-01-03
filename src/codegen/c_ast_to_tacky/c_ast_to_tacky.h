@@ -21,6 +21,20 @@ public:
     void visit(CAst::ModNode& node);
     void visit(CAst::MinusNode& node);
     void visit(CAst::PlusNode& node);
+    void visit(CAst::AndNode& node);
+    void visit(CAst::BitwiseAndNode& node);
+    void visit(CAst::OrNode& node);
+    void visit(CAst::BitwiseOrNode& node);
+    void visit(CAst::BitwiseXorNode& node);
+    void visit(CAst::BitwiseLeftShiftNode& node);
+    void visit(CAst::BitwiseRightShiftNode& node);
+    void visit(CAst::NotUnaryExpressionNode& node);
+
+    template<std::derived_from<Tacky::BinaryOpNode> T>
+    void visit_bin_exp(CAst::BinaryExpressionNode& node);
+
+    template<std::derived_from<Tacky::UnaryNode> T>
+    void visit_un_exp(CAst::UnaryExpressionNode& node);
 
     std::shared_ptr<Tacky::ProgramNode> get_tacky_from_c_ast(std::shared_ptr<CAst::ProgramNode> root_node);
     std::string generate_temp_var_name();

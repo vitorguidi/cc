@@ -28,11 +28,25 @@ public:
     void visit(CAst::TildeUnaryExpressionNode& node) override;
     void visit(CAst::MinusUnaryExpressionNode& node) override;
     void visit(CAst::IntegerValueNode& node) override;
-    void visit(CAst::DivNode& node);
-    void visit(CAst::MultNode& node);
-    void visit(CAst::ModNode& node);
-    void visit(CAst::MinusNode& node);
-    void visit(CAst::PlusNode& node);
+    void visit(CAst::DivNode& node) override;
+    void visit(CAst::MultNode& node) override;
+    void visit(CAst::ModNode& node) override;
+    void visit(CAst::MinusNode& node) override;
+    void visit(CAst::PlusNode& node) override;
+    void visit(CAst::AndNode& node) override;
+    void visit(CAst::OrNode& node) override;
+    void visit(CAst::BitwiseAndNode& node) override;
+    void visit(CAst::BitwiseOrNode& node) override;
+    void visit(CAst::BitwiseXorNode& node) override;
+    void visit(CAst::BitwiseRightShiftNode& node) override;
+    void visit(CAst::BitwiseLeftShiftNode& node) override;
+    void visit(CAst::NotUnaryExpressionNode& node) override;
+
+    void visit_bin_exp(std::string node_name, CAst::BinaryExpressionNode& node);
+    void visit_un_exp(std::string node_name, CAst::UnaryExpressionNode& node);
+    template <std::derived_from<CAst::ASTNode> T>
+    std::string visit_child(std::string parent_id, std::string edge_name, std::shared_ptr<T> child_node);
+
     std::vector<std::string> buffer_;
     int node_count_;
     std::ofstream of;
@@ -47,6 +61,7 @@ public:
     void visit(Tacky::ReturnNode& node) override;
     void visit(Tacky::ComplementNode& node) override;
     void visit(Tacky::NegateNode& node) override;
+    void visit(Tacky::NotNode& node) override;
     void visit(Tacky::IntegerNode& node) override;
     void visit(Tacky::VariableNode& node) override;
     void visit(Tacky::DivNode& node) override;
@@ -54,6 +69,13 @@ public:
     void visit(Tacky::ModNode& node) override;
     void visit(Tacky::PlusNode& node) override;
     void visit(Tacky::MinusNode& node) override;
+    void visit(Tacky::AndNode& node) override;
+    void visit(Tacky::BitwiseAndNode& node) override;
+    void visit(Tacky::OrNode& node) override;
+    void visit(Tacky::BitwiseOrNode& node) override;
+    void visit(Tacky::BitwiseLeftShiftNode& node) override;
+    void visit(Tacky::BitwiseRightShiftNode& node) override;
+    void visit(Tacky::BitwiseXorNode& node) override;
     std::vector<std::string> buffer_;
     std::ofstream of;
     int node_count_;
@@ -84,6 +106,6 @@ public:
     int node_count_;
 };
 
-} // namespace CAst
+} // namespace Graphviz
 
 #endif // AST_GRAPHVIZ_H

@@ -106,21 +106,21 @@ public:
 class TildeUnaryExpressionNode : public UnaryExpressionNode {
 public:
     TildeUnaryExpressionNode(std::shared_ptr<ExpressionNode> operand) 
-        : UnaryExpressionNode(operand_) {}
+        : UnaryExpressionNode(operand) {}
     void accept(Visitor& v) override {v.visit(*this);}
 };
 
 class MinusUnaryExpressionNode : public UnaryExpressionNode {
 public:
     MinusUnaryExpressionNode(std::shared_ptr<ExpressionNode> operand) 
-        : UnaryExpressionNode(operand_) {}
+        : UnaryExpressionNode(operand) {}
     void accept(Visitor& v) override {v.visit(*this);}
 };
 
 class NotUnaryExpressionNode : public UnaryExpressionNode {
 public:
     NotUnaryExpressionNode(std::shared_ptr<ExpressionNode> operand)
-        : UnaryExpressionNode(operand_) {}
+        : UnaryExpressionNode(operand) {}
     void accept(Visitor& v) override {v.visit(*this);}
 };
 
