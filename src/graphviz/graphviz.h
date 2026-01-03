@@ -44,8 +44,7 @@ public:
 
     void visit_bin_exp(std::string node_name, CAst::BinaryExpressionNode& node);
     void visit_un_exp(std::string node_name, CAst::UnaryExpressionNode& node);
-    template <std::derived_from<CAst::ASTNode> T>
-    std::string visit_child(std::string parent_id, std::string edge_name, std::shared_ptr<T> child_node);
+    std::string visit_child(std::string parent_id, std::string edge_name, std::shared_ptr<CAst::ASTNode> child_node);
 
     std::vector<std::string> buffer_;
     int node_count_;

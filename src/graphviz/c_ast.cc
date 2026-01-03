@@ -18,8 +18,7 @@ GraphvizCAstVisitor::~GraphvizCAstVisitor() {
     }
 }
 
-template <std::derived_from<CAst::ASTNode> T>
-std::string GraphvizCAstVisitor::visit_child(std::string parent_id, std::string edge_label, std::shared_ptr<T> child_node) {
+std::string GraphvizCAstVisitor::visit_child(std::string parent_id, std::string edge_label, std::shared_ptr<CAst::ASTNode> child_node) {
     child_node->accept(*this);
     auto child_id = buffer_.back();
     auto edge = labeled_edge(parent_id, child_id, edge_label);
@@ -36,7 +35,7 @@ void GraphvizCAstVisitor::visit_un_exp(std::string node_name, CAst::UnaryExpress
         {}
     );
     of << node_repr;
-    visit_child<CAst::ExpressionNode>(my_id, std::string("operand"), node.operand_);
+    visit_child(my_id, std::string("operand"), node.operand_);
     buffer_.push_back(my_id);
 }
 
@@ -49,8 +48,8 @@ void GraphvizCAstVisitor::visit_bin_exp(std::string node_name, CAst::BinaryExpre
     );
     of << node_repr;
 
-    visit_child<CAst::ExpressionNode>(my_id, std::string("left"), node.left_);
-    visit_child<CAst::ExpressionNode>(my_id, std::string("right"), node.right_);
+    visit_child(my_id, std::string("left"), node.left_);
+    visit_child(my_id, std::string("right"), node.right_);
 
     buffer_.push_back(my_id);
 }
@@ -64,7 +63,7 @@ void GraphvizCAstVisitor::visit(CAst::ProgramNode& node) {
     );
     of << node_repr;
     for(auto& function: node.functions_) {
-        visit_child<CAst::FunctionNode>(my_id, std::string("function"), function);
+        visit_child(my_id, std::string("function"), function);
     }
     buffer_.push_back(my_id);
 }
@@ -78,9 +77,9 @@ void GraphvizCAstVisitor::visit(CAst::FunctionNode& node) {
     );
     of << node_repr;
 
-    visit_child<CAst::FunctionArgumentsNode>(my_id, "args", node.arguments_node_);
-    visit_child<CAst::StatementBlockNode>(my_id, "stmts", node.body_);
-    visit_child<CAst::TypeNode>(my_id, "args", node.type_node_);
+    visit_child(my_id, "args", node.arguments_node_);
+    visit_child(my_id, "stmts", node.body_);
+    visit_child(my_id, "args", node.type_node_);
 
     buffer_.push_back(my_id);
 }
@@ -121,7 +120,7 @@ void GraphvizCAstVisitor::visit(CAst::StatementBlockNode& node) {
     of << node_repr;
     auto last_parent = my_id;
     for(auto& stmt : node.statements_) {
-        last_parent = visit_child<CAst::StatementNode>(last_parent, std::string("next statement"), stmt);
+        last_parent = visit_child(last_parent, std::string("next statement"), stmt);
     }
     buffer_.push_back(my_id);
 }
@@ -135,7 +134,7 @@ void GraphvizCAstVisitor::visit(CAst::ReturnStatementNode& node) {
         {}
     );
     of << node_repr;
-    visit_child<CAst::ExpressionNode>(my_id, std::string("return value"), node.return_value_);
+    visit_child(my_id, std::string("return value"), node.return_value_);
     buffer_.push_back(my_id);
 }
 
