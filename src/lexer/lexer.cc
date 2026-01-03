@@ -117,6 +117,46 @@ auto ManualLexer::tokenize() -> std::generator<Token>  {
             idx_++;
             continue;
         }
+        if (peek("&&")) {
+            co_yield Token{TokenType::AND, std::monostate{}};
+            idx_+=2;
+            continue;
+        }
+        if (peek('&')) {
+            co_yield Token{TokenType::BITWISE_AND, std::monostate{}};
+            idx_++;
+            continue;
+        }
+        if (peek("||")) {
+            co_yield Token{TokenType::OR, std::monostate{}};
+            idx_+=2;
+            continue;
+        }
+        if (peek('|')) {
+            co_yield Token{TokenType::BITWISE_OR, std::monostate{}};
+            idx_++;
+            continue;
+        }
+        if (peek("^")) {
+            co_yield Token{TokenType::BITWISE_XOR, std::monostate{}};
+            idx_++;
+            continue;
+        }
+        if (peek('!')) {
+            co_yield Token{TokenType::NOT, std::monostate{}};
+            idx_++;
+            continue;
+        }
+        if (peek("<<")) {
+            co_yield Token{TokenType::BITSHIFT_LEFT, std::monostate{}};
+            idx_+=2;
+            continue;      
+        }
+        if (peek(">>")) {
+            co_yield Token{TokenType::BITSHIFT_RIGHT, std::monostate{}};
+            idx_+=2;
+            continue;      
+        }
         if (peek(std::string("int"))) {
             co_yield Token{TokenType::INTEGER_TYPE, std::monostate{}};
             idx_+=3;

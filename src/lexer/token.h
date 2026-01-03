@@ -29,6 +29,14 @@ enum TokenType {
     MULT,
     DIV,
     MOD,
+    NOT,
+    AND,
+    OR,
+    BITSHIFT_LEFT,
+    BITSHIFT_RIGHT,
+    BITWISE_AND,
+    BITWISE_OR,
+    BITWISE_XOR,
     END_OF_FILE,
 };
 

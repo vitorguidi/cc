@@ -18,6 +18,11 @@ const std::string some_binexps =
     "   return 2*7%5 + 10 - 11;\n"
     "}\n";
 
+const std::string some_boolean_ops =
+    "int function() {\n"
+    "return !2 || 3 && 4 & 2 | 5 ^ 3 >> 4 << 10 ;"
+    "}\n";
+
 namespace Lexer {
 
 void assert_expected_lex_results(std::vector<Token>& expected_results, TokenStream& results) {
@@ -44,6 +49,38 @@ void assert_expected_lex_results(std::vector<Token>& expected_results, TokenStre
         EXPECT_EQ(consumed_token.value, expected_token.value);
         idx_at++;
     }
+}
+
+TEST(LexerTest, SomeBoolOps) {
+    std::unique_ptr<Lexer> l = std::make_unique<ManualLexer>(some_boolean_ops);
+    std::vector<Token> expected_results = {
+        Token{TokenType::INTEGER_TYPE, std::monostate{}},
+        Token{TokenType::NAME, std::string("function")},
+        Token{TokenType::LPAREN, std::monostate{}},
+        Token{TokenType::RPAREN, std::monostate{}},
+        Token{TokenType::LBRACE, std::monostate{}},
+        Token{TokenType::RETURN, std::monostate{}},
+        Token{TokenType::NOT, std::monostate{}},
+        Token{TokenType::INTEGER_VALUE, 2},
+        Token{TokenType::OR, std::monostate{}},
+        Token{TokenType::INTEGER_VALUE, 3},
+        Token{TokenType::AND, std::monostate{}},
+        Token{TokenType::INTEGER_VALUE, 4},
+        Token{TokenType::BITWISE_AND, std::monostate{}},
+        Token{TokenType::INTEGER_VALUE, 2},
+        Token{TokenType::BITWISE_OR, std::monostate{}},
+        Token{TokenType::INTEGER_VALUE, 5},
+        Token{TokenType::BITWISE_XOR, std::monostate{}},
+        Token{TokenType::INTEGER_VALUE, 3},
+        Token{TokenType::BITSHIFT_RIGHT, std::monostate{}},
+        Token{TokenType::INTEGER_VALUE, 4},
+        Token{TokenType::BITSHIFT_LEFT, std::monostate{}},
+        Token{TokenType::INTEGER_VALUE, 10},
+        Token{TokenType::SEMICOLON, std::monostate{}},
+        Token{TokenType::RBRACE, std::monostate{}},
+    };
+    auto results = l->Lex();
+    assert_expected_lex_results(expected_results, results);
 }
 
 TEST(LexerTest, SomeBinexps) {
