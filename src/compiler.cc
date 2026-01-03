@@ -7,8 +7,8 @@
 #include "src/ast/ast.h"
 #include "src/graphviz/graphviz.h"
 #include "src/codegen/c_ast_to_tacky/c_ast_to_tacky.h"
-#include "src/codegen/tacky_to_asm/tacky_to_asm.h"
-#include "src/codegen/asm_dump/asm_dump.h"
+// #include "src/codegen/tacky_to_asm/tacky_to_asm.h"
+// #include "src/codegen/asm_dump/asm_dump.h"
 #include "src/lexer/lexer.h"
 #include "src/parser/parser.h"
 
@@ -61,43 +61,43 @@ int main(int argc, char** argv) {
         tacky_graphviz.visit(*tacky_program);
     }
 
-    std::cout << "First pass: ASM from Tacky..." << std::endl;
-    auto asm_visitor = Codegen::TackyToAsmVisitor();
-    std::shared_ptr<ASM::ProgramNode> asm_program = asm_visitor.get_asm_from_tacky(tacky_program);
+    // std::cout << "First pass: ASM from Tacky..." << std::endl;
+    // auto asm_visitor = Codegen::TackyToAsmVisitor();
+    // std::shared_ptr<ASM::ProgramNode> asm_program = asm_visitor.get_asm_from_tacky(tacky_program);
 
-    {
-        std::cout << "Generating graphviz visualization for ASM AST first pass..." << std::endl;
-        Graphviz::GraphvizASMVisitor asm_graphviz(std::string("asm_output/asm_1st_pass.dot"));
-        asm_graphviz.visit(*asm_program);
-    }
+    // {
+    //     std::cout << "Generating graphviz visualization for ASM AST first pass..." << std::endl;
+    //     Graphviz::GraphvizASMVisitor asm_graphviz(std::string("asm_output/asm_1st_pass.dot"));
+    //     asm_graphviz.visit(*asm_program);
+    // }
 
-    auto pseudo_replacement_visitor = Codegen::PseudoReplacerVisitor();
-    std::cout << "Second pass: removing pseudo registers from ASM..." << std::endl;
-    auto no_pseudo_asm_program = pseudo_replacement_visitor.get_rewritten_asm_program(asm_program);
+    // auto pseudo_replacement_visitor = Codegen::PseudoReplacerVisitor();
+    // std::cout << "Second pass: removing pseudo registers from ASM..." << std::endl;
+    // auto no_pseudo_asm_program = pseudo_replacement_visitor.get_rewritten_asm_program(asm_program);
 
-    {
-        std::cout << "Generating graphviz visualization for ASM AST second pass..." << std::endl;
-        Graphviz::GraphvizASMVisitor asm_graphviz(std::string("asm_output/asm_2nd_pass.dot"));
-        asm_graphviz.visit(*no_pseudo_asm_program);
-    }
+    // {
+    //     std::cout << "Generating graphviz visualization for ASM AST second pass..." << std::endl;
+    //     Graphviz::GraphvizASMVisitor asm_graphviz(std::string("asm_output/asm_2nd_pass.dot"));
+    //     asm_graphviz.visit(*no_pseudo_asm_program);
+    // }
 
-    int max_offset = pseudo_replacement_visitor.get_offset();
+    // int max_offset = pseudo_replacement_visitor.get_offset();
 
-    std::cout << "Third pass: ASM instruction fixup..." << std::endl;
-    auto instruction_fixup_visitor = Codegen::InstructionFixUpVisitor(max_offset);
-    auto fixed_asm_program = instruction_fixup_visitor.get_rewritten_asm_program(no_pseudo_asm_program);
+    // std::cout << "Third pass: ASM instruction fixup..." << std::endl;
+    // auto instruction_fixup_visitor = Codegen::InstructionFixUpVisitor(max_offset);
+    // auto fixed_asm_program = instruction_fixup_visitor.get_rewritten_asm_program(no_pseudo_asm_program);
 
-    {
-        std::cout << "Generating graphviz visualization for ASM AST third pass..." << std::endl;
-        Graphviz::GraphvizASMVisitor asm_graphviz(std::string("asm_output/asm_3rd_pass.dot"));
-        asm_graphviz.visit(*fixed_asm_program);
-    }
+    // {
+    //     std::cout << "Generating graphviz visualization for ASM AST third pass..." << std::endl;
+    //     Graphviz::GraphvizASMVisitor asm_graphviz(std::string("asm_output/asm_3rd_pass.dot"));
+    //     asm_graphviz.visit(*fixed_asm_program);
+    // }
 
-    {
-        std::cout << "Dumping ASM code..." << std::endl;
-        auto asm_dump_visitor = Codegen::ASMDumper(std::string(output_asm_file));
-        asm_dump_visitor.dump_assembly(fixed_asm_program);
-    }
+    // {
+    //     std::cout << "Dumping ASM code..." << std::endl;
+    //     auto asm_dump_visitor = Codegen::ASMDumper(std::string(output_asm_file));
+    //     asm_dump_visitor.dump_assembly(fixed_asm_program);
+    // }
 
     // generate the graphviz pngs
 

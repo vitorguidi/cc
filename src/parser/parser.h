@@ -21,6 +21,13 @@ inline bool is_bin_op(Lexer::TokenType token_type) {
         case Lexer::TokenType::MOD:
         case Lexer::TokenType::MINUS:
         case Lexer::TokenType::PLUS:
+        case Lexer::TokenType::BITSHIFT_LEFT:
+        case Lexer::TokenType::BITSHIFT_RIGHT:
+        case Lexer::TokenType::AND:
+        case Lexer::TokenType::BITWISE_AND:
+        case Lexer::TokenType::OR:
+        case Lexer::TokenType::BITWISE_OR:
+        case Lexer::TokenType::BITWISE_XOR:
             return true;
         default:
             return false;
@@ -34,6 +41,13 @@ inline std::optional<Associativity> associativity(Lexer::TokenType token_type) {
         case Lexer::TokenType::DIV:
         case Lexer::TokenType::PLUS:
         case Lexer::TokenType::MINUS:
+        case Lexer::TokenType::BITSHIFT_LEFT:
+        case Lexer::TokenType::BITSHIFT_RIGHT:
+        case Lexer::TokenType::AND:
+        case Lexer::TokenType::BITWISE_AND:
+        case Lexer::TokenType::OR:
+        case Lexer::TokenType::BITWISE_OR:
+        case Lexer::TokenType::BITWISE_XOR:
             return std::make_optional(LEFT);
         default:
             return std::nullopt;
@@ -42,15 +56,29 @@ inline std::optional<Associativity> associativity(Lexer::TokenType token_type) {
 
 typedef int Precedence;
 
+// https://en.cppreference.com/w/c/language/operator_precedence.html
 inline std::optional<Precedence> precedence(Lexer::TokenType token_type) {
     switch (token_type) {
         case Lexer::TokenType::MOD:
         case Lexer::TokenType::DIV:
         case Lexer::TokenType::MULT:
-            return std::make_optional(50);
+            return std::make_optional(65);
         case Lexer::TokenType::PLUS:
         case Lexer::TokenType::MINUS:
-            return std::make_optional(45);
+            return std::make_optional(60);
+        case Lexer::TokenType::BITSHIFT_LEFT:
+        case Lexer::TokenType::BITSHIFT_RIGHT:
+            return std::make_optional(55);
+        case Lexer::TokenType::BITWISE_AND:
+            return std::make_optional(40);
+        case Lexer::TokenType::BITWISE_XOR:
+            return std::make_optional(35);
+        case Lexer::TokenType::BITWISE_OR:
+            return std::make_optional(30);
+        case Lexer::TokenType::AND:
+            return std::make_optional(25);
+        case Lexer::TokenType::OR:
+            return std::make_optional(20);
         default:
             return std::nullopt;
     }

@@ -164,6 +164,7 @@ auto RecursiveDescentParser::parseFactor() -> std::optional<std::shared_ptr<CAst
         case Lexer::TokenType::INTEGER_VALUE:
             return parseConstantValue();
         case Lexer::TokenType::TILDE:
+        case Lexer::TokenType::NOT:
         case Lexer::TokenType::MINUS: {
             auto unop = parseUnaryExpression();
             if (!unop) {
@@ -217,6 +218,27 @@ auto RecursiveDescentParser::parseExpression(int min_precedence) -> std::optiona
             case Lexer::TokenType::MULT:
                 left = std::make_optional(std::make_shared<CAst::MultNode>(left.value(), right.value()));
                 break;
+            case Lexer::TokenType::AND:
+                left = std::make_optional(std::make_shared<CAst::AndNode>(left.value(), right.value()));
+                break;
+            case Lexer::TokenType::BITWISE_AND:
+                left = std::make_optional(std::make_shared<CAst::BitwiseAndNode>(left.value(), right.value()));
+                break;
+            case Lexer::TokenType::OR:
+                left = std::make_optional(std::make_shared<CAst::OrNode>(left.value(), right.value()));
+                break;
+            case Lexer::TokenType::BITWISE_OR:
+                left = std::make_optional(std::make_shared<CAst::BitwiseOrNode>(left.value(), right.value()));
+                break;
+            case Lexer::TokenType::BITWISE_XOR:
+                left = std::make_optional(std::make_shared<CAst::BitwiseXorNode>(left.value(), right.value()));
+                break;
+            case Lexer::TokenType::BITSHIFT_LEFT:
+                left = std::make_optional(std::make_shared<CAst::BitwiseLeftShiftNode>(left.value(), right.value()));
+                break;
+            case Lexer::TokenType::BITSHIFT_RIGHT:
+                left = std::make_optional(std::make_shared<CAst::BitwiseRightShiftNode>(left.value(), right.value()));
+                break;
             default:
                 throw std::runtime_error("Unable to build bin exp from given token.");
         }
@@ -237,6 +259,8 @@ auto RecursiveDescentParser::parseUnaryExpression() -> std::optional<std::shared
             return std::make_optional(std::make_shared<CAst::TildeUnaryExpressionNode>(operand.value()));
         case Lexer::TokenType::MINUS:
             return std::make_optional(std::make_shared<CAst::MinusUnaryExpressionNode>(operand.value()));
+        case Lexer::TokenType::NOT:
+            return std::make_optional(std::make_shared<CAst::NotUnaryExpressionNode>(operand.value()));
         default:
             throw std::runtime_error("Unexpecetd operation token while emiting a unary expr.");
     }
