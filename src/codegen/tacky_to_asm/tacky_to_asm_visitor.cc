@@ -91,6 +91,8 @@ void TackyToAsmVisitor::visit(Tacky::NegateNode& node) {
     buffer_.push_back(std::make_shared<ASM::NegNode>(converted_dst));
 }
 
+void TackyToAsmVisitor::visit(Tacky::NotNode& node) {}
+
 void TackyToAsmVisitor::visit(Tacky::DivNode& node) {
     node.left_->accept(*this);
     auto left_operand = As<ASM::OperandNode>(
@@ -227,6 +229,144 @@ void TackyToAsmVisitor::visit(Tacky::MinusNode& node) {
     ));
 
     buffer_.push_back(std::make_shared<ASM::SubNode>(
+        right_operand,
+        dst_operand
+    ));
+}
+
+void TackyToAsmVisitor::visit(Tacky::AndNode& node) {}
+void TackyToAsmVisitor::visit(Tacky::OrNode& node) {}
+
+void TackyToAsmVisitor::visit(Tacky::BitwiseAndNode& node) {
+    node.left_->accept(*this);
+    auto left_operand = As<ASM::OperandNode>(
+        buffer_.back(), "Failed to cast left operand in BitwiseAndNode to ASM::OperandNode");
+    buffer_.pop_back();
+
+    node.right_->accept(*this);
+    auto right_operand = As<ASM::OperandNode>(
+        buffer_.back(), "Failed to cast right operand in BitwiseAndNode to ASM::OperandNode");
+    buffer_.pop_back();
+
+    node.dst_->accept(*this);
+    auto dst_operand = As<ASM::OperandNode>(
+        buffer_.back(), "Failed to cast dst operand in BitwiseAndNode to ASM::OperandNode");
+    buffer_.pop_back();
+
+    buffer_.push_back(std::make_shared<ASM::MovNode>(
+        left_operand,
+        dst_operand
+    ));
+
+    buffer_.push_back(std::make_shared<ASM::BitwiseAndNode>(
+        right_operand,
+        dst_operand
+    ));
+}
+
+void TackyToAsmVisitor::visit(Tacky::BitwiseOrNode& node) {
+    node.left_->accept(*this);
+    auto left_operand = As<ASM::OperandNode>(
+        buffer_.back(), "Failed to cast left operand in BitwiseAndNode to ASM::OperandNode");
+    buffer_.pop_back();
+
+    node.right_->accept(*this);
+    auto right_operand = As<ASM::OperandNode>(
+        buffer_.back(), "Failed to cast right operand in BitwiseAndNode to ASM::OperandNode");
+    buffer_.pop_back();
+
+    node.dst_->accept(*this);
+    auto dst_operand = As<ASM::OperandNode>(
+        buffer_.back(), "Failed to cast dst operand in BitwiseAndNode to ASM::OperandNode");
+    buffer_.pop_back();
+
+    buffer_.push_back(std::make_shared<ASM::MovNode>(
+        left_operand,
+        dst_operand
+    ));
+
+    buffer_.push_back(std::make_shared<ASM::BitwiseOrNode>(
+        right_operand,
+        dst_operand
+    ));
+}
+
+void TackyToAsmVisitor::visit(Tacky::BitwiseXorNode& node) {
+    node.left_->accept(*this);
+    auto left_operand = As<ASM::OperandNode>(
+        buffer_.back(), "Failed to cast left operand in BitwiseXorNode to ASM::OperandNode");
+    buffer_.pop_back();
+
+    node.right_->accept(*this);
+    auto right_operand = As<ASM::OperandNode>(
+        buffer_.back(), "Failed to cast right operand in BitwiseXorNode to ASM::OperandNode");
+    buffer_.pop_back();
+
+    node.dst_->accept(*this);
+    auto dst_operand = As<ASM::OperandNode>(
+        buffer_.back(), "Failed to cast dst operand in BitwiseXorNode to ASM::OperandNode");
+    buffer_.pop_back();
+
+    buffer_.push_back(std::make_shared<ASM::MovNode>(
+        left_operand,
+        dst_operand
+    ));
+
+    buffer_.push_back(std::make_shared<ASM::BitwiseXorNode>(
+        right_operand,
+        dst_operand
+    ));
+}
+
+void TackyToAsmVisitor::visit(Tacky::BitwiseLeftShiftNode& node) {
+    node.left_->accept(*this);
+    auto left_operand = As<ASM::OperandNode>(
+        buffer_.back(), "Failed to cast left operand in BitwiseXorNode to ASM::OperandNode");
+    buffer_.pop_back();
+
+    node.right_->accept(*this);
+    auto right_operand = As<ASM::OperandNode>(
+        buffer_.back(), "Failed to cast right operand in BitwiseXorNode to ASM::OperandNode");
+    buffer_.pop_back();
+
+    node.dst_->accept(*this);
+    auto dst_operand = As<ASM::OperandNode>(
+        buffer_.back(), "Failed to cast dst operand in BitwiseXorNode to ASM::OperandNode");
+    buffer_.pop_back();
+
+    buffer_.push_back(std::make_shared<ASM::MovNode>(
+        left_operand,
+        dst_operand
+    ));
+
+    buffer_.push_back(std::make_shared<ASM::SalNode>(
+        right_operand,
+        dst_operand
+    ));
+}
+
+void TackyToAsmVisitor::visit(Tacky::BitwiseRightShiftNode& node) {
+    node.left_->accept(*this);
+    auto left_operand = As<ASM::OperandNode>(
+        buffer_.back(), "Failed to cast left operand in BitwiseXorNode to ASM::OperandNode");
+    buffer_.pop_back();
+
+    node.right_->accept(*this);
+    auto right_operand = As<ASM::OperandNode>(
+        buffer_.back(), "Failed to cast right operand in BitwiseXorNode to ASM::OperandNode");
+    buffer_.pop_back();
+
+    node.dst_->accept(*this);
+    auto dst_operand = As<ASM::OperandNode>(
+        buffer_.back(), "Failed to cast dst operand in BitwiseXorNode to ASM::OperandNode");
+    buffer_.pop_back();
+
+    buffer_.push_back(std::make_shared<ASM::MovNode>(
+        left_operand,
+        dst_operand
+    ));
+
+    buffer_.push_back(std::make_shared<ASM::SarNode>(
         right_operand,
         dst_operand
     ));

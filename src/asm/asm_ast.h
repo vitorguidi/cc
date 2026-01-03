@@ -14,6 +14,7 @@ class InstructionNode;
 class NegNode;
 class NotNode;
 class MovNode;
+class MovBNode;
 class RetNode;
 class AllocateStackNode;
 class ImmNode;
@@ -24,6 +25,11 @@ class AddNode;
 class SubNode;
 class DivNode;
 class MultNode;
+class BitwiseAndNode;
+class BitwiseOrNode;
+class BitwiseXorNode;
+class SarNode;
+class SalNode;
 class CDQNode;
 
 class Visitor {
@@ -34,6 +40,7 @@ public:
     virtual void visit(NegNode& node) = 0;
     virtual void visit(NotNode& node) = 0;
     virtual void visit(MovNode& node) = 0;
+    virtual void visit(MovBNode& node) = 0;
     virtual void visit(RetNode& node) = 0;
     virtual void visit(AllocateStackNode& node) = 0;
     virtual void visit(ImmNode& node) = 0;
@@ -45,6 +52,11 @@ public:
     virtual void visit(MultNode& node) = 0;
     virtual void visit(DivNode& node) = 0;
     virtual void visit(CDQNode& node) = 0;
+    virtual void visit(BitwiseAndNode& node) = 0;
+    virtual void visit(BitwiseOrNode& node) = 0;
+    virtual void visit(BitwiseXorNode& node) = 0;
+    virtual void visit(SarNode& node) = 0;
+    virtual void visit(SalNode& node) = 0;
 };
 
 class AstNode {
@@ -101,7 +113,9 @@ public:
 enum Register {
     AX,
     DX,
+    CL,
     R10,
+    R10b,
     R11,
 };
 
@@ -111,8 +125,12 @@ inline std::string register_as_string(Register reg) {
             return "AX";
         case Register::DX:
             return "DX";
+        case Register::CL:
+            return "CL";
         case Register::R10:
             return "R10";
+        case Register::R10b:
+            return "R10b";
         case Register::R11:
             return "R11";
         default:
@@ -214,6 +232,56 @@ public:
     void accept(Visitor& v) override {v.visit(*this);}
 };
 
+class BitwiseAndNode : public BinInstructionNode {
+public:
+    ~BitwiseAndNode() = default;
+    BitwiseAndNode(
+        std::shared_ptr<OperandNode> left,
+        std::shared_ptr<OperandNode> right)
+            : BinInstructionNode(left, right) {}
+    void accept(Visitor& v) override {v.visit(*this);}
+};
+
+class BitwiseOrNode : public BinInstructionNode {
+public:
+    ~BitwiseOrNode() = default;
+    BitwiseOrNode(
+        std::shared_ptr<OperandNode> left,
+        std::shared_ptr<OperandNode> right)
+            : BinInstructionNode(left, right) {}
+    void accept(Visitor& v) override {v.visit(*this);}
+};
+
+class BitwiseXorNode : public BinInstructionNode {
+public:
+    ~BitwiseXorNode() = default;
+    BitwiseXorNode(
+        std::shared_ptr<OperandNode> left,
+        std::shared_ptr<OperandNode> right)
+            : BinInstructionNode(left, right) {}
+    void accept(Visitor& v) override {v.visit(*this);}
+};
+
+class SarNode : public BinInstructionNode {
+public:
+    ~SarNode() = default;
+    SarNode(
+        std::shared_ptr<OperandNode> left,
+        std::shared_ptr<OperandNode> right)
+            : BinInstructionNode(left, right) {}
+    void accept(Visitor& v) override {v.visit(*this);}
+};
+
+class SalNode : public BinInstructionNode {
+public:
+    ~SalNode() = default;
+    SalNode(
+        std::shared_ptr<OperandNode> left,
+        std::shared_ptr<OperandNode> right)
+            : BinInstructionNode(left, right) {}
+    void accept(Visitor& v) override {v.visit(*this);}
+};
+
 class CDQNode : public InstructionNode {
 public:
     ~CDQNode() = default;
@@ -225,6 +293,15 @@ class MovNode : public InstructionNode {
 public:
     ~MovNode() = default;
     MovNode(std::shared_ptr<OperandNode> src, std::shared_ptr<OperandNode> dst)
+        : src_(src), dst_(dst) {}
+    void accept(Visitor& v) override {v.visit(*this);}
+    std::shared_ptr<OperandNode> src_, dst_;
+};
+
+class MovBNode : public InstructionNode {
+public:
+    ~MovBNode() = default;
+    MovBNode(std::shared_ptr<OperandNode> src, std::shared_ptr<OperandNode> dst)
         : src_(src), dst_(dst) {}
     void accept(Visitor& v) override {v.visit(*this);}
     std::shared_ptr<OperandNode> src_, dst_;

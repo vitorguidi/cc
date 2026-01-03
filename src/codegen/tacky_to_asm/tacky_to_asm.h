@@ -27,6 +27,7 @@ public:
     void visit(Tacky::ReturnNode& node) override;
     void visit(Tacky::ComplementNode& node) override;
     void visit(Tacky::NegateNode& node) override;
+    void visit(Tacky::NotNode& node) override;
     void visit(Tacky::IntegerNode& node) override;
     void visit(Tacky::VariableNode& node) override;
     void visit(Tacky::DivNode& node) override;
@@ -34,6 +35,13 @@ public:
     void visit(Tacky::MultNode& node) override;
     void visit(Tacky::PlusNode& node) override;
     void visit(Tacky::MinusNode& node) override;
+    void visit(Tacky::AndNode& node) override;
+    void visit(Tacky::BitwiseAndNode& node) override;
+    void visit(Tacky::OrNode& node) override;
+    void visit(Tacky::BitwiseOrNode& node) override;
+    void visit(Tacky::BitwiseXorNode& node) override;
+    void visit(Tacky::BitwiseLeftShiftNode& node) override;
+    void visit(Tacky::BitwiseRightShiftNode& node) override;
     std::shared_ptr<ASM::ProgramNode> get_asm_from_tacky(std::shared_ptr<Tacky::ProgramNode> tacky_program);
     std::vector<std::shared_ptr<ASM::AstNode>> buffer_;
 };
@@ -47,6 +55,7 @@ public:
     void visit(ASM::NegNode& node) override;
     void visit(ASM::NotNode& node) override;
     void visit(ASM::MovNode& node) override;
+    void visit(ASM::MovBNode& node) override;
     void visit(ASM::RetNode& node) override;
     void visit(ASM::AllocateStackNode& node) override;
     void visit(ASM::ImmNode& node) override;
@@ -57,6 +66,11 @@ public:
     void visit(ASM::DivNode& node) override;
     void visit(ASM::AddNode& node) override;
     void visit(ASM::SubNode& node) override;
+    void visit(ASM::BitwiseAndNode& node) override;
+    void visit(ASM::BitwiseOrNode& node) override;
+    void visit(ASM::BitwiseXorNode& node) override;
+    void visit(ASM::SalNode& node) override;
+    void visit(ASM::SarNode& node) override;
     void visit(ASM::CDQNode& node) override;
     std::shared_ptr<ASM::ProgramNode> get_rewritten_asm_program(std::shared_ptr<ASM::ProgramNode> program);
     std::deque<std::shared_ptr<ASM::AstNode>> buffer_;
@@ -79,10 +93,16 @@ public:
         : ASMRewriteVisitor(), max_stack_offset_(offset) {}
     void visit(ASM::FunctionNode& node) override;
     void visit(ASM::MovNode& node) override;
+    void visit(ASM::MovBNode& node) override;
     void visit(ASM::DivNode& node) override;
     void visit(ASM::MultNode& node) override;
     void visit(ASM::AddNode& node) override;
     void visit(ASM::SubNode& node) override;
+    void visit(ASM::BitwiseAndNode& node) override;
+    void visit(ASM::BitwiseOrNode& node) override;
+    void visit(ASM::BitwiseXorNode& node) override;
+    void visit(ASM::SalNode& node) override;
+    void visit(ASM::SarNode& node) override;
     int max_stack_offset_;
 };
 

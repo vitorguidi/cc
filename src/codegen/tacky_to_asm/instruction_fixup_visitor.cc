@@ -55,6 +55,31 @@ void InstructionFixUpVisitor::visit(ASM::MovNode& node) {
     buffer_.push_back(std::make_shared<ASM::MovNode>(node.src_, node.dst_));
 }
 
+void InstructionFixUpVisitor::visit(ASM::MovBNode& node) {
+    bool must_split_dual_memory_access = false;
+    node.src_->accept(*this);
+    auto fixed_src = As<ASM::OperandNode>(buffer_.back(), "Failed to cast buffered src to ASM::OperandNode.");
+    buffer_.pop_back();
+    auto src_as_stack = std::dynamic_pointer_cast<ASM::StackNode>(fixed_src);
+    node.dst_->accept(*this);
+    auto fixed_dst = As<ASM::OperandNode>(buffer_.back(), "Failed to cast buffered dst to ASM::OperandNode.");
+    buffer_.pop_back();
+    auto dst_as_stack = std::dynamic_pointer_cast<ASM::StackNode>(fixed_dst);
+    if (dst_as_stack && src_as_stack) {
+        must_split_dual_memory_access = true;
+    }
+    if (must_split_dual_memory_access) {
+        auto swap_register = std::make_shared<ASM::RegisterNode>(ASM::Register::R10b);
+        auto first_move = std::make_shared<ASM::MovBNode>(fixed_src, swap_register);
+        auto second_move = std::make_shared<ASM::MovBNode>(swap_register, fixed_dst);
+        buffer_.push_back(std::move(first_move));
+        buffer_.push_back(std::move(second_move));
+        return;
+    }
+    buffer_.push_back(std::make_shared<ASM::MovBNode>(node.src_, node.dst_));
+}
+
+
 void InstructionFixUpVisitor::visit(ASM::DivNode& node) {
     auto src_as_imm = std::dynamic_pointer_cast<ASM::ImmNode>(node.src_);
     if (src_as_imm) {
@@ -145,6 +170,124 @@ void InstructionFixUpVisitor::visit(ASM::MultNode& node) {
     }
 }
 
+void InstructionFixUpVisitor::visit(ASM::BitwiseAndNode& node) {
+    auto right_operand_as_stack = std::dynamic_pointer_cast<ASM::StackNode>(node.right_);
+    if (right_operand_as_stack) {
+        auto r11 = std::make_shared<ASM::RegisterNode>(ASM::Register::R11);
+        buffer_.push_back(std::make_shared<ASM::MovNode>(
+            node.right_,
+            r11
+        ));
+        buffer_.push_back(std::make_shared<ASM::BitwiseAndNode>(
+            node.left_,
+            r11
+        ));
+        buffer_.push_back(std::make_shared<ASM::MovNode>(
+            r11,
+            node.right_
+        ));
+    } else {
+        buffer_.push_back(std::make_shared<ASM::BitwiseAndNode>(
+            node.left_,
+            node.right_
+        ));
+    }
+}
 
+void InstructionFixUpVisitor::visit(ASM::BitwiseOrNode& node) {
+    auto right_operand_as_stack = std::dynamic_pointer_cast<ASM::StackNode>(node.right_);
+    if (right_operand_as_stack) {
+        auto r11 = std::make_shared<ASM::RegisterNode>(ASM::Register::R11);
+        buffer_.push_back(std::make_shared<ASM::MovNode>(
+            node.right_,
+            r11
+        ));
+        buffer_.push_back(std::make_shared<ASM::BitwiseOrNode>(
+            node.left_,
+            r11
+        ));
+        buffer_.push_back(std::make_shared<ASM::MovNode>(
+            r11,
+            node.right_
+        ));
+    } else {
+        buffer_.push_back(std::make_shared<ASM::BitwiseOrNode>(
+            node.left_,
+            node.right_
+        ));
+    }
+}
+
+void InstructionFixUpVisitor::visit(ASM::BitwiseXorNode& node) {
+    auto right_operand_as_stack = std::dynamic_pointer_cast<ASM::StackNode>(node.right_);
+    if (right_operand_as_stack) {
+        auto r11 = std::make_shared<ASM::RegisterNode>(ASM::Register::R11);
+        buffer_.push_back(std::make_shared<ASM::MovNode>(
+            node.right_,
+            r11
+        ));
+        buffer_.push_back(std::make_shared<ASM::BitwiseXorNode>(
+            node.left_,
+            r11
+        ));
+        buffer_.push_back(std::make_shared<ASM::MovNode>(
+            r11,
+            node.right_
+        ));
+    } else {
+        buffer_.push_back(std::make_shared<ASM::BitwiseXorNode>(
+            node.left_,
+            node.right_
+        ));
+    }
+}
+
+void InstructionFixUpVisitor::visit(ASM::SalNode& node) {
+    std::shared_ptr<ASM::OperandNode> shift_amount = std::dynamic_pointer_cast<ASM::ImmNode>(node.left_);
+    if (!shift_amount) {
+         shift_amount = std::make_shared<ASM::RegisterNode>(ASM::Register::CL);
+         buffer_.push_back(std::make_shared<ASM::MovBNode>(
+            node.left_,
+            shift_amount
+         ));
+    }
+    auto r11 = std::make_shared<ASM::RegisterNode>(ASM::Register::R11);
+    buffer_.push_back(std::make_shared<ASM::MovNode>(
+        node.right_,
+        r11
+    ));
+    buffer_.push_back(std::make_shared<ASM::SalNode>(
+        shift_amount,
+        r11
+    ));
+    buffer_.push_back(std::make_shared<ASM::MovNode>(
+        r11,
+        node.right_
+    ));
+}
+
+void InstructionFixUpVisitor::visit(ASM::SarNode& node) {
+    std::shared_ptr<ASM::OperandNode> shift_amount = std::dynamic_pointer_cast<ASM::ImmNode>(node.left_);
+    if (!shift_amount) {
+         shift_amount = std::make_shared<ASM::RegisterNode>(ASM::Register::CL);
+         buffer_.push_back(std::make_shared<ASM::MovBNode>(
+            node.left_,
+            shift_amount
+         ));
+    }
+    auto r11 = std::make_shared<ASM::RegisterNode>(ASM::Register::R11);
+    buffer_.push_back(std::make_shared<ASM::MovNode>(
+        node.right_,
+        r11
+    ));
+    buffer_.push_back(std::make_shared<ASM::SarNode>(
+        shift_amount,
+        r11
+    ));
+    buffer_.push_back(std::make_shared<ASM::MovNode>(
+        r11,
+        node.right_
+    ));
+}
 
 } // namespace Codegen

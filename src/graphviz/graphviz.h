@@ -94,6 +94,7 @@ public:
     void visit(ASM::NegNode& node) override;
     void visit(ASM::NotNode& node) override;
     void visit(ASM::MovNode& node) override;
+    void visit(ASM::MovBNode& node) override;
     void visit(ASM::RetNode& node) override;
     void visit(ASM::AllocateStackNode& node) override;
     void visit(ASM::ImmNode& node) override;
@@ -105,6 +106,11 @@ public:
     void visit(ASM::AddNode& node) override;
     void visit(ASM::SubNode& node) override;
     void visit(ASM::CDQNode& node) override;
+    void visit(ASM::BitwiseAndNode& node) override;
+    void visit(ASM::BitwiseOrNode& node) override;
+    void visit(ASM::BitwiseXorNode& node) override;
+    void visit(ASM::SalNode& node) override;
+    void visit(ASM::SarNode& node) override;
     std::vector<std::string> buffer_;
     std::ofstream of;
     int node_count_;

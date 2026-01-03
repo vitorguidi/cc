@@ -58,6 +58,11 @@ public:
         node.operand_->accept(*this);
         expr_ += ")";
     }
+    void visit(CAst::NotUnaryExpressionNode& node) override {
+        expr_ += "(!";
+        node.operand_->accept(*this);
+        expr_ += ")";
+    }
     void visit(CAst::IntegerValueNode& node) override {
         expr_ += std::to_string(node.value_);
     }
@@ -86,6 +91,41 @@ public:
         expr_ += ")";
 
     }
+    void visit(CAst::BitwiseAndNode& node) {
+        node.left_->accept(*this);
+        expr_ += "&";
+        node.right_->accept(*this);
+    }
+    void visit(CAst::BitwiseOrNode& node) {
+        node.left_->accept(*this);
+        expr_ += "|";
+        node.right_->accept(*this);
+    }
+    void visit(CAst::BitwiseXorNode& node) {
+        node.left_->accept(*this);
+        expr_ += "^";
+        node.right_->accept(*this);
+    }
+    void visit(CAst::BitwiseLeftShiftNode& node) {
+        node.left_->accept(*this);
+        expr_ += "<<";
+        node.right_->accept(*this);
+    }
+    void visit(CAst::BitwiseRightShiftNode& node) {
+        node.left_->accept(*this);
+        expr_ += ">>";
+        node.right_->accept(*this);
+    }
+    void visit(CAst::AndNode& node) {
+        node.left_->accept(*this);
+        expr_ += "&&";
+        node.right_->accept(*this);
+    }
+    void visit(CAst::OrNode& node) {
+        node.left_->accept(*this);
+        expr_ += "||";
+        node.right_->accept(*this);
+    }
     void visit(CAst::PlusNode& node) {
         node.left_->accept(*this);
         expr_ += "+";
@@ -102,6 +142,11 @@ const std::vector<std::string> bin_ops = {
     "MINUS",
     "PLUS",
     "MOD",
+    "BITWISE_AND",
+    "BITWISE_OR",
+    "BITWISE_XOR",
+    "SHIFT_LEFT",
+    "SHIFT_RIGHT",
 };
 
 std::shared_ptr<CAst::ExpressionNode> rand_binexp(RNG& rng, int height) {
@@ -124,6 +169,16 @@ std::shared_ptr<CAst::ExpressionNode> rand_binexp(RNG& rng, int height) {
         return std::make_shared<CAst::MinusNode>(left, right);
     } else if (draw_kind == "MOD") {
         return std::make_shared<CAst::ModNode>(left, right);
+    } else if (draw_kind == "BITWISE_AND") {
+        return std::make_shared<CAst::BitwiseAndNode>(left, right);
+    } else if (draw_kind == "BITWISE_OR") {
+        return std::make_shared<CAst::BitwiseOrNode>(left, right);
+    } else if (draw_kind == "BITWISE_XOR") {
+        return std::make_shared<CAst::BitwiseXorNode>(left, right);
+    } else if (draw_kind == "SHIFT_LEFT") {
+        return std::make_shared<CAst::BitwiseLeftShiftNode>(left, right);
+    } else if (draw_kind == "SHIFT_RIGHT") {
+        return std::make_shared<CAst::BitwiseRightShiftNode>(left, right);
     } else {
         throw std::runtime_error("Unsupported binop: " + draw_kind);
     }
@@ -214,9 +269,9 @@ TEST(FuzzTest, ExpressionFuzzingTest) {
         // Read the error file
         std::ifstream err_file(work_dir + "/gcc_err.txt");
         std::string err_content((std::istreambuf_iterator<char>(err_file)), std::istreambuf_iterator<char>());
-        if (err_content.find("division by zero") != std::string::npos) {
-            std::cout << "Skipping: GCC detected division by zero at compile-time." << std::endl;
-            continue; // Skip iteration
+        if (err_content.find("warning") != std::string::npos ) {
+            std::cout << "Skipping: GCC detected undefined behavior at compile-time : " << err_content << std::endl;
+            continue; // Skip iteration      
         }
         // 4. Assemble your output and Run
         std::system(("gcc " + s_file + " -o " + my_bin).c_str());

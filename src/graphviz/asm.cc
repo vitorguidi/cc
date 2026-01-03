@@ -109,6 +109,27 @@ void GraphvizASMVisitor::visit(ASM::MovNode& node) {
     buffer_.push_back(my_id);
 }
 
+void GraphvizASMVisitor::visit(ASM::MovBNode& node) {
+    auto my_id = std::to_string(node_count_++);
+    auto node_repr = labeled_node_with_kv_pairs(
+        my_id,
+        "MovBNode",
+        {}
+    );
+    of << node_repr;
+    node.src_->accept(*this);
+    auto src_id = buffer_.back();
+    buffer_.pop_back();
+    node.dst_->accept(*this);
+    auto dst_id = buffer_.back();
+    buffer_.pop_back();
+    auto src_edge = labeled_edge(my_id, src_id, "src");
+    of << src_edge;
+    auto dst_edge = labeled_edge(my_id, dst_id, "dst");
+    of << dst_edge;
+    buffer_.push_back(my_id);
+}
+
 void GraphvizASMVisitor::visit(ASM::DivNode& node) {
     auto my_id = std::to_string(node_count_++);
     auto node_repr = labeled_node_with_kv_pairs(
@@ -172,6 +193,111 @@ void GraphvizASMVisitor::visit(ASM::SubNode& node) {
     auto node_repr = labeled_node_with_kv_pairs(
         my_id,
         "SubNode",
+        {}
+    );
+    of << node_repr;
+    node.left_->accept(*this);
+    auto left_id = buffer_.back();
+    buffer_.pop_back();
+    node.right_->accept(*this);
+    auto right_id = buffer_.back();
+    buffer_.pop_back();
+    auto left_edge = labeled_edge(my_id, left_id, "left");
+    auto right_edge = labeled_edge(my_id, right_id, "right");
+    of << left_edge;
+    of << right_edge;
+    buffer_.push_back(my_id);
+}
+
+void GraphvizASMVisitor::visit(ASM::BitwiseAndNode& node) {
+    auto my_id = std::to_string(node_count_++);
+    auto node_repr = labeled_node_with_kv_pairs(
+        my_id,
+        "BitwiseAndNode",
+        {}
+    );
+    of << node_repr;
+    node.left_->accept(*this);
+    auto left_id = buffer_.back();
+    buffer_.pop_back();
+    node.right_->accept(*this);
+    auto right_id = buffer_.back();
+    buffer_.pop_back();
+    auto left_edge = labeled_edge(my_id, left_id, "left");
+    auto right_edge = labeled_edge(my_id, right_id, "right");
+    of << left_edge;
+    of << right_edge;
+    buffer_.push_back(my_id);
+}
+
+void GraphvizASMVisitor::visit(ASM::BitwiseOrNode& node) {
+    auto my_id = std::to_string(node_count_++);
+    auto node_repr = labeled_node_with_kv_pairs(
+        my_id,
+        "BitwiseOrNode",
+        {}
+    );
+    of << node_repr;
+    node.left_->accept(*this);
+    auto left_id = buffer_.back();
+    buffer_.pop_back();
+    node.right_->accept(*this);
+    auto right_id = buffer_.back();
+    buffer_.pop_back();
+    auto left_edge = labeled_edge(my_id, left_id, "left");
+    auto right_edge = labeled_edge(my_id, right_id, "right");
+    of << left_edge;
+    of << right_edge;
+    buffer_.push_back(my_id);
+}
+
+void GraphvizASMVisitor::visit(ASM::BitwiseXorNode& node) {
+    auto my_id = std::to_string(node_count_++);
+    auto node_repr = labeled_node_with_kv_pairs(
+        my_id,
+        "BitwiseXorNode",
+        {}
+    );
+    of << node_repr;
+    node.left_->accept(*this);
+    auto left_id = buffer_.back();
+    buffer_.pop_back();
+    node.right_->accept(*this);
+    auto right_id = buffer_.back();
+    buffer_.pop_back();
+    auto left_edge = labeled_edge(my_id, left_id, "left");
+    auto right_edge = labeled_edge(my_id, right_id, "right");
+    of << left_edge;
+    of << right_edge;
+    buffer_.push_back(my_id);
+}
+
+void GraphvizASMVisitor::visit(ASM::SalNode& node) {
+    auto my_id = std::to_string(node_count_++);
+    auto node_repr = labeled_node_with_kv_pairs(
+        my_id,
+        "SalNode",
+        {}
+    );
+    of << node_repr;
+    node.left_->accept(*this);
+    auto left_id = buffer_.back();
+    buffer_.pop_back();
+    node.right_->accept(*this);
+    auto right_id = buffer_.back();
+    buffer_.pop_back();
+    auto left_edge = labeled_edge(my_id, left_id, "left");
+    auto right_edge = labeled_edge(my_id, right_id, "right");
+    of << left_edge;
+    of << right_edge;
+    buffer_.push_back(my_id);
+}
+
+void GraphvizASMVisitor::visit(ASM::SarNode& node) {
+    auto my_id = std::to_string(node_count_++);
+    auto node_repr = labeled_node_with_kv_pairs(
+        my_id,
+        "SarNode",
         {}
     );
     of << node_repr;

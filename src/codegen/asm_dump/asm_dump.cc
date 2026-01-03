@@ -58,6 +58,16 @@ void ASMDumper::visit(ASM::MovNode& node) {
     of << "\tmovl   " + src_as_str + ",  " + dst_as_str + "\n";
 }
 
+void ASMDumper::visit(ASM::MovBNode& node) {
+    node.src_->accept(*this);
+    auto src_as_str = buffer_.back();
+    buffer_.pop_back();
+    node.dst_->accept(*this);
+    auto dst_as_str = buffer_.back();
+    buffer_.pop_back();    
+    of << "\tmovb   " + src_as_str + ",  " + dst_as_str + "\n";
+}
+
 void ASMDumper::visit(ASM::RetNode& node) {
     of << "\tmovq   %rbp,%rsp\n";
     of << "\tpopq   %rbp\n";
@@ -83,6 +93,9 @@ void ASMDumper::visit(ASM::RegisterNode& node) {
             break;
         case ASM::Register::DX:
             buffer_.push_back("\%edx");
+            break;
+        case ASM::Register::CL:
+            buffer_.push_back("\%cl");
             break;
         case ASM::Register::R10:
             buffer_.push_back("\%r10d");
@@ -120,6 +133,56 @@ void ASMDumper::visit(ASM::AddNode& node) {
     auto right = buffer_.back();
     buffer_.pop_back();
     of << "\taddl  " + left + ",  " + right + "\n";
+}
+
+void ASMDumper::visit(ASM::BitwiseAndNode& node) {
+    node.left_->accept(*this);
+    auto left = buffer_.back();
+    buffer_.pop_back();
+    node.right_->accept(*this);
+    auto right = buffer_.back();
+    buffer_.pop_back();
+    of << "\tandl  " + left + ",  " + right + "\n";
+}
+
+void ASMDumper::visit(ASM::BitwiseOrNode& node) {
+    node.left_->accept(*this);
+    auto left = buffer_.back();
+    buffer_.pop_back();
+    node.right_->accept(*this);
+    auto right = buffer_.back();
+    buffer_.pop_back();
+    of << "\torl  " + left + ",  " + right + "\n";
+}
+
+void ASMDumper::visit(ASM::BitwiseXorNode& node) {
+    node.left_->accept(*this);
+    auto left = buffer_.back();
+    buffer_.pop_back();
+    node.right_->accept(*this);
+    auto right = buffer_.back();
+    buffer_.pop_back();
+    of << "\txorl  " + left + ",  " + right + "\n";
+}
+
+void ASMDumper::visit(ASM::SarNode& node) {
+    node.left_->accept(*this);
+    auto left = buffer_.back();
+    buffer_.pop_back();
+    node.right_->accept(*this);
+    auto right = buffer_.back();
+    buffer_.pop_back();
+    of << "\tsarl  " + left + ",  " + right + "\n";
+}
+
+void ASMDumper::visit(ASM::SalNode& node) {
+    node.left_->accept(*this);
+    auto left = buffer_.back();
+    buffer_.pop_back();
+    node.right_->accept(*this);
+    auto right = buffer_.back();
+    buffer_.pop_back();
+    of << "\tsall  " + left + ",  " + right + "\n";
 }
 
 void ASMDumper::visit(ASM::SubNode& node) {
