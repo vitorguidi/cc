@@ -110,6 +110,14 @@ void GraphvizTackyVisitor::visit(Tacky::ModNode& node) {visit_bin_exp("ModNode",
 void GraphvizTackyVisitor::visit(Tacky::PlusNode& node) {visit_bin_exp("PlusNode", node);}
 void GraphvizTackyVisitor::visit(Tacky::MinusNode& node) {visit_bin_exp("MinusNode", node);}
 
+// relational bin exps
+void GraphvizTackyVisitor::visit(Tacky::EqualNode& node) {visit_bin_exp("EqualNode", node);}
+void GraphvizTackyVisitor::visit(Tacky::NotEqualNode& node) {visit_bin_exp("NotEqualNode", node);}
+void GraphvizTackyVisitor::visit(Tacky::GreaterNode& node) {visit_bin_exp("GreaterNode", node);}
+void GraphvizTackyVisitor::visit(Tacky::GreaterEqNode& node) {visit_bin_exp("GreaterEqNode", node);}
+void GraphvizTackyVisitor::visit(Tacky::LessNode& node) {visit_bin_exp("LessNode", node);}
+void GraphvizTackyVisitor::visit(Tacky::LessEqNode& node) {visit_bin_exp("LessEqNode", node);}
+
 // Binary boolean expressions
 void GraphvizTackyVisitor::visit(Tacky::AndNode& node) {visit_bin_exp("AndNode", node);}
 void GraphvizTackyVisitor::visit(Tacky::BitwiseAndNode& node) {visit_bin_exp("BitwiseAndNode", node);}

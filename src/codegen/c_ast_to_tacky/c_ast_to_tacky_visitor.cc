@@ -141,6 +141,14 @@ void AstToTackyVisitor::visit(CAst::ModNode& node) {visit_bin_exp<Tacky::ModNode
 void AstToTackyVisitor::visit(CAst::MinusNode& node) {visit_bin_exp<Tacky::MinusNode>(node);}
 void AstToTackyVisitor::visit(CAst::PlusNode& node) {visit_bin_exp<Tacky::PlusNode>(node);}
 
+// relational binary expressions
+void AstToTackyVisitor::visit(CAst::EqualNode& node) {visit_bin_exp<Tacky::EqualNode>(node);}
+void AstToTackyVisitor::visit(CAst::NotEqualNode& node) {visit_bin_exp<Tacky::NotEqualNode>(node);}
+void AstToTackyVisitor::visit(CAst::GreaterNode& node) {visit_bin_exp<Tacky::GreaterNode>(node);}
+void AstToTackyVisitor::visit(CAst::GreaterEqNode& node) {visit_bin_exp<Tacky::GreaterEqNode>(node);}
+void AstToTackyVisitor::visit(CAst::LessNode& node) {visit_bin_exp<Tacky::LessNode>(node);}
+void AstToTackyVisitor::visit(CAst::LessEqNode& node) {visit_bin_exp<Tacky::LessEqNode>(node);}
+
 // unary boolean expressions
 void AstToTackyVisitor::visit(CAst::AndNode& node) {visit_bin_exp<Tacky::AndNode>(node);}
 void AstToTackyVisitor::visit(CAst::BitwiseAndNode& node) {visit_bin_exp<Tacky::BitwiseAndNode>(node);}

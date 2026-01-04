@@ -81,6 +81,12 @@ public:
     void visit(Tacky::BitwiseLeftShiftNode& node) override;
     void visit(Tacky::BitwiseRightShiftNode& node) override;
     void visit(Tacky::BitwiseXorNode& node) override;
+    void visit(Tacky::EqualNode& node) override;
+    void visit(Tacky::NotEqualNode& node) override;
+    void visit(Tacky::GreaterNode& node) override;
+    void visit(Tacky::GreaterEqNode& node) override;
+    void visit(Tacky::LessNode& node) override;
+    void visit(Tacky::LessEqNode& node) override;
 
     void visit_bin_exp(std::string node_name, Tacky::BinaryOpNode& node);
     void visit_un_exp(std::string node_name, Tacky::UnaryNode& node);

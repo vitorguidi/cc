@@ -29,6 +29,12 @@ public:
     void visit(CAst::BitwiseLeftShiftNode& node);
     void visit(CAst::BitwiseRightShiftNode& node);
     void visit(CAst::NotUnaryExpressionNode& node);
+    void visit(CAst::EqualNode& node);
+    void visit(CAst::NotEqualNode& node);
+    void visit(CAst::GreaterNode& node);
+    void visit(CAst::GreaterEqNode& node);
+    void visit(CAst::LessNode& node);
+    void visit(CAst::LessEqNode& node);
 
     template<std::derived_from<Tacky::BinaryOpNode> T>
     void visit_bin_exp(CAst::BinaryExpressionNode& node);
