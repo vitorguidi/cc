@@ -70,8 +70,8 @@ void ASMRewriteVisitor::visit(ASM::FunctionNode& node) {
     );
 }
 
-void ASMRewriteVisitor::visit(ASM::NegNode& node) {visit_unexp<ASM::NegNode>(node);}
-void ASMRewriteVisitor::visit(ASM::NotNode& node) {visit_unexp<ASM::NotNode>(node);}
+void ASMRewriteVisitor::visit(ASM::ComplementNode& node) {visit_unexp<ASM::ComplementNode>(node);}
+void ASMRewriteVisitor::visit(ASM::BitwiseNotNode& node) {visit_unexp<ASM::BitwiseNotNode>(node);}
 
 
 void ASMRewriteVisitor::visit(ASM::MovNode& node) {

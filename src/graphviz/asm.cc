@@ -81,8 +81,8 @@ void GraphvizASMVisitor::visit(ASM::FunctionNode& node) {
 }
 
 // Unary exps
-void GraphvizASMVisitor::visit(ASM::NegNode& node) {visit_un_exp("NegNode", node);}
-void GraphvizASMVisitor::visit(ASM::NotNode& node) {visit_un_exp("NotNode", node);}
+void GraphvizASMVisitor::visit(ASM::ComplementNode& node) {visit_un_exp("NegNode", node);}
+void GraphvizASMVisitor::visit(ASM::BitwiseNotNode& node) {visit_un_exp("NotNode", node);}
 
 // binary arithmetic exps
 void GraphvizASMVisitor::visit(ASM::MultNode& node) {visit_bin_exp("MultNode", node);}

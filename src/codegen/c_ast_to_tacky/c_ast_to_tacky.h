@@ -13,7 +13,7 @@ public:
     void visit(CAst::StatementBlockNode& node);
     void visit(CAst::FunctionNode& node);
     void visit(CAst::ProgramNode& node);
-    void visit(CAst::TildeUnaryExpressionNode& node);
+    void visit(CAst::BitwiseNotUnaryExpressionNode& node);
     void visit(CAst::MinusUnaryExpressionNode& node);
     void visit(CAst::IntegerValueNode& node);
     void visit(CAst::DivNode& node);

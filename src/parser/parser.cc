@@ -256,7 +256,7 @@ auto RecursiveDescentParser::parseUnaryExpression() -> std::optional<std::shared
     }
     switch (token.kind) {
         case Lexer::TokenType::TILDE:
-            return std::make_optional(std::make_shared<CAst::TildeUnaryExpressionNode>(operand.value()));
+            return std::make_optional(std::make_shared<CAst::BitwiseNotUnaryExpressionNode>(operand.value()));
         case Lexer::TokenType::MINUS:
             return std::make_optional(std::make_shared<CAst::MinusUnaryExpressionNode>(operand.value()));
         case Lexer::TokenType::NOT:

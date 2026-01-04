@@ -11,8 +11,8 @@ class AstNode;
 class ProgramNode;
 class FunctionNode;
 class InstructionNode;
-class NegNode;
-class NotNode;
+class ComplementNode;
+class BitwiseNotNode;
 class MovNode;
 class MovBNode;
 class RetNode;
@@ -37,8 +37,8 @@ public:
     virtual ~Visitor() = default;
     virtual void visit(ProgramNode& node) = 0;
     virtual void visit(FunctionNode& node) = 0;
-    virtual void visit(NegNode& node) = 0;
-    virtual void visit(NotNode& node) = 0;
+    virtual void visit(ComplementNode& node) = 0;
+    virtual void visit(BitwiseNotNode& node) = 0;
     virtual void visit(MovNode& node) = 0;
     virtual void visit(MovBNode& node) = 0;
     virtual void visit(RetNode& node) = 0;
@@ -169,17 +169,17 @@ public:
     std::shared_ptr<OperandNode> src_;
 };
 
-class NegNode : public UnaryInstructionNode {
+class ComplementNode : public UnaryInstructionNode {
 public:
-    ~NegNode() = default;
-    NegNode(std::shared_ptr<OperandNode> src) : UnaryInstructionNode(src) {}
+    ~ComplementNode() = default;
+    ComplementNode(std::shared_ptr<OperandNode> src) : UnaryInstructionNode(src) {}
     void accept(Visitor& v) override {v.visit(*this);}
 };
 
-class NotNode : public UnaryInstructionNode {
+class BitwiseNotNode : public UnaryInstructionNode {
 public:
-    ~NotNode() = default;
-    NotNode(std::shared_ptr<OperandNode> src) : UnaryInstructionNode(src) {}
+    ~BitwiseNotNode() = default;
+    BitwiseNotNode(std::shared_ptr<OperandNode> src) : UnaryInstructionNode(src) {}
     void accept(Visitor& v) override {v.visit(*this);}
 };
 

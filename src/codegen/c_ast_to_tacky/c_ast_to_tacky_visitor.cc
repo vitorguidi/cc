@@ -130,8 +130,8 @@ void AstToTackyVisitor::visit(CAst::ReturnStatementNode& node) {
 }
 
 // unary expressions
-void AstToTackyVisitor::visit(CAst::TildeUnaryExpressionNode& node) {visit_un_exp<Tacky::ComplementNode>(node);}
-void AstToTackyVisitor::visit(CAst::MinusUnaryExpressionNode& node) {visit_un_exp<Tacky::NegateNode>(node);}
+void AstToTackyVisitor::visit(CAst::BitwiseNotUnaryExpressionNode& node) {visit_un_exp<Tacky::BitwiseNotNode>(node);}
+void AstToTackyVisitor::visit(CAst::MinusUnaryExpressionNode& node) {visit_un_exp<Tacky::ComplementNode>(node);}
 void AstToTackyVisitor::visit(CAst::NotUnaryExpressionNode& node) {visit_un_exp<Tacky::NotNode>(node);}
 
 // unary arithmetic expressions

@@ -106,8 +106,8 @@ void TackyToAsmVisitor::visit(Tacky::ReturnNode& node) {
 }
 
 // unary exps
-void TackyToAsmVisitor::visit(Tacky::ComplementNode& node) {visit_unexp<ASM::NotNode>(node);}
-void TackyToAsmVisitor::visit(Tacky::NegateNode& node) {visit_unexp<ASM::NegNode>(node);}
+void TackyToAsmVisitor::visit(Tacky::BitwiseNotNode& node) {visit_unexp<ASM::BitwiseNotNode>(node);}
+void TackyToAsmVisitor::visit(Tacky::ComplementNode& node) {visit_unexp<ASM::ComplementNode>(node);}
 void TackyToAsmVisitor::visit(Tacky::NotNode& node) {}
 
 // binary arithmetic exps

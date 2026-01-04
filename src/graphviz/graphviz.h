@@ -25,7 +25,7 @@ public:
     void visit(CAst::StatementBlockNode& node) override;
     void visit(CAst::FunctionNode& node) override;
     void visit(CAst::ProgramNode& node) override;
-    void visit(CAst::TildeUnaryExpressionNode& node) override;
+    void visit(CAst::BitwiseNotUnaryExpressionNode& node) override;
     void visit(CAst::MinusUnaryExpressionNode& node) override;
     void visit(CAst::IntegerValueNode& node) override;
     void visit(CAst::DivNode& node) override;
@@ -58,8 +58,8 @@ public:
     void visit(Tacky::ProgramNode& node) override;
     void visit(Tacky::FunctionNode& node) override;
     void visit(Tacky::ReturnNode& node) override;
+    void visit(Tacky::BitwiseNotNode& node) override;
     void visit(Tacky::ComplementNode& node) override;
-    void visit(Tacky::NegateNode& node) override;
     void visit(Tacky::NotNode& node) override;
     void visit(Tacky::IntegerNode& node) override;
     void visit(Tacky::VariableNode& node) override;
@@ -91,8 +91,8 @@ public:
     GraphvizASMVisitor(std::string filename);
     void visit(ASM::ProgramNode& node) override;
     void visit(ASM::FunctionNode& node) override;
-    void visit(ASM::NegNode& node) override;
-    void visit(ASM::NotNode& node) override;
+    void visit(ASM::ComplementNode& node) override;
+    void visit(ASM::BitwiseNotNode& node) override;
     void visit(ASM::MovNode& node) override;
     void visit(ASM::MovBNode& node) override;
     void visit(ASM::RetNode& node) override;

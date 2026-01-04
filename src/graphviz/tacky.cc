@@ -99,8 +99,8 @@ void GraphvizTackyVisitor::visit(Tacky::ReturnNode& node) {
 }
 
 // Unary expressions
+void GraphvizTackyVisitor::visit(Tacky::BitwiseNotNode& node) {visit_un_exp("BitwiseNotNode", node);}
 void GraphvizTackyVisitor::visit(Tacky::ComplementNode& node) {visit_un_exp("ComplementNode", node);}
-void GraphvizTackyVisitor::visit(Tacky::NegateNode& node) {visit_un_exp("NegateNode", node);}
 void GraphvizTackyVisitor::visit(Tacky::NotNode& node) {visit_un_exp("NotNode", node);}
 
 // Binary arithmetic expressions

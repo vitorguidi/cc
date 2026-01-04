@@ -11,8 +11,8 @@ public:
     ASMDumper(std::string filename);
     void visit(ASM::ProgramNode& node) override;
     void visit(ASM::FunctionNode& node) override;
-    void visit(ASM::NegNode& node) override;
-    void visit(ASM::NotNode& node) override;
+    void visit(ASM::ComplementNode& node) override;
+    void visit(ASM::BitwiseNotNode& node) override;
     void visit(ASM::MovNode& node) override;
     void visit(ASM::MovBNode& node) override;
     void visit(ASM::RetNode& node) override;

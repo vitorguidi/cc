@@ -32,7 +32,7 @@ TEST(TackyTest, BasicProgram) {
 
     ASSERT_EQ(instructions.size(), 4);
 
-    auto op0 = std::dynamic_pointer_cast<Tacky::ComplementNode>(instructions[0]);
+    auto op0 = std::dynamic_pointer_cast<Tacky::BitwiseNotNode>(instructions[0]);
     ASSERT_NE(nullptr, op0);
 
     auto op0_src = std::dynamic_pointer_cast<Tacky::IntegerNode>(op0->src_);
@@ -43,7 +43,7 @@ TEST(TackyTest, BasicProgram) {
     ASSERT_NE(nullptr, op0_dst);
     ASSERT_EQ(op0_dst->name_, "_tacky_temp_0");
     
-    auto op1 = std::dynamic_pointer_cast<Tacky::NegateNode>(instructions[1]);
+    auto op1 = std::dynamic_pointer_cast<Tacky::ComplementNode>(instructions[1]);
     ASSERT_NE(nullptr, op1);
 
     auto op1_src = std::dynamic_pointer_cast<Tacky::VariableNode>(op1->src_);
@@ -54,7 +54,7 @@ TEST(TackyTest, BasicProgram) {
     ASSERT_NE(nullptr, op1_dst);
     ASSERT_EQ(op1_dst->name_, "_tacky_temp_1");
 
-    auto op2 = std::dynamic_pointer_cast<Tacky::ComplementNode>(instructions[2]);
+    auto op2 = std::dynamic_pointer_cast<Tacky::BitwiseNotNode>(instructions[2]);
     ASSERT_NE(nullptr, op2);
 
     auto op2_src = std::dynamic_pointer_cast<Tacky::VariableNode>(op2->src_);

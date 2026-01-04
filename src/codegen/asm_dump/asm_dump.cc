@@ -34,14 +34,14 @@ void ASMDumper::visit(ASM::FunctionNode& node) {
     }
 }
 
-void ASMDumper::visit(ASM::NegNode& node) {
+void ASMDumper::visit(ASM::ComplementNode& node) {
     node.src_->accept(*this);
     auto operand_as_str = buffer_.back();
     buffer_.pop_back();
     of << "\tnegl   " + operand_as_str + "\n";
 }
 
-void ASMDumper::visit(ASM::NotNode& node) {
+void ASMDumper::visit(ASM::BitwiseNotNode& node) {
     node.src_->accept(*this);
     auto src_as_str = buffer_.back();
     buffer_.pop_back();

@@ -139,7 +139,7 @@ void GraphvizCAstVisitor::visit(CAst::ReturnStatementNode& node) {
 }
 
 // Unary Expressions
-void GraphvizCAstVisitor::visit(CAst::TildeUnaryExpressionNode& node) {visit_un_exp(std::string("TildeUnaryExpressionNode"), node);}
+void GraphvizCAstVisitor::visit(CAst::BitwiseNotUnaryExpressionNode& node) {visit_un_exp(std::string("BitwiseNotUnaryExpressionNode"), node);}
 void GraphvizCAstVisitor::visit(CAst::NotUnaryExpressionNode& node) {visit_un_exp(std::string("NotUnaryExpressionNode"), node);}
 void GraphvizCAstVisitor::visit(CAst::MinusUnaryExpressionNode& node) {visit_un_exp(std::string("MinusUnaryExpressionNode"), node);}
 

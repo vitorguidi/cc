@@ -15,9 +15,9 @@ class FunctionNode;
 class InstructionNode;
 class ReturnNode;
 class UnaryNode;
-class ComplementNode;
+class BitwiseNotNode;
 class NotNode;
-class NegateNode;
+class ComplementNode;
 class ValueNode;
 class IntegerNode;
 class VariableNode;
@@ -41,8 +41,8 @@ public:
     virtual void visit(ProgramNode& node) = 0;
     virtual void visit(FunctionNode& node) = 0;
     virtual void visit(ReturnNode& node) = 0;
+    virtual void visit(BitwiseNotNode& node) = 0;
     virtual void visit(ComplementNode& node) = 0;
-    virtual void visit(NegateNode& node) = 0;
     virtual void visit(IntegerNode& node) = 0;
     virtual void visit(VariableNode& node) = 0;
     virtual void visit(DivNode& node) = 0;
@@ -113,17 +113,17 @@ public:
     std::shared_ptr<ValueNode> src_, dst_;
 };
 
+class BitwiseNotNode : public UnaryNode {
+public:
+    ~BitwiseNotNode() = default;
+    BitwiseNotNode(std::shared_ptr<ValueNode> src, std::shared_ptr<ValueNode> dst) : UnaryNode(src, dst) {}
+    void accept(Visitor& v) override { v.visit(*this); }
+};
+
 class ComplementNode : public UnaryNode {
 public:
     ~ComplementNode() = default;
     ComplementNode(std::shared_ptr<ValueNode> src, std::shared_ptr<ValueNode> dst) : UnaryNode(src, dst) {}
-    void accept(Visitor& v) override { v.visit(*this); }
-};
-
-class NegateNode : public UnaryNode {
-public:
-    ~NegateNode() = default;
-    NegateNode(std::shared_ptr<ValueNode> src, std::shared_ptr<ValueNode> dst) : UnaryNode(src, dst) {}
     void accept(Visitor& v) override { v.visit(*this); }
 };
 

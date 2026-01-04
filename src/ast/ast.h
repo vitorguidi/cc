@@ -18,7 +18,7 @@ struct StatementBlockNode;
 struct FunctionNode;
 struct ProgramNode;
 struct IntegerValueNode;
-struct TildeUnaryExpressionNode;
+struct BitwiseNotUnaryExpressionNode;
 struct MinusUnaryExpressionNode;
 struct NotUnaryExpressionNode;
 struct DivNode;
@@ -43,7 +43,7 @@ public:
     virtual void visit(ReturnStatementNode& node) = 0;
     virtual void visit(StatementBlockNode& node) = 0;
     virtual void visit(FunctionNode& node) = 0;
-    virtual void visit(TildeUnaryExpressionNode& node) = 0;
+    virtual void visit(BitwiseNotUnaryExpressionNode& node) = 0;
     virtual void visit(MinusUnaryExpressionNode& node) = 0;
     virtual void visit(NotUnaryExpressionNode& node) = 0;
     virtual void visit(AndNode& node) = 0;
@@ -103,9 +103,9 @@ public:
 
 };
 
-class TildeUnaryExpressionNode : public UnaryExpressionNode {
+class BitwiseNotUnaryExpressionNode : public UnaryExpressionNode {
 public:
-    TildeUnaryExpressionNode(std::shared_ptr<ExpressionNode> operand) 
+    BitwiseNotUnaryExpressionNode(std::shared_ptr<ExpressionNode> operand) 
         : UnaryExpressionNode(operand) {}
     void accept(Visitor& v) override {v.visit(*this);}
 };
