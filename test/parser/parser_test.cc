@@ -111,7 +111,7 @@ TEST(ParserTest, AnotherBasicProgram) {
     ASSERT_NE(return_stmt, nullptr);
 
     // Assert return val is a tilde unary op
-    auto first_inner_op = std::dynamic_pointer_cast<CAst::TildeUnaryExpressionNode>(return_stmt->return_value_);
+    auto first_inner_op = std::dynamic_pointer_cast<CAst::BitwiseNotUnaryExpressionNode>(return_stmt->return_value_);
     ASSERT_NE(first_inner_op, nullptr);
 
     // Assert second inner exp is a minus unary op
@@ -119,7 +119,7 @@ TEST(ParserTest, AnotherBasicProgram) {
     ASSERT_NE(second_inner_op, nullptr);
 
     // Assert third inner exp is another tilde unary op
-    auto third_inner_op = std::dynamic_pointer_cast<CAst::TildeUnaryExpressionNode>(second_inner_op->operand_);
+    auto third_inner_op = std::dynamic_pointer_cast<CAst::BitwiseNotUnaryExpressionNode>(second_inner_op->operand_);
     ASSERT_NE(third_inner_op, nullptr);
 
     // Assert final inner operand is 400

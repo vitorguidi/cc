@@ -239,6 +239,24 @@ auto RecursiveDescentParser::parseExpression(int min_precedence) -> std::optiona
             case Lexer::TokenType::BITSHIFT_RIGHT:
                 left = std::make_optional(std::make_shared<CAst::BitwiseRightShiftNode>(left.value(), right.value()));
                 break;
+            case Lexer::TokenType::EQUAL:
+                left = std::make_optional(std::make_shared<CAst::EqualNode>(left.value(), right.value()));
+                break;
+            case Lexer::TokenType::NOT_EQUAL:
+                left = std::make_optional(std::make_shared<CAst::EqualNode>(left.value(), right.value()));
+                break;
+            case Lexer::TokenType::GREATER:
+                left = std::make_optional(std::make_shared<CAst::EqualNode>(left.value(), right.value()));
+                break;
+            case Lexer::TokenType::GREATER_EQ:
+                left = std::make_optional(std::make_shared<CAst::EqualNode>(left.value(), right.value()));
+                break;
+            case Lexer::TokenType::LESS:
+                left = std::make_optional(std::make_shared<CAst::EqualNode>(left.value(), right.value()));
+                break;
+            case Lexer::TokenType::LESS_EQ:
+                left = std::make_optional(std::make_shared<CAst::EqualNode>(left.value(), right.value()));
+                break;
             default:
                 throw std::runtime_error("Unable to build bin exp from given token.");
         }

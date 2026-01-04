@@ -159,6 +159,13 @@ void GraphvizCAstVisitor::visit(CAst::BitwiseXorNode& node) {visit_bin_exp("Bitw
 void GraphvizCAstVisitor::visit(CAst::BitwiseLeftShiftNode& node) {visit_bin_exp("BitwiseLeftShiftNode", node);}
 void GraphvizCAstVisitor::visit(CAst::BitwiseRightShiftNode& node) {visit_bin_exp("BitwiseRightShiftNode", node);}
 
+// Relational binary expressions
+void GraphvizCAstVisitor::visit(CAst::EqualNode& node) {visit_bin_exp("EqualNode", node);}
+void GraphvizCAstVisitor::visit(CAst::NotEqualNode& node) {visit_bin_exp("NotEqualNode", node);}
+void GraphvizCAstVisitor::visit(CAst::LessNode& node) {visit_bin_exp("LessNode", node);}
+void GraphvizCAstVisitor::visit(CAst::LessEqNode& node) {visit_bin_exp("LessEqNode", node);}
+void GraphvizCAstVisitor::visit(CAst::GreaterNode& node) {visit_bin_exp("GreaterNode", node);}
+void GraphvizCAstVisitor::visit(CAst::GreaterEqNode& node) {visit_bin_exp("GreaterEqNode", node);}
 
 // Terminal nodes
 

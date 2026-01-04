@@ -41,6 +41,12 @@ public:
     void visit(CAst::BitwiseRightShiftNode& node) override;
     void visit(CAst::BitwiseLeftShiftNode& node) override;
     void visit(CAst::NotUnaryExpressionNode& node) override;
+    void visit(CAst::EqualNode& node) override;
+    void visit(CAst::NotEqualNode& node) override;
+    void visit(CAst::LessNode& node) override;
+    void visit(CAst::LessEqNode& node) override;
+    void visit(CAst::GreaterNode& node) override;
+    void visit(CAst::GreaterEqNode& node) override;
 
     void visit_bin_exp(std::string node_name, CAst::BinaryExpressionNode& node);
     void visit_un_exp(std::string node_name, CAst::UnaryExpressionNode& node);

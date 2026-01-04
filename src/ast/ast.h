@@ -33,6 +33,12 @@ struct BitwiseAndNode;
 struct BitwiseOrNode;
 struct BitwiseLeftShiftNode;
 struct BitwiseRightShiftNode;
+struct EqualNode;
+struct NotEqualNode;
+struct GreaterNode;
+struct GreaterEqNode;
+struct LessNode;
+struct LessEqNode;
 
 // --- Visitor Interface ---
 class Visitor {
@@ -53,6 +59,12 @@ public:
     virtual void visit(BitwiseOrNode& node) = 0;
     virtual void visit(BitwiseLeftShiftNode& node) = 0;
     virtual void visit(BitwiseRightShiftNode& node) = 0;
+    virtual void visit(EqualNode& node) = 0;
+    virtual void visit(NotEqualNode& node) = 0;
+    virtual void visit(GreaterNode& node) = 0;
+    virtual void visit(GreaterEqNode& node) = 0;
+    virtual void visit(LessNode& node) = 0;
+    virtual void visit(LessEqNode& node) = 0;
     virtual void visit(IntegerValueNode& node) = 0;
     virtual void visit(ModNode& node) = 0;
     virtual void visit(DivNode& node) = 0;
@@ -226,6 +238,54 @@ public:
     BitwiseRightShiftNode(std::shared_ptr<ExpressionNode> left, std::shared_ptr<ExpressionNode> right)
         :  BinaryExpressionNode(left, right) {}
     ~BitwiseRightShiftNode() = default;
+    void accept(Visitor& v) override {v.visit(*this);}
+};
+
+class EqualNode : public BinaryExpressionNode {
+public:
+    EqualNode(std::shared_ptr<ExpressionNode> left, std::shared_ptr<ExpressionNode> right)
+        :  BinaryExpressionNode(left, right) {}
+    ~EqualNode() = default;
+    void accept(Visitor& v) override {v.visit(*this);}
+};
+
+class NotEqualNode : public BinaryExpressionNode {
+public:
+    NotEqualNode(std::shared_ptr<ExpressionNode> left, std::shared_ptr<ExpressionNode> right)
+        :  BinaryExpressionNode(left, right) {}
+    ~NotEqualNode() = default;
+    void accept(Visitor& v) override {v.visit(*this);}
+};
+
+class GreaterNode : public BinaryExpressionNode {
+public:
+    GreaterNode(std::shared_ptr<ExpressionNode> left, std::shared_ptr<ExpressionNode> right)
+        :  BinaryExpressionNode(left, right) {}
+    ~GreaterNode() = default;
+    void accept(Visitor& v) override {v.visit(*this);}
+};
+
+class GreaterEqNode : public BinaryExpressionNode {
+public:
+    GreaterEqNode(std::shared_ptr<ExpressionNode> left, std::shared_ptr<ExpressionNode> right)
+        :  BinaryExpressionNode(left, right) {}
+    ~GreaterEqNode() = default;
+    void accept(Visitor& v) override {v.visit(*this);}
+};
+
+class LessNode : public BinaryExpressionNode {
+public:
+    LessNode(std::shared_ptr<ExpressionNode> left, std::shared_ptr<ExpressionNode> right)
+        :  BinaryExpressionNode(left, right) {}
+    ~LessNode() = default;
+    void accept(Visitor& v) override {v.visit(*this);}
+};
+
+class LessEqNode : public BinaryExpressionNode {
+public:
+    LessEqNode(std::shared_ptr<ExpressionNode> left, std::shared_ptr<ExpressionNode> right)
+        :  BinaryExpressionNode(left, right) {}
+    ~LessEqNode() = default;
     void accept(Visitor& v) override {v.visit(*this);}
 };
 

@@ -48,7 +48,7 @@ public:
         node.return_value_->accept(*this);
         expr_ += ";";
     }
-    void visit(CAst::TildeUnaryExpressionNode& node) override {
+    void visit(CAst::BitwiseNotUnaryExpressionNode& node) override {
         expr_ += "~(";
         node.operand_->accept(*this);
         expr_ += ")";
@@ -200,7 +200,7 @@ std::shared_ptr<CAst::ExpressionNode> rand_unexp(RNG& rng, int height) {
     if (draw_kind == "MINUS") {
         return std::make_shared<CAst::MinusUnaryExpressionNode>(operand);
     } else if (draw_kind == "TILDE") {
-        return std::make_shared<CAst::TildeUnaryExpressionNode>(operand);
+        return std::make_shared<CAst::BitwiseNotUnaryExpressionNode>(operand);
     } else {
         throw std::runtime_error("Unsupported unop: " + draw_kind);
     }

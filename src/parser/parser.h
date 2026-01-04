@@ -28,6 +28,12 @@ inline bool is_bin_op(Lexer::TokenType token_type) {
         case Lexer::TokenType::OR:
         case Lexer::TokenType::BITWISE_OR:
         case Lexer::TokenType::BITWISE_XOR:
+        case Lexer::TokenType::EQUAL:
+        case Lexer::TokenType::NOT_EQUAL:
+        case Lexer::TokenType::GREATER:
+        case Lexer::TokenType::GREATER_EQ:
+        case Lexer::TokenType::LESS:
+        case Lexer::TokenType::LESS_EQ:
             return true;
         default:
             return false;
@@ -48,6 +54,12 @@ inline std::optional<Associativity> associativity(Lexer::TokenType token_type) {
         case Lexer::TokenType::OR:
         case Lexer::TokenType::BITWISE_OR:
         case Lexer::TokenType::BITWISE_XOR:
+        case Lexer::TokenType::EQUAL:
+        case Lexer::TokenType::NOT_EQUAL:
+        case Lexer::TokenType::GREATER:
+        case Lexer::TokenType::GREATER_EQ:
+        case Lexer::TokenType::LESS:
+        case Lexer::TokenType::LESS_EQ:
             return std::make_optional(LEFT);
         default:
             return std::nullopt;
@@ -69,6 +81,14 @@ inline std::optional<Precedence> precedence(Lexer::TokenType token_type) {
         case Lexer::TokenType::BITSHIFT_LEFT:
         case Lexer::TokenType::BITSHIFT_RIGHT:
             return std::make_optional(55);
+        case Lexer::TokenType::GREATER:
+        case Lexer::TokenType::GREATER_EQ:
+        case Lexer::TokenType::LESS:
+        case Lexer::TokenType::LESS_EQ:
+            return std::make_optional(50);
+        case Lexer::TokenType::EQUAL:
+        case Lexer::TokenType::NOT_EQUAL:
+            return std::make_optional(45);
         case Lexer::TokenType::BITWISE_AND:
             return std::make_optional(40);
         case Lexer::TokenType::BITWISE_XOR:
