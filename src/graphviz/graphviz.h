@@ -123,6 +123,8 @@ public:
     void visit(ASM::BitwiseXorNode& node) override;
     void visit(ASM::SalNode& node) override;
     void visit(ASM::SarNode& node) override;
+    void visit(ASM::CmpNode& node) override;
+    void visit(ASM::SetCCNode& node) override;
 
     void visit_bin_exp(std::string node_name, ASM::BinInstructionNode& node);
     void visit_un_exp(std::string node_name, ASM::UnaryInstructionNode& node);

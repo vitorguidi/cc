@@ -31,6 +31,8 @@ public:
     void visit(ASM::BitwiseXorNode& node) override;
     void visit(ASM::SalNode& node) override;
     void visit(ASM::SarNode& node) override;
+    void visit(ASM::CmpNode& node) override;
+    void visit(ASM::SetCCNode& node) override;
     void dump_assembly(std::shared_ptr<ASM::ProgramNode> asm_program);
     std::vector<std::string> asm_text_dump_, buffer_;
     std::string target_filename_;

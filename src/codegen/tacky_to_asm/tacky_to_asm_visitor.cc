@@ -49,6 +49,33 @@ void TackyToAsmVisitor::visit_unexp(Tacky::UnaryNode& node) {
     buffer_.push_back(std::make_shared<T>(converted_dst));
 }
 
+void TackyToAsmVisitor::visit_relational_exp(ASM::ConditionCode cc, Tacky::RelationalOpNode& node) {
+    node.left_->accept(*this);
+
+    auto converted_left = As<ASM::OperandNode>(
+        buffer_.back(), "Failed to cast left operand to ASM::OperandNode");
+    buffer_.pop_back();
+
+    node.right_->accept(*this);
+
+    auto converted_right = As<ASM::OperandNode>(
+        buffer_.back(), "Failed to cast left operand to ASM::OperandNode");
+    buffer_.pop_back();
+
+    node.dst_->accept(*this);
+
+    auto converted_dst = As<ASM::OperandNode>(
+        buffer_.back(), "Failed to cast dst operand to ASM::OperandNode");
+    buffer_.pop_back();
+
+    buffer_.push_back(std::make_shared<ASM::CmpNode>(converted_right, converted_left));
+    buffer_.push_back(std::make_shared<ASM::MovNode>(
+        std::make_shared<ASM::ImmNode>(0),
+        converted_dst
+    ));
+    buffer_.push_back(std::make_shared<ASM::SetCCNode>(cc, converted_dst));
+}
+
 std::shared_ptr<ASM::ProgramNode> TackyToAsmVisitor::get_asm_from_tacky(std::shared_ptr<Tacky::ProgramNode> tacky_program) {
     if (!buffer_.empty()) {
         throw std::runtime_error("Expected buffer to be empty before generating asm from tacky.");
@@ -186,6 +213,15 @@ void TackyToAsmVisitor::visit(Tacky::ModNode& node) {
         dst_operand
     ));
 }
+
+
+// relational binexps
+void TackyToAsmVisitor::visit(Tacky::EqualNode& node) {visit_relational_exp(ASM::ConditionCode::EQUAL, node);}
+void TackyToAsmVisitor::visit(Tacky::NotEqualNode& node) {visit_relational_exp(ASM::ConditionCode::NOT_EQUAL, node);}
+void TackyToAsmVisitor::visit(Tacky::GreaterNode& node) {visit_relational_exp(ASM::ConditionCode::GREATER, node);}
+void TackyToAsmVisitor::visit(Tacky::GreaterEqNode& node) {visit_relational_exp(ASM::ConditionCode::GREATER_EQ, node);}
+void TackyToAsmVisitor::visit(Tacky::LessNode& node) {visit_relational_exp(ASM::ConditionCode::LESS, node);}
+void TackyToAsmVisitor::visit(Tacky::LessEqNode& node) {visit_relational_exp(ASM::ConditionCode::LESS_EQ, node);}
 
 void TackyToAsmVisitor::visit(Tacky::IntegerNode& node) {
     buffer_.push_back(std::make_shared<ASM::ImmNode>(node.value_));

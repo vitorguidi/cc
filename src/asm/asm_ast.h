@@ -30,6 +30,8 @@ class BitwiseOrNode;
 class BitwiseXorNode;
 class SarNode;
 class SalNode;
+class CmpNode;
+class SetCCNode;
 class CDQNode;
 
 class Visitor {
@@ -57,6 +59,8 @@ public:
     virtual void visit(BitwiseXorNode& node) = 0;
     virtual void visit(SarNode& node) = 0;
     virtual void visit(SalNode& node) = 0;
+    virtual void visit(CmpNode& node) = 0;
+    virtual void visit(SetCCNode& node) = 0;
 };
 
 class AstNode {
@@ -305,6 +309,72 @@ public:
         : src_(src), dst_(dst) {}
     void accept(Visitor& v) override {v.visit(*this);}
     std::shared_ptr<OperandNode> src_, dst_;
+};
+
+enum ConditionCode {
+    GREATER,
+    GREATER_EQ,
+    LESS,
+    LESS_EQ,
+    EQUAL,
+    NOT_EQUAL,
+};
+
+inline std::string instruction_suffix(ConditionCode cc) {
+    switch(cc) {
+        case GREATER:
+            return "g";
+        case GREATER_EQ:
+            return "ge";
+        case LESS:
+            return "l";
+        case LESS_EQ:
+            return "le";
+        case EQUAL:
+            return "e";
+        case NOT_EQUAL:
+            return "ne";
+        default:
+            throw std::runtime_error("Unhandled condition code.");
+    }
+}
+
+inline std::string cc_as_string(ConditionCode cc) {
+    switch(cc) {
+        case GREATER:
+            return "GREATER";
+        case GREATER_EQ:
+            return "GREATER_EQ";
+        case LESS:
+            return "LESS";
+        case LESS_EQ:
+            return "LESS_EQ";
+        case EQUAL:
+            return "EQUAL";
+        case NOT_EQUAL:
+            return "NOT_EQUAL";
+        default:
+            throw std::runtime_error("Unhandled condition code.");
+    }
+}
+
+class SetCCNode : public InstructionNode {
+public:
+    ConditionCode cc_;
+    std::shared_ptr<OperandNode> operand_;
+    ~SetCCNode() = default;
+    SetCCNode(ConditionCode cc, std::shared_ptr<OperandNode> operand)
+        : cc_(cc), operand_(operand) {}
+    void accept(Visitor& v) override {v.visit(*this);}
+};
+
+class CmpNode : public InstructionNode {
+public:
+    std::shared_ptr<OperandNode> operand1_, operand2_;
+    ~CmpNode() = default;
+    CmpNode(std::shared_ptr<OperandNode> op1, std::shared_ptr<OperandNode> op2)
+        :   operand1_(op1), operand2_(op2) {}
+    void accept(Visitor& v) override {v.visit(*this);}
 };
 
 class AllocateStackNode : public InstructionNode {

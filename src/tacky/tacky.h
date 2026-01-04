@@ -251,51 +251,59 @@ public:
     void accept(Visitor& v) {v.visit(*this);}
 };
 
-class EqualNode : public BinaryOpNode {
+class RelationalOpNode : public BinaryOpNode {
+public:
+    virtual ~RelationalOpNode() = default;
+    RelationalOpNode(std::shared_ptr<ValueNode> left, std::shared_ptr<ValueNode> right, std::shared_ptr<ValueNode> dst)
+        :   BinaryOpNode(left, right, dst) {}
+    virtual void accept(Visitor& v) = 0;
+};
+
+class EqualNode : public RelationalOpNode {
 public:
     ~EqualNode() = default;
     EqualNode(std::shared_ptr<ValueNode> left, std::shared_ptr<ValueNode> right, std::shared_ptr<ValueNode> dst)
-        : BinaryOpNode(left, right, dst) {}
+        : RelationalOpNode(left, right, dst) {}
     void accept(Visitor& v) {v.visit(*this);}  
 };
 
-class NotEqualNode : public BinaryOpNode {
+class NotEqualNode : public RelationalOpNode {
 public:
     ~NotEqualNode() = default;
     NotEqualNode(std::shared_ptr<ValueNode> left, std::shared_ptr<ValueNode> right, std::shared_ptr<ValueNode> dst)
-        : BinaryOpNode(left, right, dst) {}
+        : RelationalOpNode(left, right, dst) {}
     void accept(Visitor& v) {v.visit(*this);}  
 };
 
-class GreaterNode : public BinaryOpNode {
+class GreaterNode : public RelationalOpNode {
 public:
     ~GreaterNode() = default;
     GreaterNode(std::shared_ptr<ValueNode> left, std::shared_ptr<ValueNode> right, std::shared_ptr<ValueNode> dst)
-        : BinaryOpNode(left, right, dst) {}
+        : RelationalOpNode(left, right, dst) {}
     void accept(Visitor& v) {v.visit(*this);}  
 };
 
-class GreaterEqNode : public BinaryOpNode {
+class GreaterEqNode : public RelationalOpNode {
 public:
     ~GreaterEqNode() = default;
     GreaterEqNode(std::shared_ptr<ValueNode> left, std::shared_ptr<ValueNode> right, std::shared_ptr<ValueNode> dst)
-        : BinaryOpNode(left, right, dst) {}
+        : RelationalOpNode(left, right, dst) {}
     void accept(Visitor& v) {v.visit(*this);}  
 };
 
-class LessNode : public BinaryOpNode {
+class LessNode : public RelationalOpNode {
 public:
     ~LessNode() = default;
     LessNode(std::shared_ptr<ValueNode> left, std::shared_ptr<ValueNode> right, std::shared_ptr<ValueNode> dst)
-        : BinaryOpNode(left, right, dst) {}
+        : RelationalOpNode(left, right, dst) {}
     void accept(Visitor& v) {v.visit(*this);}  
 };
 
-class LessEqNode : public BinaryOpNode {
+class LessEqNode : public RelationalOpNode {
 public:
     ~LessEqNode() = default;
     LessEqNode(std::shared_ptr<ValueNode> left, std::shared_ptr<ValueNode> right, std::shared_ptr<ValueNode> dst)
-        : BinaryOpNode(left, right, dst) {}
+        : RelationalOpNode(left, right, dst) {}
     void accept(Visitor& v) {v.visit(*this);}  
 };
 

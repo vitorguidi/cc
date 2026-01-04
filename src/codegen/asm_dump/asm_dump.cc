@@ -195,6 +195,24 @@ void ASMDumper::visit(ASM::SubNode& node) {
     of << "\tsubl  " + left + ",  " + right + "\n";
 }
 
+void ASMDumper::visit(ASM::SetCCNode& node) {
+    node.operand_->accept(*this);
+    auto operand = buffer_.back();
+    buffer_.pop_back();
+    std::string instruction_name = "set" + ASM::instruction_suffix(node.cc_);
+    of << "\t" + instruction_name + "\t" + operand + "\n";
+}
+
+void ASMDumper::visit(ASM::CmpNode& node) {
+    node.operand1_->accept(*this);
+    auto operand1 = buffer_.back();
+    buffer_.pop_back();
+    node.operand2_->accept(*this);
+    auto operand2 = buffer_.back();
+    buffer_.pop_back();
+    of << "\tcmpl\t" + operand1 + "," + operand2 + "\n";
+}
+
 void ASMDumper::visit(ASM::CDQNode& node) {
     of << "\tcdq\n";
 }

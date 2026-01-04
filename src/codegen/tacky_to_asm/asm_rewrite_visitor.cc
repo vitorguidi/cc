@@ -140,6 +140,33 @@ void ASMRewriteVisitor::visit(ASM::BitwiseXorNode& node) {visit_binexp<ASM::Bitw
 void ASMRewriteVisitor::visit(ASM::SalNode& node) {visit_binexp<ASM::SalNode>(node);}
 void ASMRewriteVisitor::visit(ASM::SarNode& node) {visit_binexp<ASM::SarNode>(node);}
 
+void ASMRewriteVisitor::visit(ASM::CmpNode& node) {
+    node.operand1_->accept(*this);
+    std::shared_ptr<ASM::OperandNode> casted_operand1 = As<ASM::OperandNode>(
+        buffer_.back(),
+        "Failed to cast buffered operand into ASM::OperandNode"
+    );
+    buffer_.pop_back();
+
+    node.operand2_->accept(*this);
+    std::shared_ptr<ASM::OperandNode> casted_operand2 = As<ASM::OperandNode>(
+        buffer_.back(),
+        "Failed to cast buffered operand into ASM::OperandNode"
+    );
+    buffer_.pop_back();
+    buffer_.push_back(std::make_shared<ASM::CmpNode>(casted_operand1, casted_operand2));
+}
+
+void ASMRewriteVisitor::visit(ASM::SetCCNode& node) {
+    node.operand_->accept(*this);
+    std::shared_ptr<ASM::OperandNode> casted_operand = As<ASM::OperandNode>(
+        buffer_.back(),
+        "Failed to cast buffered operand into ASM::OperandNode"
+    );
+    buffer_.pop_back();
+    buffer_.push_back(std::make_shared<ASM::SetCCNode>(node.cc_, casted_operand));
+}
+
 void ASMRewriteVisitor::visit(ASM::CDQNode& node) {
     buffer_.push_back(std::make_shared<ASM::CDQNode>());
 }

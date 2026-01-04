@@ -1,3 +1,6 @@
+#ifndef _ASM_H_
+#define _ASM_H_
+
 #include "src/graphviz/graphviz.h"
 
 namespace Graphviz {
@@ -34,6 +37,7 @@ void GraphvizASMVisitor::visit_bin_exp(std::string node_name, ASM::BinInstructio
         node_name,
         {}
     );
+    of << node_repr;
     visit_child(my_id, "left", node.left_);
     visit_child(my_id, "right", node.right_);
     buffer_.push_back(my_id);
@@ -46,6 +50,7 @@ void GraphvizASMVisitor::visit_un_exp(std::string node_name, ASM::UnaryInstructi
         node_name,
         {}
     );
+    of << node_repr;
     visit_child(my_id, "operand", node.src_);
     buffer_.push_back(my_id);
 }
@@ -103,6 +108,7 @@ void GraphvizASMVisitor::visit(ASM::MovNode& node) {
         "MovNode",
         {}
     );
+    of << node_repr;
     visit_child(my_id, "src", node.src_);
     visit_child(my_id, "dst", node.dst_);
     buffer_.push_back(my_id);
@@ -128,7 +134,34 @@ void GraphvizASMVisitor::visit(ASM::DivNode& node) {
         "DivNode",
         {}
     );
+    of << node_repr;
     visit_child(my_id, "src", node.src_);
+    buffer_.push_back(my_id);
+}
+
+void GraphvizASMVisitor::visit(ASM::CmpNode& node) {
+    auto my_id = std::to_string(node_count_++);
+    auto node_repr = labeled_node_with_kv_pairs(
+        my_id,
+        "CmpNode",
+        {}
+    );
+    of << node_repr;
+    visit_child(my_id, "left", node.operand1_);
+    visit_child(my_id, "right", node.operand2_);
+    buffer_.push_back(my_id);
+}
+
+void GraphvizASMVisitor::visit(ASM::SetCCNode& node) {
+    auto my_id = std::to_string(node_count_++);
+    auto node_repr = labeled_node_with_kv_pairs(
+        my_id,
+        "SetCCNode",
+        {std::make_pair("condition code", ASM::cc_as_string(node.cc_))}
+    );
+    of << node_repr;
+    visit_child(my_id, "operand", node.operand_);
+    buffer_.push_back(my_id);
 }
 
 void GraphvizASMVisitor::visit(ASM::CDQNode& node) {
@@ -210,3 +243,5 @@ void GraphvizASMVisitor::visit(ASM::PseudoNode& node) {
 
 
 } //namespace Graphviz
+
+#endif // _ASM_H_

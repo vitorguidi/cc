@@ -290,4 +290,32 @@ void InstructionFixUpVisitor::visit(ASM::SarNode& node) {
     ));
 }
 
+void InstructionFixUpVisitor::visit(ASM::CmpNode& node) {
+    auto left_as_stack = std::dynamic_pointer_cast<ASM::StackNode>(node.operand1_);
+    auto new_operand1 = node.operand1_;
+    auto new_operand2 = node.operand2_;
+    if (left_as_stack) {
+        auto r10 = std::make_shared<ASM::RegisterNode>(ASM::Register::R10);
+        buffer_.push_back(
+            std::make_shared<ASM::MovNode>(
+                node.operand1_,
+                r10
+            )
+        );
+        new_operand1 = r10;
+    }
+    auto right_as_imm = std::dynamic_pointer_cast<ASM::ImmNode>(node.operand2_);
+    if (right_as_imm) {
+        auto r11 = std::make_shared<ASM::RegisterNode>(ASM::Register::R11);
+        buffer_.push_back(
+            std::make_shared<ASM::MovNode>(
+                node.operand2_,
+                r11
+            )
+        );
+        new_operand2 = r11;
+    }
+    buffer_.push_back(std::make_shared<ASM::CmpNode>(new_operand1, new_operand2));
+}
+
 } // namespace Codegen

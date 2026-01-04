@@ -131,6 +131,36 @@ public:
         expr_ += "+";
         node.right_->accept(*this);
     }
+    void visit(CAst::EqualNode& node) {
+        node.left_->accept(*this);
+        expr_ += "==";
+        node.right_->accept(*this);
+    }
+    void visit(CAst::NotEqualNode& node) {
+        node.left_->accept(*this);
+        expr_ += "!=";
+        node.right_->accept(*this);
+    }
+    void visit(CAst::GreaterNode& node) {
+        node.left_->accept(*this);
+        expr_ += ">";
+        node.right_->accept(*this);
+    }
+    void visit(CAst::GreaterEqNode& node) {
+        node.left_->accept(*this);
+        expr_ += ">=";
+        node.right_->accept(*this);
+    }
+    void visit(CAst::LessNode& node) {
+        node.left_->accept(*this);
+        expr_ += "<";
+        node.right_->accept(*this);
+    }
+    void visit(CAst::LessEqNode& node) {
+        node.left_->accept(*this);
+        expr_ += "<=";
+        node.right_->accept(*this);
+    }
     std::string get_return_string() {
         return expr_;
     }
@@ -147,6 +177,12 @@ const std::vector<std::string> bin_ops = {
     "BITWISE_XOR",
     "SHIFT_LEFT",
     "SHIFT_RIGHT",
+    "EQUAL",
+    "NOT_EQUAL",
+    "GREATER",
+    "GREATER_EQ",
+    "LESS",
+    "LESS_EQ",
 };
 
 std::shared_ptr<CAst::ExpressionNode> rand_binexp(RNG& rng, int height) {
@@ -179,7 +215,20 @@ std::shared_ptr<CAst::ExpressionNode> rand_binexp(RNG& rng, int height) {
         return std::make_shared<CAst::BitwiseLeftShiftNode>(left, right);
     } else if (draw_kind == "SHIFT_RIGHT") {
         return std::make_shared<CAst::BitwiseRightShiftNode>(left, right);
-    } else {
+    } else if (draw_kind == "EQUAL") {
+        return std::make_shared<CAst::EqualNode>(left, right);
+    } else if (draw_kind == "NOT_EQUAL") {
+        return std::make_shared<CAst::NotEqualNode>(left, right);
+    } else if (draw_kind == "GREATER") {
+        return std::make_shared<CAst::GreaterNode>(left, right);
+    } else if (draw_kind == "GREATER_EQ") {
+        return std::make_shared<CAst::GreaterEqNode>(left, right);
+    } else if (draw_kind == "LESS") {
+        return std::make_shared<CAst::LessNode>(left, right);
+    } else if (draw_kind == "LESS_EQ") {
+        return std::make_shared<CAst::LessEqNode>(left, right);
+    }
+    else {
         throw std::runtime_error("Unsupported binop: " + draw_kind);
     }
 }
@@ -240,6 +289,9 @@ TEST(FuzzTest, ExpressionFuzzingTest) {
     const char* bazel_tmp = std::getenv("TEST_TMPDIR");
     std::string work_dir = bazel_tmp ? std::string(bazel_tmp) : ".";
 
+    int skipped_tests = 0;
+    int completed_tests =0;
+
     for(int i=0;i<ITERATIONS;i++) {
         int random_height = seeded_rng.draw(1, MAX_HEIGHT);
         auto expr = rand_exp(seeded_rng, random_height);
@@ -270,6 +322,7 @@ TEST(FuzzTest, ExpressionFuzzingTest) {
         std::ifstream err_file(work_dir + "/gcc_err.txt");
         std::string err_content((std::istreambuf_iterator<char>(err_file)), std::istreambuf_iterator<char>());
         if (err_content.find("warning") != std::string::npos ) {
+            skipped_tests++;
             std::cout << "Skipping: GCC detected undefined behavior at compile-time : " << err_content << std::endl;
             continue; // Skip iteration      
         }
@@ -280,8 +333,9 @@ TEST(FuzzTest, ExpressionFuzzingTest) {
 
         // 5. Compare
         EXPECT_EQ(gcc_exit_code, my_exit_code) << "Mismatch for: " << prog;
-
+        completed_tests++;
     }
+    std::cout << "Total tests: " << skipped_tests + completed_tests <<  " - skipped : " << skipped_tests << std::endl;
 }
 
 int main(int argc, char **argv) {

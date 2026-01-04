@@ -42,12 +42,20 @@ public:
     void visit(Tacky::BitwiseXorNode& node) override;
     void visit(Tacky::BitwiseLeftShiftNode& node) override;
     void visit(Tacky::BitwiseRightShiftNode& node) override;
+    void visit(Tacky::EqualNode& node) override;
+    void visit(Tacky::NotEqualNode& node) override;
+    void visit(Tacky::GreaterNode& node) override;
+    void visit(Tacky::GreaterEqNode& node) override;
+    void visit(Tacky::LessNode& node) override;
+    void visit(Tacky::LessEqNode& node) override;
 
     template<std::derived_from<ASM::BinInstructionNode> T>
     void visit_binexp(Tacky::BinaryOpNode& node);
 
     template<std::derived_from<ASM::UnaryInstructionNode> T>
     void visit_unexp(Tacky::UnaryNode& node);
+
+    void visit_relational_exp(ASM::ConditionCode cc, Tacky::RelationalOpNode& node);
 
     std::shared_ptr<ASM::ProgramNode> get_asm_from_tacky(std::shared_ptr<Tacky::ProgramNode> tacky_program);
     std::vector<std::shared_ptr<ASM::AstNode>> buffer_;
@@ -84,6 +92,8 @@ public:
     void visit(ASM::SalNode& node) override;
     void visit(ASM::SarNode& node) override;
     void visit(ASM::CDQNode& node) override;
+    void visit(ASM::CmpNode& node) override;
+    void visit(ASM::SetCCNode& node) override;
     std::shared_ptr<ASM::ProgramNode> get_rewritten_asm_program(std::shared_ptr<ASM::ProgramNode> program);
     std::deque<std::shared_ptr<ASM::AstNode>> buffer_;
 };
@@ -115,6 +125,7 @@ public:
     void visit(ASM::BitwiseXorNode& node) override;
     void visit(ASM::SalNode& node) override;
     void visit(ASM::SarNode& node) override;
+    void visit(ASM::CmpNode& node) override;
     int max_stack_offset_;
 };
 
