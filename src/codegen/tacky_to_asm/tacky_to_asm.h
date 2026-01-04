@@ -54,6 +54,11 @@ public:
 };
 
 class ASMRewriteVisitor : public ASM::Visitor {
+private:
+    template <std::derived_from<ASM::BinInstructionNode> T>
+    void visit_binexp(ASM::BinInstructionNode& node);
+    template <std::derived_from<ASM::UnaryInstructionNode> T>
+    void visit_unexp(ASM::UnaryInstructionNode& node);
 public:
     ~ASMRewriteVisitor() = default;
     ASMRewriteVisitor() = default;
