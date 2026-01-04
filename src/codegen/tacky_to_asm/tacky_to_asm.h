@@ -42,6 +42,13 @@ public:
     void visit(Tacky::BitwiseXorNode& node) override;
     void visit(Tacky::BitwiseLeftShiftNode& node) override;
     void visit(Tacky::BitwiseRightShiftNode& node) override;
+
+    template<std::derived_from<ASM::BinInstructionNode> T>
+    void visit_binexp(Tacky::BinaryOpNode& node);
+
+    template<std::derived_from<ASM::UnaryInstructionNode> T>
+    void visit_unexp(Tacky::UnaryNode& node);
+
     std::shared_ptr<ASM::ProgramNode> get_asm_from_tacky(std::shared_ptr<Tacky::ProgramNode> tacky_program);
     std::vector<std::shared_ptr<ASM::AstNode>> buffer_;
 };
