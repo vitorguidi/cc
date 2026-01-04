@@ -18,6 +18,39 @@ GraphvizASMVisitor::~GraphvizASMVisitor() {
     }
 }
 
+std::string GraphvizASMVisitor::visit_child(std::string parent_id, std::string edge_name, std::shared_ptr<ASM::AstNode> child_node) {
+    child_node->accept(*this);
+    auto child_id = buffer_.back();
+    buffer_.pop_back();
+    auto edge = labeled_edge(parent_id, child_id, edge_name);
+    of << edge;
+    return child_id;
+}
+
+void GraphvizASMVisitor::visit_bin_exp(std::string node_name, ASM::BinInstructionNode& node) {
+    auto my_id = std::to_string(node_count_++);
+    auto node_repr = labeled_node_with_kv_pairs(
+        my_id,
+        node_name,
+        {}
+    );
+    visit_child(my_id, "left", node.left_);
+    visit_child(my_id, "right", node.right_);
+    buffer_.push_back(my_id);
+}
+
+void GraphvizASMVisitor::visit_un_exp(std::string node_name, ASM::UnaryInstructionNode& node) {
+    auto my_id = std::to_string(node_count_++);
+    auto node_repr = labeled_node_with_kv_pairs(
+        my_id,
+        node_name,
+        {}
+    );
+    visit_child(my_id, "operand", node.src_);
+    buffer_.push_back(my_id);
+}
+
+
 void GraphvizASMVisitor::visit(ASM::ProgramNode& node) {
     auto my_id = std::to_string(node_count_++);
     auto node_repr = labeled_node_with_kv_pairs(
@@ -27,11 +60,7 @@ void GraphvizASMVisitor::visit(ASM::ProgramNode& node) {
     );
     of << node_repr;
     for(auto& fn : node.functions_) {
-        fn->accept(*this);
-        auto child_id = buffer_.back();
-        buffer_.pop_back();
-        auto edge = labeled_edge(my_id, child_id, "function");
-        of << edge;
+        visit_child(my_id, "function", fn);
     }
     buffer_.push_back(my_id);
 }
@@ -46,47 +75,26 @@ void GraphvizASMVisitor::visit(ASM::FunctionNode& node) {
     of << node_repr;
     auto last_parent = my_id;
     for(auto& instruction : node.instructions_) {
-        instruction->accept(*this);
-        auto child_id = buffer_.back();
-        buffer_.pop_back();
-        auto edge = labeled_edge(last_parent, child_id, "next instruction");
-        of << edge;
-        last_parent = child_id;
+        last_parent = visit_child(my_id, "next instruction", instruction);
     }
     buffer_.push_back(my_id);
 }
 
-void GraphvizASMVisitor::visit(ASM::NegNode& node) {
-    auto my_id = std::to_string(node_count_++);
-    auto node_repr = labeled_node_with_kv_pairs(
-        my_id,
-        "NegNode",
-        {}
-    );
-    of << node_repr;
-    node.src_->accept(*this);
-    auto child_id = buffer_.back();
-    buffer_.pop_back();
-    auto edge = labeled_edge(my_id, child_id, "operand");
-    of << edge;
-    buffer_.push_back(my_id);
-}
+// Unary exps
+void GraphvizASMVisitor::visit(ASM::NegNode& node) {visit_un_exp("NegNode", node);}
+void GraphvizASMVisitor::visit(ASM::NotNode& node) {visit_un_exp("NotNode", node);}
 
-void GraphvizASMVisitor::visit(ASM::NotNode& node) {
-    auto my_id = std::to_string(node_count_++);
-    auto node_repr = labeled_node_with_kv_pairs(
-        my_id,
-        "NotNode",
-        {}
-    );
-    of << node_repr;
-    node.src_->accept(*this);
-    auto child_id = buffer_.back();
-    buffer_.pop_back();
-    auto edge = labeled_edge(my_id, child_id, "operand");
-    of << edge;
-    buffer_.push_back(my_id);
-}
+// binary arithmetic exps
+void GraphvizASMVisitor::visit(ASM::MultNode& node) {visit_bin_exp("MultNode", node);}
+void GraphvizASMVisitor::visit(ASM::AddNode& node) {visit_bin_exp("AddNode", node);}
+void GraphvizASMVisitor::visit(ASM::SubNode& node) {visit_bin_exp("SubNode", node);}
+
+// binary boolean exps
+void GraphvizASMVisitor::visit(ASM::BitwiseAndNode& node) {visit_bin_exp("BitwiseAndNode", node);}
+void GraphvizASMVisitor::visit(ASM::BitwiseOrNode& node) {visit_bin_exp("BitwiseOrNode", node);}
+void GraphvizASMVisitor::visit(ASM::BitwiseXorNode& node) {visit_bin_exp("BitwiseXorNode", node);}
+void GraphvizASMVisitor::visit(ASM::SalNode& node) {visit_bin_exp("SalNode", node);}
+void GraphvizASMVisitor::visit(ASM::SarNode& node) {visit_bin_exp("SarNode", node);}
 
 void GraphvizASMVisitor::visit(ASM::MovNode& node) {
     auto my_id = std::to_string(node_count_++);
@@ -95,17 +103,8 @@ void GraphvizASMVisitor::visit(ASM::MovNode& node) {
         "MovNode",
         {}
     );
-    of << node_repr;
-    node.src_->accept(*this);
-    auto src_id = buffer_.back();
-    buffer_.pop_back();
-    node.dst_->accept(*this);
-    auto dst_id = buffer_.back();
-    buffer_.pop_back();
-    auto src_edge = labeled_edge(my_id, src_id, "src");
-    of << src_edge;
-    auto dst_edge = labeled_edge(my_id, dst_id, "dst");
-    of << dst_edge;
+    visit_child(my_id, "src", node.src_);
+    visit_child(my_id, "dst", node.dst_);
     buffer_.push_back(my_id);
 }
 
@@ -117,16 +116,8 @@ void GraphvizASMVisitor::visit(ASM::MovBNode& node) {
         {}
     );
     of << node_repr;
-    node.src_->accept(*this);
-    auto src_id = buffer_.back();
-    buffer_.pop_back();
-    node.dst_->accept(*this);
-    auto dst_id = buffer_.back();
-    buffer_.pop_back();
-    auto src_edge = labeled_edge(my_id, src_id, "src");
-    of << src_edge;
-    auto dst_edge = labeled_edge(my_id, dst_id, "dst");
-    of << dst_edge;
+    visit_child(my_id, "src", node.src_);
+    visit_child(my_id, "dst", node.dst_);
     buffer_.push_back(my_id);
 }
 
@@ -137,181 +128,7 @@ void GraphvizASMVisitor::visit(ASM::DivNode& node) {
         "DivNode",
         {}
     );
-    of << node_repr;
-    node.src_->accept(*this);
-    auto operand_id = buffer_.back();
-    buffer_.pop_back();
-    auto operand_edge = labeled_edge(my_id, operand_id, "src");
-    of << operand_edge;
-    buffer_.push_back(my_id);
-}
-
-void GraphvizASMVisitor::visit(ASM::MultNode& node) {
-    auto my_id = std::to_string(node_count_++);
-    auto node_repr = labeled_node_with_kv_pairs(
-        my_id,
-        "MultNode",
-        {}
-    );
-    of << node_repr;
-    node.left_->accept(*this);
-    auto left_id = buffer_.back();
-    buffer_.pop_back();
-    node.right_->accept(*this);
-    auto right_id = buffer_.back();
-    buffer_.pop_back();
-    auto left_edge = labeled_edge(my_id, left_id, "left");
-    auto right_edge = labeled_edge(my_id, right_id, "right");
-    of << left_edge;
-    of << right_edge;
-    buffer_.push_back(my_id);
-}
-
-void GraphvizASMVisitor::visit(ASM::AddNode& node) {
-    auto my_id = std::to_string(node_count_++);
-    auto node_repr = labeled_node_with_kv_pairs(
-        my_id,
-        "AddNode",
-        {}
-    );
-    of << node_repr;
-    node.left_->accept(*this);
-    auto left_id = buffer_.back();
-    buffer_.pop_back();
-    node.right_->accept(*this);
-    auto right_id = buffer_.back();
-    buffer_.pop_back();
-    auto left_edge = labeled_edge(my_id, left_id, "left");
-    auto right_edge = labeled_edge(my_id, right_id, "right");
-    of << left_edge;
-    of << right_edge;
-    buffer_.push_back(my_id);
-}
-
-void GraphvizASMVisitor::visit(ASM::SubNode& node) {
-    auto my_id = std::to_string(node_count_++);
-    auto node_repr = labeled_node_with_kv_pairs(
-        my_id,
-        "SubNode",
-        {}
-    );
-    of << node_repr;
-    node.left_->accept(*this);
-    auto left_id = buffer_.back();
-    buffer_.pop_back();
-    node.right_->accept(*this);
-    auto right_id = buffer_.back();
-    buffer_.pop_back();
-    auto left_edge = labeled_edge(my_id, left_id, "left");
-    auto right_edge = labeled_edge(my_id, right_id, "right");
-    of << left_edge;
-    of << right_edge;
-    buffer_.push_back(my_id);
-}
-
-void GraphvizASMVisitor::visit(ASM::BitwiseAndNode& node) {
-    auto my_id = std::to_string(node_count_++);
-    auto node_repr = labeled_node_with_kv_pairs(
-        my_id,
-        "BitwiseAndNode",
-        {}
-    );
-    of << node_repr;
-    node.left_->accept(*this);
-    auto left_id = buffer_.back();
-    buffer_.pop_back();
-    node.right_->accept(*this);
-    auto right_id = buffer_.back();
-    buffer_.pop_back();
-    auto left_edge = labeled_edge(my_id, left_id, "left");
-    auto right_edge = labeled_edge(my_id, right_id, "right");
-    of << left_edge;
-    of << right_edge;
-    buffer_.push_back(my_id);
-}
-
-void GraphvizASMVisitor::visit(ASM::BitwiseOrNode& node) {
-    auto my_id = std::to_string(node_count_++);
-    auto node_repr = labeled_node_with_kv_pairs(
-        my_id,
-        "BitwiseOrNode",
-        {}
-    );
-    of << node_repr;
-    node.left_->accept(*this);
-    auto left_id = buffer_.back();
-    buffer_.pop_back();
-    node.right_->accept(*this);
-    auto right_id = buffer_.back();
-    buffer_.pop_back();
-    auto left_edge = labeled_edge(my_id, left_id, "left");
-    auto right_edge = labeled_edge(my_id, right_id, "right");
-    of << left_edge;
-    of << right_edge;
-    buffer_.push_back(my_id);
-}
-
-void GraphvizASMVisitor::visit(ASM::BitwiseXorNode& node) {
-    auto my_id = std::to_string(node_count_++);
-    auto node_repr = labeled_node_with_kv_pairs(
-        my_id,
-        "BitwiseXorNode",
-        {}
-    );
-    of << node_repr;
-    node.left_->accept(*this);
-    auto left_id = buffer_.back();
-    buffer_.pop_back();
-    node.right_->accept(*this);
-    auto right_id = buffer_.back();
-    buffer_.pop_back();
-    auto left_edge = labeled_edge(my_id, left_id, "left");
-    auto right_edge = labeled_edge(my_id, right_id, "right");
-    of << left_edge;
-    of << right_edge;
-    buffer_.push_back(my_id);
-}
-
-void GraphvizASMVisitor::visit(ASM::SalNode& node) {
-    auto my_id = std::to_string(node_count_++);
-    auto node_repr = labeled_node_with_kv_pairs(
-        my_id,
-        "SalNode",
-        {}
-    );
-    of << node_repr;
-    node.left_->accept(*this);
-    auto left_id = buffer_.back();
-    buffer_.pop_back();
-    node.right_->accept(*this);
-    auto right_id = buffer_.back();
-    buffer_.pop_back();
-    auto left_edge = labeled_edge(my_id, left_id, "left");
-    auto right_edge = labeled_edge(my_id, right_id, "right");
-    of << left_edge;
-    of << right_edge;
-    buffer_.push_back(my_id);
-}
-
-void GraphvizASMVisitor::visit(ASM::SarNode& node) {
-    auto my_id = std::to_string(node_count_++);
-    auto node_repr = labeled_node_with_kv_pairs(
-        my_id,
-        "SarNode",
-        {}
-    );
-    of << node_repr;
-    node.left_->accept(*this);
-    auto left_id = buffer_.back();
-    buffer_.pop_back();
-    node.right_->accept(*this);
-    auto right_id = buffer_.back();
-    buffer_.pop_back();
-    auto left_edge = labeled_edge(my_id, left_id, "left");
-    auto right_edge = labeled_edge(my_id, right_id, "right");
-    of << left_edge;
-    of << right_edge;
-    buffer_.push_back(my_id);
+    visit_child(my_id, "src", node.src_);
 }
 
 void GraphvizASMVisitor::visit(ASM::CDQNode& node) {

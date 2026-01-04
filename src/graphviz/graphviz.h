@@ -111,6 +111,11 @@ public:
     void visit(ASM::BitwiseXorNode& node) override;
     void visit(ASM::SalNode& node) override;
     void visit(ASM::SarNode& node) override;
+
+    void visit_bin_exp(std::string node_name, ASM::BinInstructionNode& node);
+    void visit_un_exp(std::string node_name, ASM::UnaryInstructionNode& node);
+    std::string visit_child(std::string parent_id, std::string edge_name, std::shared_ptr<ASM::AstNode> child_node);
+
     std::vector<std::string> buffer_;
     std::ofstream of;
     int node_count_;
