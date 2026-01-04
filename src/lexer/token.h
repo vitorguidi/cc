@@ -37,6 +37,12 @@ enum TokenType {
     BITWISE_AND,
     BITWISE_OR,
     BITWISE_XOR,
+    EQUAL,
+    NOT_EQUAL,
+    LESS,
+    GREATER,
+    LESS_EQ,
+    GREATER_EQ,
     END_OF_FILE,
 };
 

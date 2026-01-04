@@ -23,6 +23,11 @@ const std::string some_boolean_ops =
     "return !2 || 3 && 4 & 2 | 5 ^ 3 >> 4 << 10 ;"
     "}\n";
 
+const std::string some_relational_ops =
+    "int function() {\n"
+    "return 2 == 3 < 4 > 5 != 7 >= 8 <= 12;"
+    "}\n";
+
 namespace Lexer {
 
 void assert_expected_lex_results(std::vector<Token>& expected_results, TokenStream& results) {
@@ -49,6 +54,35 @@ void assert_expected_lex_results(std::vector<Token>& expected_results, TokenStre
         EXPECT_EQ(consumed_token.value, expected_token.value);
         idx_at++;
     }
+}
+
+TEST(LexerTest, SomeRelationalOps) {
+    std::unique_ptr<Lexer> l = std::make_unique<ManualLexer>(some_relational_ops);
+    std::vector<Token> expected_results = {
+        Token{TokenType::INTEGER_TYPE, std::monostate{}},
+        Token{TokenType::NAME, std::string("function")},
+        Token{TokenType::LPAREN, std::monostate{}},
+        Token{TokenType::RPAREN, std::monostate{}},
+        Token{TokenType::LBRACE, std::monostate{}},
+        Token{TokenType::RETURN, std::monostate{}},
+        Token{TokenType::INTEGER_VALUE, 2},
+        Token{TokenType::EQUAL, std::monostate{}},
+        Token{TokenType::INTEGER_VALUE, 3},
+        Token{TokenType::LESS, std::monostate{}},
+        Token{TokenType::INTEGER_VALUE, 4},
+        Token{TokenType::GREATER, std::monostate{}},
+        Token{TokenType::INTEGER_VALUE, 5},
+        Token{TokenType::NOT_EQUAL, std::monostate{}},
+        Token{TokenType::INTEGER_VALUE, 7},
+        Token{TokenType::GREATER_EQ, std::monostate{}},
+        Token{TokenType::INTEGER_VALUE, 8},
+        Token{TokenType::LESS_EQ, std::monostate{}},
+        Token{TokenType::INTEGER_VALUE, 12},
+        Token{TokenType::SEMICOLON, std::monostate{}},
+        Token{TokenType::RBRACE, std::monostate{}},
+    };
+    auto results = l->Lex();
+    assert_expected_lex_results(expected_results, results);
 }
 
 TEST(LexerTest, SomeBoolOps) {
