@@ -28,6 +28,8 @@ const std::string some_relational_ops =
     "return 2 == 3 < 4 > 5 != 7 >= 8 <= 12;"
     "}\n";
 
+const std::string basic_assignment =  "int main() {int a = 2; return a;}";
+
 namespace Lexer {
 
 void assert_expected_lex_results(std::vector<Token>& expected_results, TokenStream& results) {
@@ -54,6 +56,28 @@ void assert_expected_lex_results(std::vector<Token>& expected_results, TokenStre
         EXPECT_EQ(consumed_token.value, expected_token.value);
         idx_at++;
     }
+}
+
+TEST(LexerTest, BasicAssignmentTest) {
+    std::unique_ptr<Lexer> l = std::make_unique<ManualLexer>(basic_assignment);
+    std::vector<Token> expected_results = {
+        Token{TokenType::INTEGER_TYPE, std::monostate{}},
+        Token{TokenType::NAME, std::string("main")},
+        Token{TokenType::LPAREN, std::monostate{}},
+        Token{TokenType::RPAREN, std::monostate{}},
+        Token{TokenType::LBRACE, std::monostate{}},
+        Token{TokenType::INTEGER_TYPE, std::monostate{}},
+        Token{TokenType::NAME, std::string("a")},
+        Token{TokenType::ASSIGNMENT, std::monostate{}},
+        Token{TokenType::INTEGER_VALUE, 2},
+        Token{TokenType::SEMICOLON, std::monostate{}},
+        Token{TokenType::RETURN, std::monostate{}},
+        Token{TokenType::NAME, std::string("a")},
+        Token{TokenType::SEMICOLON, std::monostate{}},
+        Token{TokenType::RBRACE, std::monostate{}},
+    };
+    auto results = l->Lex();
+    assert_expected_lex_results(expected_results, results);
 }
 
 TEST(LexerTest, SomeRelationalOps) {

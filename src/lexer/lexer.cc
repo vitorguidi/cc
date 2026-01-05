@@ -187,6 +187,11 @@ auto ManualLexer::tokenize() -> std::generator<Token>  {
             idx_+=2;
             continue; 
         }
+        if (peek("=")) {
+            co_yield Token{TokenType::ASSIGNMENT, std::monostate{}};
+            idx_++;
+            continue; 
+        }
         if (peek(std::string("int"))) {
             co_yield Token{TokenType::INTEGER_TYPE, std::monostate{}};
             idx_+=3;

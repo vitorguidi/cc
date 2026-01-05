@@ -43,6 +43,7 @@ enum TokenType {
     GREATER,
     LESS_EQ,
     GREATER_EQ,
+    ASSIGNMENT,
     END_OF_FILE,
 };
 
