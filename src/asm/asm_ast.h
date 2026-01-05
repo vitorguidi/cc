@@ -13,6 +13,7 @@ class FunctionNode;
 class InstructionNode;
 class ComplementNode;
 class BitwiseNotNode;
+class NotNode;
 class MovNode;
 class MovBNode;
 class RetNode;

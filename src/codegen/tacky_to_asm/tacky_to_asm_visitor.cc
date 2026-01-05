@@ -154,7 +154,33 @@ void TackyToAsmVisitor::visit(Tacky::ReturnNode& node) {
 // unary exps
 void TackyToAsmVisitor::visit(Tacky::BitwiseNotNode& node) {visit_unexp<ASM::BitwiseNotNode>(node);}
 void TackyToAsmVisitor::visit(Tacky::ComplementNode& node) {visit_unexp<ASM::ComplementNode>(node);}
-void TackyToAsmVisitor::visit(Tacky::NotNode& node) {}
+
+void TackyToAsmVisitor::visit(Tacky::NotNode& node) {
+    node.src_->accept(*this);
+
+    auto converted_src = As<ASM::OperandNode>(
+        buffer_.back(), "Failed to cast src operand to ASM::OperandNode");
+    buffer_.pop_back();
+
+    node.dst_->accept(*this);
+
+    auto converted_dst = As<ASM::OperandNode>(
+        buffer_.back(), "Failed to cast dst operand to ASM::OperandNode");
+    buffer_.pop_back();
+
+    buffer_.push_back(std::make_shared<ASM::CmpNode>(
+        std::make_shared<ASM::ImmNode>(0),
+        converted_src
+    ));
+    buffer_.push_back(std::make_shared<ASM::MovNode>(
+        std::make_shared<ASM::ImmNode>(0),
+        converted_dst
+    ));
+    buffer_.push_back(std::make_shared<ASM::SetCCNode>(
+        ASM::ConditionCode::EQUAL,
+        converted_dst
+    ));
+}
 
 // binary arithmetic exps
 void TackyToAsmVisitor::visit(Tacky::MultNode& node) {visit_binexp<ASM::MultNode>(node);}

@@ -241,6 +241,7 @@ std::shared_ptr<CAst::ExpressionNode> rand_binexp(RNG& rng, int height) {
 const std::vector<std::string> un_ops = {
     "MINUS",
     "TILDE",
+    "NOT",
 };
 
 std::shared_ptr<CAst::ExpressionNode> rand_unexp(RNG& rng, int height) {
@@ -255,6 +256,8 @@ std::shared_ptr<CAst::ExpressionNode> rand_unexp(RNG& rng, int height) {
         return std::make_shared<CAst::MinusUnaryExpressionNode>(operand);
     } else if (draw_kind == "TILDE") {
         return std::make_shared<CAst::BitwiseNotUnaryExpressionNode>(operand);
+    } else if (draw_kind == "NOT") {
+        return std::make_shared<CAst::NotUnaryExpressionNode>(operand);
     } else {
         throw std::runtime_error("Unsupported unop: " + draw_kind);
     }
@@ -306,7 +309,6 @@ TEST(FuzzTest, ExpressionFuzzingTest) {
         );
         pretty_printer.visit(random_ret);
         std::string return_as_str = pretty_printer.get_return_string();
-        std::cout << return_as_str << std::endl;
         std::string prog = "int main() {" + return_as_str + "}";
 
 
@@ -336,6 +338,7 @@ TEST(FuzzTest, ExpressionFuzzingTest) {
         // 5. Compare
         EXPECT_EQ(gcc_exit_code, my_exit_code) << "Mismatch for: " << prog;
             run_budget--;
+        std::cout << "Succesful evaluation: " << return_as_str << std::endl;
     }
     std::cout << "Total tests: " << ITERATIONS <<  std::endl;
 }
