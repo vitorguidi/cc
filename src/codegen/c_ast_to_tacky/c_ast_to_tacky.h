@@ -44,12 +44,14 @@ public:
 
     std::shared_ptr<Tacky::ProgramNode> get_tacky_from_c_ast(std::shared_ptr<CAst::ProgramNode> root_node);
     std::string generate_temp_var_name();
+    std::string generate_temp_label();
     std::vector<std::shared_ptr<Tacky::AstNode>> result_buffer_;
     template <typename T>
     std::shared_ptr<T> get_result();
     template <typename T>
     std::vector<std::shared_ptr<T>> get_results();
     int temp_var_counter_ = 0;
+    int label_counter_ = 0;
 };
 
 } // namespace Codegen

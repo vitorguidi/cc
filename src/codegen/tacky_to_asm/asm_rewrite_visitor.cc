@@ -167,6 +167,35 @@ void ASMRewriteVisitor::visit(ASM::SetCCNode& node) {
     buffer_.push_back(std::make_shared<ASM::SetCCNode>(node.cc_, casted_operand));
 }
 
+void ASMRewriteVisitor::visit(ASM::JumpCCNode& node) {
+    node.target_->accept(*this);
+    std::shared_ptr<ASM::LabelNode> casted_target = As<ASM::LabelNode>(
+        buffer_.back(),
+        "Failed to cast buffered operand into ASM::LabelNode"
+    );
+    buffer_.pop_back();
+    buffer_.push_back(std::make_shared<ASM::JumpCCNode>(
+        node.cc_,
+        casted_target
+    ));
+}
+
+void ASMRewriteVisitor::visit(ASM::JumpNode& node) {
+    node.target_->accept(*this);
+    std::shared_ptr<ASM::LabelNode> casted_target = As<ASM::LabelNode>(
+        buffer_.back(),
+        "Failed to cast buffered operand into ASM::LabelNode"
+    );
+    buffer_.pop_back();
+    buffer_.push_back(std::make_shared<ASM::JumpNode>(
+        casted_target
+    ));
+}
+
+void ASMRewriteVisitor::visit(ASM::LabelNode& node) {
+    buffer_.push_back(std::make_shared<ASM::LabelNode>(node.name_));
+}
+
 void ASMRewriteVisitor::visit(ASM::CDQNode& node) {
     buffer_.push_back(std::make_shared<ASM::CDQNode>());
 }

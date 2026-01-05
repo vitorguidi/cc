@@ -33,6 +33,9 @@ class SalNode;
 class CmpNode;
 class SetCCNode;
 class CDQNode;
+class LabelNode;
+class JumpNode;
+class JumpCCNode;
 
 class Visitor {
 public:
@@ -61,6 +64,9 @@ public:
     virtual void visit(SalNode& node) = 0;
     virtual void visit(CmpNode& node) = 0;
     virtual void visit(SetCCNode& node) = 0;
+    virtual void visit(LabelNode& node) = 0;
+    virtual void visit(JumpNode& node) = 0;
+    virtual void visit(JumpCCNode& node) = 0;
 };
 
 class AstNode {
@@ -374,6 +380,31 @@ public:
     ~CmpNode() = default;
     CmpNode(std::shared_ptr<OperandNode> op1, std::shared_ptr<OperandNode> op2)
         :   operand1_(op1), operand2_(op2) {}
+    void accept(Visitor& v) override {v.visit(*this);}
+};
+
+class LabelNode : public InstructionNode {
+public:
+    std::string name_;
+    ~LabelNode() = default;
+    LabelNode(std::string name) : name_(std::move(name)) {}
+    void accept(Visitor& v) override {v.visit(*this);}
+};
+
+class JumpNode : public InstructionNode {
+public:
+    std::shared_ptr<LabelNode> target_;
+    ~JumpNode() = default;
+    JumpNode(std::shared_ptr<LabelNode> target) : target_(target) {}
+    void accept(Visitor& v) override {v.visit(*this);}
+};
+
+class JumpCCNode : public InstructionNode {
+public:
+    ConditionCode cc_;
+    std::shared_ptr<LabelNode> target_;
+    ~JumpCCNode() = default;
+    JumpCCNode(ConditionCode cc, std::shared_ptr<LabelNode> target) : cc_(cc), target_(target) {}
     void accept(Visitor& v) override {v.visit(*this);}
 };
 

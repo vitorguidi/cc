@@ -74,9 +74,7 @@ public:
     void visit(Tacky::ModNode& node) override;
     void visit(Tacky::PlusNode& node) override;
     void visit(Tacky::MinusNode& node) override;
-    void visit(Tacky::AndNode& node) override;
     void visit(Tacky::BitwiseAndNode& node) override;
-    void visit(Tacky::OrNode& node) override;
     void visit(Tacky::BitwiseOrNode& node) override;
     void visit(Tacky::BitwiseLeftShiftNode& node) override;
     void visit(Tacky::BitwiseRightShiftNode& node) override;
@@ -87,6 +85,11 @@ public:
     void visit(Tacky::GreaterEqNode& node) override;
     void visit(Tacky::LessNode& node) override;
     void visit(Tacky::LessEqNode& node) override;
+    void visit(Tacky::LabelNode& node) override;
+    void visit(Tacky::MovNode& node) override;
+    void visit(Tacky::JumpNode& node) override;
+    void visit(Tacky::JumpIfZeroNode& node) override;
+    void visit(Tacky::JumpIfNotZeroNode& node) override;
 
     void visit_bin_exp(std::string node_name, Tacky::BinaryOpNode& node);
     void visit_un_exp(std::string node_name, Tacky::UnaryNode& node);
@@ -125,6 +128,9 @@ public:
     void visit(ASM::SarNode& node) override;
     void visit(ASM::CmpNode& node) override;
     void visit(ASM::SetCCNode& node) override;
+    void visit(ASM::JumpNode& node) override;
+    void visit(ASM::JumpCCNode& node) override;
+    void visit(ASM::LabelNode& node) override;
 
     void visit_bin_exp(std::string node_name, ASM::BinInstructionNode& node);
     void visit_un_exp(std::string node_name, ASM::UnaryInstructionNode& node);

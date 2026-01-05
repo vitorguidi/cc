@@ -76,6 +76,25 @@ void TackyToAsmVisitor::visit_relational_exp(ASM::ConditionCode cc, Tacky::Relat
     buffer_.push_back(std::make_shared<ASM::SetCCNode>(cc, converted_dst));
 }
 
+void TackyToAsmVisitor::visit_conditional_jump(ASM::ConditionCode cc, Tacky::ConditionalJumpNode& node) {
+    node.dst_->accept(*this);
+    auto dst = As<ASM::LabelNode>(
+        buffer_.back(), "Failed to cast destination in JumpIfZero to ASM::LabelNode");
+    buffer_.pop_back();
+
+    node.operand_->accept(*this);
+    auto operand = As<ASM::OperandNode>(
+        buffer_.back(), "Failed to cast operand in JumpIfZero to ASM::OperandNode");
+    buffer_.pop_back();
+
+    buffer_.push_back(std::make_shared<ASM::CmpNode>(
+        std::make_shared<ASM::ImmNode>(0),
+        operand
+    ));
+
+    buffer_.push_back(std::make_shared<ASM::JumpCCNode>(cc, dst));
+}
+
 std::shared_ptr<ASM::ProgramNode> TackyToAsmVisitor::get_asm_from_tacky(std::shared_ptr<Tacky::ProgramNode> tacky_program) {
     if (!buffer_.empty()) {
         throw std::runtime_error("Expected buffer to be empty before generating asm from tacky.");
@@ -149,10 +168,6 @@ void TackyToAsmVisitor::visit(Tacky::BitwiseXorNode& node) {visit_binexp<ASM::Bi
 void TackyToAsmVisitor::visit(Tacky::BitwiseLeftShiftNode& node) {visit_binexp<ASM::SalNode>(node);}
 void TackyToAsmVisitor::visit(Tacky::BitwiseRightShiftNode& node) {visit_binexp<ASM::SarNode>(node);}
 
-// binary logic exps
-void TackyToAsmVisitor::visit(Tacky::AndNode& node) {}
-void TackyToAsmVisitor::visit(Tacky::OrNode& node) {}
-
 // division is a bit of a snowflake
 void TackyToAsmVisitor::visit(Tacky::DivNode& node) {
     node.left_->accept(*this);
@@ -223,6 +238,36 @@ void TackyToAsmVisitor::visit(Tacky::GreaterEqNode& node) {visit_relational_exp(
 void TackyToAsmVisitor::visit(Tacky::LessNode& node) {visit_relational_exp(ASM::ConditionCode::LESS, node);}
 void TackyToAsmVisitor::visit(Tacky::LessEqNode& node) {visit_relational_exp(ASM::ConditionCode::LESS_EQ, node);}
 
+
+// jump nodes
+void TackyToAsmVisitor::visit(Tacky::JumpNode& node) {
+    node.dst_->accept(*this);
+    auto target = As<ASM::LabelNode>(
+        buffer_.back(), "Failed to cast target to ASM::OperandNode");
+    buffer_.pop_back();
+    buffer_.push_back(std::make_shared<ASM::JumpNode>(target));
+}
+
+void TackyToAsmVisitor::visit(Tacky::JumpIfZeroNode& node) {visit_conditional_jump(ASM::ConditionCode::EQUAL, node);}
+void TackyToAsmVisitor::visit(Tacky::JumpIfNotZeroNode& node) {visit_conditional_jump(ASM::ConditionCode::NOT_EQUAL, node);}
+
+void TackyToAsmVisitor::visit(Tacky::LabelNode& node) {
+    buffer_.push_back(std::make_shared<ASM::LabelNode>(node.name_));
+}
+
+void TackyToAsmVisitor::visit(Tacky::MovNode& node) {
+    node.src_->accept(*this);
+    auto src = As<ASM::OperandNode>(
+        buffer_.back(), "Failed to cast src to ASM::OperandNode");
+    buffer_.pop_back();
+
+    node.dst_->accept(*this);
+    auto dst = As<ASM::OperandNode>(
+        buffer_.back(), "Failed to cast src to ASM::OperandNode");
+    buffer_.pop_back();
+    buffer_.push_back(std::make_shared<ASM::MovNode>(src,dst));
+}
+
 void TackyToAsmVisitor::visit(Tacky::IntegerNode& node) {
     buffer_.push_back(std::make_shared<ASM::ImmNode>(node.value_));
 }
@@ -230,6 +275,5 @@ void TackyToAsmVisitor::visit(Tacky::IntegerNode& node) {
 void TackyToAsmVisitor::visit(Tacky::VariableNode& node) {
     buffer_.push_back(std::make_shared<ASM::PseudoNode>(node.name_));
 }
-
 
 } //namespace Codegen

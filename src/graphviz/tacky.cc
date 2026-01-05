@@ -119,13 +119,73 @@ void GraphvizTackyVisitor::visit(Tacky::LessNode& node) {visit_bin_exp("LessNode
 void GraphvizTackyVisitor::visit(Tacky::LessEqNode& node) {visit_bin_exp("LessEqNode", node);}
 
 // Binary boolean expressions
-void GraphvizTackyVisitor::visit(Tacky::AndNode& node) {visit_bin_exp("AndNode", node);}
 void GraphvizTackyVisitor::visit(Tacky::BitwiseAndNode& node) {visit_bin_exp("BitwiseAndNode", node);}
-void GraphvizTackyVisitor::visit(Tacky::OrNode& node) {visit_bin_exp("OrNode", node);}
 void GraphvizTackyVisitor::visit(Tacky::BitwiseOrNode& node) {visit_bin_exp("BitwiseOrNode", node);}
 void GraphvizTackyVisitor::visit(Tacky::BitwiseLeftShiftNode& node) {visit_bin_exp("BitwiseLeftShiftNode", node);}
 void GraphvizTackyVisitor::visit(Tacky::BitwiseRightShiftNode& node) {visit_bin_exp("BitwiseRightShiftNode", node);}
 void GraphvizTackyVisitor::visit(Tacky::BitwiseXorNode& node) {visit_bin_exp("BitwiseXorNode", node);}
+
+void GraphvizTackyVisitor::visit(Tacky::LabelNode& node) {
+    auto my_id = std::to_string(node_count_++);
+    std::string node_repr = labeled_node_with_kv_pairs(
+        my_id,
+        "LabelNode",
+        {std::make_pair("name", node.name_)}
+    );
+    of << node_repr;
+    buffer_.push_back(my_id);
+}
+
+void GraphvizTackyVisitor::visit(Tacky::JumpNode& node) {
+    auto my_id = std::to_string(node_count_++);
+    std::string node_repr = labeled_node_with_kv_pairs(
+        my_id,
+        "JumpNode",
+        {}
+    );
+    of << node_repr;
+    visit_child(my_id, "dst", node.dst_);
+    buffer_.push_back(my_id);
+}
+
+void GraphvizTackyVisitor::visit(Tacky::JumpIfZeroNode& node) {
+    auto my_id = std::to_string(node_count_++);
+    std::string node_repr = labeled_node_with_kv_pairs(
+        my_id,
+        "JumpIfZeroNode",
+        {}
+    );
+    of << node_repr;
+    visit_child(my_id, "dst", node.dst_);
+    visit_child(my_id, "operand", node.operand_);
+    buffer_.push_back(my_id);
+}
+
+void GraphvizTackyVisitor::visit(Tacky::JumpIfNotZeroNode& node) {
+    auto my_id = std::to_string(node_count_++);
+    std::string node_repr = labeled_node_with_kv_pairs(
+        my_id,
+        "JumpIfNotZeroNode",
+        {}
+    );
+    of << node_repr;
+    visit_child(my_id, "dst", node.dst_);
+    visit_child(my_id, "operand", node.operand_);
+    buffer_.push_back(my_id);
+}
+
+void GraphvizTackyVisitor::visit(Tacky::MovNode& node) {
+    auto my_id = std::to_string(node_count_++);
+    std::string node_repr = labeled_node_with_kv_pairs(
+        my_id,
+        "MovNode",
+        {}
+    );
+    of << node_repr;
+    visit_child(my_id, "src", node.src_);
+    visit_child(my_id, "dst", node.dst_);
+    buffer_.push_back(my_id);
+}
 
 void GraphvizTackyVisitor::visit(Tacky::IntegerNode& node) {
     auto my_id = std::to_string(node_count_++);

@@ -219,6 +219,42 @@ void GraphvizASMVisitor::visit(ASM::StackNode& node) {
     buffer_.push_back(my_id);
 }
 
+void GraphvizASMVisitor::visit(ASM::JumpNode& node) {
+    auto my_id = std::to_string(node_count_++);
+    auto node_repr = labeled_node_with_kv_pairs(
+        my_id,
+        "JumpNode",
+        {}
+    );
+    of << node_repr;
+    visit_child(my_id, "target", node.target_);
+    buffer_.push_back(my_id);
+}
+
+
+void GraphvizASMVisitor::visit(ASM::JumpCCNode& node) {
+    auto my_id = std::to_string(node_count_++);
+    auto node_repr = labeled_node_with_kv_pairs(
+        my_id,
+        "JumpCCNode",
+        {std::make_pair("condition", ASM::cc_as_string(node.cc_))}
+    );
+    of << node_repr;
+    visit_child(my_id, "target", node.target_);
+    buffer_.push_back(my_id);
+}
+
+void GraphvizASMVisitor::visit(ASM::LabelNode& node) {
+    auto my_id = std::to_string(node_count_++);
+    auto node_repr = labeled_node_with_kv_pairs(
+        my_id,
+        "LabelNode",
+        {std::make_pair("Name", node.name_)}
+    );
+    of << node_repr;
+    buffer_.push_back(my_id);
+}
+
 void GraphvizASMVisitor::visit(ASM::RegisterNode& node) {
     auto my_id = std::to_string(node_count_++);
     auto node_repr = labeled_node_with_kv_pairs(

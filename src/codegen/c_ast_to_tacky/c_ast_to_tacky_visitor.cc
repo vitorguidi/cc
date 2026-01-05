@@ -150,13 +150,111 @@ void AstToTackyVisitor::visit(CAst::LessNode& node) {visit_bin_exp<Tacky::LessNo
 void AstToTackyVisitor::visit(CAst::LessEqNode& node) {visit_bin_exp<Tacky::LessEqNode>(node);}
 
 // unary boolean expressions
-void AstToTackyVisitor::visit(CAst::AndNode& node) {visit_bin_exp<Tacky::AndNode>(node);}
 void AstToTackyVisitor::visit(CAst::BitwiseAndNode& node) {visit_bin_exp<Tacky::BitwiseAndNode>(node);}
-void AstToTackyVisitor::visit(CAst::OrNode& node) {visit_bin_exp<Tacky::OrNode>(node);}
 void AstToTackyVisitor::visit(CAst::BitwiseOrNode& node) {visit_bin_exp<Tacky::BitwiseOrNode>(node);}
 void AstToTackyVisitor::visit(CAst::BitwiseLeftShiftNode& node) {visit_bin_exp<Tacky::BitwiseLeftShiftNode>(node);}
 void AstToTackyVisitor::visit(CAst::BitwiseRightShiftNode& node) {visit_bin_exp<Tacky::BitwiseRightShiftNode>(node);}
 void AstToTackyVisitor::visit(CAst::BitwiseXorNode& node) {visit_bin_exp<Tacky::BitwiseXorNode>(node);}
+
+// short circuiting bin exps
+
+void AstToTackyVisitor::visit(CAst::AndNode& node) {
+    
+//     x = eval e1
+//     jiz  x false
+//     y = eval e2
+//     jiz y false
+//     dst = true
+//     jmp fi
+// false
+//     mv 0 dst
+// end
+
+    auto base_label = generate_temp_label();
+    auto false_label = std::make_shared<Tacky::LabelNode>(base_label + "false_");
+    auto end_label = std::make_shared<Tacky::LabelNode>(base_label + "end_");
+
+    auto dst = std::make_shared<Tacky::VariableNode>(generate_temp_var_name());
+
+    node.left_->accept(*this);
+    auto left_expression_result = get_result<Tacky::ValueNode>();
+
+    result_buffer_.push_back(std::make_shared<Tacky::JumpIfZeroNode>(
+        left_expression_result,
+        false_label
+    ));
+
+    node.right_->accept(*this);
+    auto right_expression_result = get_result<Tacky::ValueNode>();
+
+    result_buffer_.push_back(std::make_shared<Tacky::JumpIfZeroNode>(
+        right_expression_result,
+        false_label
+    ));
+
+    result_buffer_.push_back(std::make_shared<Tacky::MovNode>(
+        std::make_shared<Tacky::IntegerNode>(1),
+        dst
+    ));
+
+    result_buffer_.push_back(std::make_shared<Tacky::JumpNode>(end_label));
+    result_buffer_.push_back(false_label);
+    result_buffer_.push_back(std::make_shared<Tacky::MovNode>(
+        std::make_shared<Tacky::IntegerNode>(0),
+        dst
+    ));
+    result_buffer_.push_back(end_label);
+    // dst as result of the whole ordeal
+    result_buffer_.push_back(dst);
+}
+
+void AstToTackyVisitor::visit(CAst::OrNode& node) {
+//     x = eval e1
+//     jiz  x false
+//     y = eval e2
+//     jiz y false
+//     dst = true
+//     jmp fi
+// false
+//     mv 0 dst
+// end
+    auto base_label = generate_temp_label();
+    auto true_label = std::make_shared<Tacky::LabelNode>(base_label + "true_");
+    auto end_label = std::make_shared<Tacky::LabelNode>(base_label + "end_");
+
+    auto dst = std::make_shared<Tacky::VariableNode>(generate_temp_label());
+
+    node.left_->accept(*this);
+    auto left_expression_result = get_result<Tacky::ValueNode>();
+
+    result_buffer_.push_back(std::make_shared<Tacky::JumpIfNotZeroNode>(
+        left_expression_result,
+        true_label
+    ));
+
+    node.right_->accept(*this);
+    auto right_expression_result = get_result<Tacky::ValueNode>();
+
+    result_buffer_.push_back(std::make_shared<Tacky::JumpIfNotZeroNode>(
+        right_expression_result,
+        true_label
+    ));
+
+    result_buffer_.push_back(std::make_shared<Tacky::MovNode>(
+        std::make_shared<Tacky::IntegerNode>(0),
+        dst
+    ));
+
+    result_buffer_.push_back(std::make_shared<Tacky::JumpNode>(end_label));
+    result_buffer_.push_back(true_label);
+    result_buffer_.push_back(std::make_shared<Tacky::MovNode>(
+        std::make_shared<Tacky::IntegerNode>(1),
+        dst
+    ));
+    result_buffer_.push_back(end_label);
+    // dst as result of the whole ordeal
+    result_buffer_.push_back(dst);
+}
 
 void AstToTackyVisitor::visit(CAst::IntegerValueNode& node) {
     result_buffer_.push_back(
@@ -172,6 +270,10 @@ void AstToTackyVisitor::visit(CAst::StatementBlockNode& node) {}
 
 std::string AstToTackyVisitor::generate_temp_var_name() {
     return "_tacky_temp_" + std::to_string(temp_var_counter_++);
+}
+
+std::string AstToTackyVisitor::generate_temp_label() {
+    return "_label_" + std::to_string(label_counter_++) + "_";
 }
 
 } // namespace Codegen

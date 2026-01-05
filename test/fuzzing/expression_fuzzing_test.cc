@@ -183,6 +183,8 @@ const std::vector<std::string> bin_ops = {
     "GREATER_EQ",
     "LESS",
     "LESS_EQ",
+    "AND",
+    "OR",
 };
 
 std::shared_ptr<CAst::ExpressionNode> rand_binexp(RNG& rng, int height) {
@@ -227,8 +229,11 @@ std::shared_ptr<CAst::ExpressionNode> rand_binexp(RNG& rng, int height) {
         return std::make_shared<CAst::LessNode>(left, right);
     } else if (draw_kind == "LESS_EQ") {
         return std::make_shared<CAst::LessEqNode>(left, right);
-    }
-    else {
+    } else if (draw_kind == "AND") {
+        return std::make_shared<CAst::AndNode>(left, right);
+    } else if (draw_kind == "OR") {
+        return std::make_shared<CAst::OrNode>(left, right);
+    } else {
         throw std::runtime_error("Unsupported binop: " + draw_kind);
     }
 }
@@ -289,10 +294,9 @@ TEST(FuzzTest, ExpressionFuzzingTest) {
     const char* bazel_tmp = std::getenv("TEST_TMPDIR");
     std::string work_dir = bazel_tmp ? std::string(bazel_tmp) : ".";
 
-    int skipped_tests = 0;
-    int completed_tests =0;
+    int run_budget = ITERATIONS;
 
-    for(int i=0;i<ITERATIONS;i++) {
+    while(run_budget) {
         int random_height = seeded_rng.draw(1, MAX_HEIGHT);
         auto expr = rand_exp(seeded_rng, random_height);
         auto pretty_printer = CAstPrettyPrint();
@@ -322,8 +326,6 @@ TEST(FuzzTest, ExpressionFuzzingTest) {
         std::ifstream err_file(work_dir + "/gcc_err.txt");
         std::string err_content((std::istreambuf_iterator<char>(err_file)), std::istreambuf_iterator<char>());
         if (err_content.find("warning") != std::string::npos ) {
-            skipped_tests++;
-            std::cout << "Skipping: GCC detected undefined behavior at compile-time : " << err_content << std::endl;
             continue; // Skip iteration      
         }
         // 4. Assemble your output and Run
@@ -333,9 +335,9 @@ TEST(FuzzTest, ExpressionFuzzingTest) {
 
         // 5. Compare
         EXPECT_EQ(gcc_exit_code, my_exit_code) << "Mismatch for: " << prog;
-        completed_tests++;
+            run_budget--;
     }
-    std::cout << "Total tests: " << skipped_tests + completed_tests <<  " - skipped : " << skipped_tests << std::endl;
+    std::cout << "Total tests: " << ITERATIONS <<  std::endl;
 }
 
 int main(int argc, char **argv) {

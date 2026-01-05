@@ -27,9 +27,7 @@ class ModNode;
 class MultNode;
 class PlusNode;
 class MinusNode;
-class AndNode;
 class BitwiseAndNode;
-class OrNode;
 class BitwiseOrNode;
 class BitwiseXorNode;
 class BitwiseLeftShiftNode;
@@ -40,6 +38,11 @@ class GreaterNode;
 class GreaterEqNode;
 class LessNode;
 class LessEqNode;
+class JumpNode;
+class JumpIfZeroNode;
+class JumpIfNotZeroNode;
+class LabelNode;
+class MovNode;
 
 class Visitor {
 public:
@@ -57,9 +60,7 @@ public:
     virtual void visit(PlusNode& node) = 0;
     virtual void visit(MinusNode& node) = 0;
     virtual void visit(Tacky::NotNode& node) = 0;
-    virtual void visit(Tacky::AndNode& node) = 0;
     virtual void visit(Tacky::BitwiseAndNode& node) = 0;
-    virtual void visit(Tacky::OrNode& node) = 0;
     virtual void visit(Tacky::BitwiseOrNode& node) = 0;
     virtual void visit(Tacky::BitwiseLeftShiftNode& node) = 0;
     virtual void visit(Tacky::BitwiseRightShiftNode& node) = 0;
@@ -70,8 +71,12 @@ public:
     virtual void visit(Tacky::GreaterEqNode& node) = 0;
     virtual void visit(Tacky::LessNode& node) = 0;
     virtual void visit(Tacky::LessEqNode& node) = 0;
+    virtual void visit(Tacky::JumpNode& node) = 0;
+    virtual void visit(Tacky::JumpIfZeroNode& node) = 0;
+    virtual void visit(Tacky::JumpIfNotZeroNode& node) = 0;
+    virtual void visit(Tacky::MovNode& node) = 0;
+    virtual void visit(Tacky::LabelNode& node) = 0;
 };
-
 
 class AstNode {
 public:
@@ -195,26 +200,10 @@ public:
     void accept(Visitor& v) {v.visit(*this);}
 };
 
-class AndNode : public BinaryOpNode {
-public:
-    ~AndNode() = default;
-    AndNode(std::shared_ptr<ValueNode> left, std::shared_ptr<ValueNode> right, std::shared_ptr<ValueNode> dst)
-        : BinaryOpNode(left, right, dst) {}
-    void accept(Visitor& v) {v.visit(*this);}
-};
-
 class BitwiseAndNode : public BinaryOpNode {
 public:
     ~BitwiseAndNode() = default;
     BitwiseAndNode(std::shared_ptr<ValueNode> left, std::shared_ptr<ValueNode> right, std::shared_ptr<ValueNode> dst)
-        : BinaryOpNode(left, right, dst) {}
-    void accept(Visitor& v) {v.visit(*this);}
-};
-
-class OrNode : public BinaryOpNode {
-public:
-    ~OrNode() = default;
-    OrNode(std::shared_ptr<ValueNode> left, std::shared_ptr<ValueNode> right, std::shared_ptr<ValueNode> dst)
         : BinaryOpNode(left, right, dst) {}
     void accept(Visitor& v) {v.visit(*this);}
 };
@@ -327,6 +316,57 @@ public:
     VariableNode(std::string name) : name_(std::move(name)) {}
     void accept(Visitor& v) override { v.visit(*this); }
     std::string name_;
+};
+
+class MovNode : public InstructionNode {
+public:
+    std::shared_ptr<ValueNode> src_, dst_;
+    ~MovNode() = default;
+    MovNode(std::shared_ptr<ValueNode> src, std::shared_ptr<ValueNode> dst)
+        :   src_(src), dst_(dst) {}
+    void accept(Visitor& v) {v.visit(*this);}
+};
+
+class LabelNode : public InstructionNode {
+public:
+    std::string name_;
+    ~LabelNode() = default;
+    LabelNode(std::string name) : name_(std::move(name)) {}
+    void accept(Visitor& v) {v.visit(*this);}
+};
+
+class JumpNode : public InstructionNode {
+public:
+    std::shared_ptr<LabelNode> dst_;
+    ~JumpNode() = default;
+    JumpNode(std::shared_ptr<LabelNode> dst) : dst_(dst) {}
+    void accept(Visitor& v) {v.visit(*this);}
+};
+
+class ConditionalJumpNode : public InstructionNode {
+public:
+    std::shared_ptr<LabelNode> dst_;
+    std::shared_ptr<ValueNode> operand_;
+    ~ConditionalJumpNode() = default;
+    ConditionalJumpNode(std::shared_ptr<ValueNode> operand, std::shared_ptr<LabelNode> dst)
+        : dst_(dst), operand_(operand) {}
+    virtual void accept(Visitor& v) = 0; 
+};
+
+class JumpIfZeroNode : public ConditionalJumpNode {
+public:
+    ~JumpIfZeroNode() = default;
+    JumpIfZeroNode(std::shared_ptr<ValueNode> operand, std::shared_ptr<LabelNode> dst)
+        : ConditionalJumpNode(operand, dst) {}
+    void accept(Visitor& v) {v.visit(*this);}
+};
+
+class JumpIfNotZeroNode : public ConditionalJumpNode {
+public:
+    ~JumpIfNotZeroNode() = default;
+    JumpIfNotZeroNode(std::shared_ptr<ValueNode> operand, std::shared_ptr<LabelNode> dst)
+        : ConditionalJumpNode(operand, dst) {}
+    void accept(Visitor& v) override {v.visit(*this);}
 };
 
 } // namespace Tacky

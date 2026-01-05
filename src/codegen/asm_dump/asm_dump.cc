@@ -75,7 +75,7 @@ void ASMDumper::visit(ASM::RetNode& node) {
 }
 
 void ASMDumper::visit(ASM::AllocateStackNode& node) {
-    of << "\tsubq   $" + std::to_string(node.size_) + ", %rsp\n";
+    of << "\tsubq   $" << std::to_string(node.size_) << ", %rsp\n";
 }
 
 void ASMDumper::visit(ASM::ImmNode& node) {
@@ -215,6 +215,18 @@ void ASMDumper::visit(ASM::CmpNode& node) {
 
 void ASMDumper::visit(ASM::CDQNode& node) {
     of << "\tcdq\n";
+}
+
+void ASMDumper::visit(ASM::LabelNode& node) {
+    of << node.name_ << ":\n";
+}
+
+void ASMDumper::visit(ASM::JumpNode& node) {
+    of << "\tjmp\t" << node.target_->name_ << "\n";
+}
+
+void ASMDumper::visit(ASM::JumpCCNode& node) {
+    of << "\tj" << ASM::instruction_suffix(node.cc_) << "\t" << node.target_->name_ << "\n";
 }
 
 void ASMDumper::visit(ASM::PseudoNode& node) {

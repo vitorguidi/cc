@@ -35,9 +35,7 @@ public:
     void visit(Tacky::MultNode& node) override;
     void visit(Tacky::PlusNode& node) override;
     void visit(Tacky::MinusNode& node) override;
-    void visit(Tacky::AndNode& node) override;
     void visit(Tacky::BitwiseAndNode& node) override;
-    void visit(Tacky::OrNode& node) override;
     void visit(Tacky::BitwiseOrNode& node) override;
     void visit(Tacky::BitwiseXorNode& node) override;
     void visit(Tacky::BitwiseLeftShiftNode& node) override;
@@ -48,6 +46,11 @@ public:
     void visit(Tacky::GreaterEqNode& node) override;
     void visit(Tacky::LessNode& node) override;
     void visit(Tacky::LessEqNode& node) override;
+    void visit(Tacky::MovNode& node) override;
+    void visit(Tacky::LabelNode& node) override;
+    void visit(Tacky::JumpNode& node) override;
+    void visit(Tacky::JumpIfZeroNode& node) override;
+    void visit(Tacky::JumpIfNotZeroNode& node) override;
 
     template<std::derived_from<ASM::BinInstructionNode> T>
     void visit_binexp(Tacky::BinaryOpNode& node);
@@ -56,6 +59,7 @@ public:
     void visit_unexp(Tacky::UnaryNode& node);
 
     void visit_relational_exp(ASM::ConditionCode cc, Tacky::RelationalOpNode& node);
+    void visit_conditional_jump(ASM::ConditionCode cc, Tacky::ConditionalJumpNode& node);
 
     std::shared_ptr<ASM::ProgramNode> get_asm_from_tacky(std::shared_ptr<Tacky::ProgramNode> tacky_program);
     std::vector<std::shared_ptr<ASM::AstNode>> buffer_;
@@ -94,6 +98,9 @@ public:
     void visit(ASM::CDQNode& node) override;
     void visit(ASM::CmpNode& node) override;
     void visit(ASM::SetCCNode& node) override;
+    void visit(ASM::LabelNode& node) override;
+    void visit(ASM::JumpCCNode& node) override;
+    void visit(ASM::JumpNode& node) override;
     std::shared_ptr<ASM::ProgramNode> get_rewritten_asm_program(std::shared_ptr<ASM::ProgramNode> program);
     std::deque<std::shared_ptr<ASM::AstNode>> buffer_;
 };
