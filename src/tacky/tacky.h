@@ -43,6 +43,7 @@ class JumpIfZeroNode;
 class JumpIfNotZeroNode;
 class LabelNode;
 class MovNode;
+class NullNode;
 
 class Visitor {
 public:
@@ -76,6 +77,7 @@ public:
     virtual void visit(Tacky::JumpIfNotZeroNode& node) = 0;
     virtual void visit(Tacky::MovNode& node) = 0;
     virtual void visit(Tacky::LabelNode& node) = 0;
+    virtual void visit(Tacky::NullNode& node) = 0;
 };
 
 class AstNode {
@@ -366,6 +368,13 @@ public:
     ~JumpIfNotZeroNode() = default;
     JumpIfNotZeroNode(std::shared_ptr<ValueNode> operand, std::shared_ptr<LabelNode> dst)
         : ConditionalJumpNode(operand, dst) {}
+    void accept(Visitor& v) override {v.visit(*this);}
+};
+
+class NullNode : public AstNode {
+public:
+    ~NullNode() = default;
+    NullNode() = default;
     void accept(Visitor& v) override {v.visit(*this);}
 };
 

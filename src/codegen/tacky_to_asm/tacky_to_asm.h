@@ -51,6 +51,7 @@ public:
     void visit(Tacky::JumpNode& node) override;
     void visit(Tacky::JumpIfZeroNode& node) override;
     void visit(Tacky::JumpIfNotZeroNode& node) override;
+    void visit(Tacky::NullNode& node) override;
 
     template<std::derived_from<ASM::BinInstructionNode> T>
     void visit_binexp(Tacky::BinaryOpNode& node);

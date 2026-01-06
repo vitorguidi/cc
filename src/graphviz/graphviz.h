@@ -94,6 +94,7 @@ public:
     void visit(Tacky::JumpNode& node) override;
     void visit(Tacky::JumpIfZeroNode& node) override;
     void visit(Tacky::JumpIfNotZeroNode& node) override;
+    void visit(Tacky::NullNode& node) override;
 
     void visit_bin_exp(std::string node_name, Tacky::BinaryOpNode& node);
     void visit_un_exp(std::string node_name, Tacky::UnaryNode& node);

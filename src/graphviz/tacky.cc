@@ -209,4 +209,15 @@ void GraphvizTackyVisitor::visit(Tacky::VariableNode& node) {
     buffer_.push_back(my_id);
 }
 
+void GraphvizTackyVisitor::visit(Tacky::NullNode& node) {
+    auto my_id = std::to_string(node_count_++);
+    std::string node_repr = labeled_node_with_kv_pairs(
+        my_id,
+        "NullNode",
+        {}
+    );
+    of << node_repr;
+    buffer_.push_back(my_id);
+}
+
 } //namespace Graphviz

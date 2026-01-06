@@ -151,6 +151,8 @@ void TackyToAsmVisitor::visit(Tacky::ReturnNode& node) {
     buffer_.push_back(std::move(ret_instruction));
 }
 
+void TackyToAsmVisitor::visit(Tacky::NullNode& node) {}
+
 // unary exps
 void TackyToAsmVisitor::visit(Tacky::BitwiseNotNode& node) {visit_unexp<ASM::BitwiseNotNode>(node);}
 void TackyToAsmVisitor::visit(Tacky::ComplementNode& node) {visit_unexp<ASM::ComplementNode>(node);}

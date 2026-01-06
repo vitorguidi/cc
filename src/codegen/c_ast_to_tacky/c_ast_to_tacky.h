@@ -35,6 +35,10 @@ public:
     void visit(CAst::GreaterEqNode& node);
     void visit(CAst::LessNode& node);
     void visit(CAst::LessEqNode& node);
+    void visit(CAst::NullNode& node);
+    void visit(CAst::AssignmentNode& node);
+    void visit(CAst::DeclarationNode& node);
+    void visit(CAst::VariableNode& node);
 
     template<std::derived_from<Tacky::BinaryOpNode> T>
     void visit_bin_exp(CAst::BinaryExpressionNode& node);
@@ -45,11 +49,11 @@ public:
     std::shared_ptr<Tacky::ProgramNode> get_tacky_from_c_ast(std::shared_ptr<CAst::ProgramNode> root_node);
     std::string generate_temp_var_name();
     std::string generate_temp_label();
-    std::vector<std::shared_ptr<Tacky::AstNode>> result_buffer_;
+    std::vector<std::shared_ptr<Tacky::AstNode>> result_buffer_, instruction_buffer;
     template <typename T>
     std::shared_ptr<T> get_result();
     template <typename T>
-    std::vector<std::shared_ptr<T>> get_results();
+    std::vector<std::shared_ptr<T>> get_instructions();
     int temp_var_counter_ = 0;
     int label_counter_ = 0;
 };
