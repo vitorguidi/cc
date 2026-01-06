@@ -110,11 +110,11 @@ void GraphvizCAstVisitor::visit(CAst::FunctionArgumentsNode& node) {
     buffer_.push_back(my_id);
 }
 
-void GraphvizCAstVisitor::visit(CAst::StatementBlockNode& node) {
+void GraphvizCAstVisitor::visit(CAst::BlockNode& node) {
     auto my_id = std::to_string(node_count_++);
     auto node_repr = labeled_node_with_kv_pairs(
         my_id,
-        "StatementBlockNode",
+        "BlockNode",
         {}
     );
     of << node_repr;

@@ -14,7 +14,7 @@ class Visitor;
 struct TypeNode;
 struct FunctionArgumentsNode;
 struct ReturnStatementNode;
-struct StatementBlockNode;
+struct BlockNode;
 struct FunctionNode;
 struct ProgramNode;
 struct IntegerValueNode;
@@ -47,7 +47,7 @@ public:
     virtual void visit(TypeNode& node) = 0;
     virtual void visit(FunctionArgumentsNode& node) = 0;
     virtual void visit(ReturnStatementNode& node) = 0;
-    virtual void visit(StatementBlockNode& node) = 0;
+    virtual void visit(BlockNode& node) = 0;
     virtual void visit(FunctionNode& node) = 0;
     virtual void visit(BitwiseNotUnaryExpressionNode& node) = 0;
     virtual void visit(MinusUnaryExpressionNode& node) = 0;
@@ -317,10 +317,10 @@ struct ReturnStatementNode : public StatementNode {
     void accept(Visitor& v) override {v.visit(*this);}
 };
 
-struct StatementBlockNode : public ASTNode {
+struct BlockNode : public ASTNode {
     std::vector<std::shared_ptr<StatementNode>> statements_;
-    StatementBlockNode() = default;
-    StatementBlockNode(std::vector<std::shared_ptr<StatementNode>> statements) 
+    BlockNode() = default;
+    BlockNode(std::vector<std::shared_ptr<StatementNode>> statements) 
         : statements_(std::move(statements)) {}
     void accept(Visitor& v) override {v.visit(*this);}
 };
@@ -329,11 +329,11 @@ struct FunctionNode : public ASTNode {
     std::string name_;
     std::shared_ptr<TypeNode> type_node_;
     std::shared_ptr<FunctionArgumentsNode> arguments_node_;
-    std::shared_ptr<StatementBlockNode> body_;
+    std::shared_ptr<BlockNode> body_;
 
     FunctionNode(std::string name, std::shared_ptr<TypeNode> type_node, 
                  std::shared_ptr<FunctionArgumentsNode> arguments, 
-                 std::shared_ptr<StatementBlockNode> body)
+                 std::shared_ptr<BlockNode> body)
     : name_(std::move(name)), type_node_(std::move(type_node)), 
       arguments_node_(std::move(arguments)), body_(std::move(body)) {}
     void accept(Visitor& v) override {v.visit(*this);}

@@ -10,7 +10,7 @@ public:
     void visit(CAst::TypeNode& node);
     void visit(CAst::FunctionArgumentsNode& node);
     void visit(CAst::ReturnStatementNode& node);
-    void visit(CAst::StatementBlockNode& node);
+    void visit(CAst::BlockNode& node);
     void visit(CAst::FunctionNode& node);
     void visit(CAst::ProgramNode& node);
     void visit(CAst::BitwiseNotUnaryExpressionNode& node);

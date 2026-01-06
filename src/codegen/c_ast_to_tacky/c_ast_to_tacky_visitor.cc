@@ -266,7 +266,7 @@ void AstToTackyVisitor::visit(CAst::TypeNode& node) {}
 
 void AstToTackyVisitor::visit(CAst::FunctionArgumentsNode& node) {}
 
-void AstToTackyVisitor::visit(CAst::StatementBlockNode& node) {}
+void AstToTackyVisitor::visit(CAst::BlockNode& node) {}
 
 std::string AstToTackyVisitor::generate_temp_var_name() {
     return "_tacky_temp_" + std::to_string(temp_var_counter_++);

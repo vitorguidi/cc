@@ -67,7 +67,7 @@ auto RecursiveDescentParser::parseFunction() -> std::optional<std::shared_ptr<CA
     if (!arguments_opt.has_value()) {
         throw std::runtime_error("Expected function arguments");
     }
-    auto body_opt = parseStatementBlock();
+    auto body_opt = parseBlock();
     if (!body_opt.has_value()) {
         throw std::runtime_error("Expected function body");
     }
@@ -123,12 +123,12 @@ auto RecursiveDescentParser::parseFunctionArguments() -> std::optional<std::shar
     return std::make_optional(std::make_shared<CAst::FunctionArgumentsNode>(std::move(function_args)));
 }
 
-auto RecursiveDescentParser::parseStatementBlock() -> std::optional<std::shared_ptr<CAst::StatementBlockNode>> {
+auto RecursiveDescentParser::parseBlock() -> std::optional<std::shared_ptr<CAst::BlockNode>> {
     if (tokens_.peek(0).kind != Lexer::TokenType::LBRACE) {
         return std::nullopt;
     }
     tokens_.consume();
-    CAst::StatementBlockNode result;
+    CAst::BlockNode result;
     while (true) {
         std::optional<std::shared_ptr<CAst::StatementNode>> statement = parseStatement();
         if (!statement.has_value()) {
@@ -136,7 +136,7 @@ auto RecursiveDescentParser::parseStatementBlock() -> std::optional<std::shared_
         }
         result.statements_.push_back(statement.value());
     }
-    return std::make_optional(std::make_shared<CAst::StatementBlockNode>(std::move(result)));
+    return std::make_optional(std::make_shared<CAst::BlockNode>(std::move(result)));
 }
 
 auto RecursiveDescentParser::parseStatement() -> std::optional<std::shared_ptr<CAst::StatementNode>> {

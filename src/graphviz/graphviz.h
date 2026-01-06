@@ -22,7 +22,7 @@ public:
     void visit(CAst::TypeNode& node) override;
     void visit(CAst::FunctionArgumentsNode& node) override;
     void visit(CAst::ReturnStatementNode& node) override;
-    void visit(CAst::StatementBlockNode& node) override;
+    void visit(CAst::BlockNode& node) override;
     void visit(CAst::FunctionNode& node) override;
     void visit(CAst::ProgramNode& node) override;
     void visit(CAst::BitwiseNotUnaryExpressionNode& node) override;
