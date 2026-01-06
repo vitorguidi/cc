@@ -125,6 +125,58 @@ void GraphvizCAstVisitor::visit(CAst::BlockNode& node) {
     buffer_.push_back(my_id);
 }
 
+void GraphvizCAstVisitor::visit(CAst::NullNode& node) {
+    auto my_id = std::to_string(node_count_++);
+    auto node_repr = labeled_node_with_kv_pairs(
+        my_id,
+        "NulLNode",
+        {}
+    );
+    of << node_repr;
+    buffer_.push_back(my_id);
+}
+
+void GraphvizCAstVisitor::visit(CAst::VariableNode& node) {
+    auto my_id = std::to_string(node_count_++);
+    auto node_repr = labeled_node_with_kv_pairs(
+        my_id,
+        "VariableNode",
+        {std::make_pair("name", node.name_)}
+    );
+    of << node_repr;
+    buffer_.push_back(my_id);
+}
+
+void GraphvizCAstVisitor::visit(CAst::DeclarationNode& node) {
+    auto my_id = std::to_string(node_count_++);
+    auto node_repr = labeled_node_with_kv_pairs(
+        my_id,
+        "DeclarationNode",
+        {
+            std::make_pair("name", node.var_->name_),
+            std::make_pair("type",type_as_str(node.type_->type_))
+        }
+    );
+    of << node_repr;
+    if(node.expr_) {
+        visit_child(my_id, "value expr", node.expr_.value());
+    }
+    buffer_.push_back(my_id);
+}
+
+void GraphvizCAstVisitor::visit(CAst::AssignmentNode& node) {
+    auto my_id = std::to_string(node_count_++);
+    auto node_repr = labeled_node_with_kv_pairs(
+        my_id,
+        "AssignmentNode",
+        {}
+    );
+    of << node_repr;
+    visit_child(my_id, "assignee", node.left_);
+    visit_child(my_id, "value", node.right_);
+    buffer_.push_back(my_id);
+}
+
 
 void GraphvizCAstVisitor::visit(CAst::ReturnStatementNode& node) {
     auto my_id = std::to_string(node_count_++);

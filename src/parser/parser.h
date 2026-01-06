@@ -34,6 +34,7 @@ inline bool is_bin_op(Lexer::TokenType token_type) {
         case Lexer::TokenType::GREATER_EQ:
         case Lexer::TokenType::LESS:
         case Lexer::TokenType::LESS_EQ:
+        case Lexer::TokenType::ASSIGNMENT:
             return true;
         default:
             return false;
@@ -124,7 +125,9 @@ private:
     std::optional<std::shared_ptr<CAst::TypeNode>> parseType();
     std::optional<std::shared_ptr<CAst::FunctionArgumentsNode>> parseFunctionArguments();
     std::optional<std::shared_ptr<CAst::BlockNode>> parseBlock();
+    std::optional<std::shared_ptr<CAst::DeclarationNode>> parseDeclaration();
     std::optional<std::shared_ptr<CAst::StatementNode>> parseStatement();
+    std::optional<std::shared_ptr<CAst::ReturnStatementNode>> parseReturnStatement();
     std::optional<std::shared_ptr<CAst::ExpressionNode>> parseExpression(int min_precedence);
     std::optional<std::shared_ptr<CAst::ExpressionNode>> parseFactor();
     std::optional<std::shared_ptr<CAst::UnaryExpressionNode>> parseUnaryExpression();

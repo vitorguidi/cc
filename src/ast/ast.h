@@ -12,6 +12,8 @@ namespace CAst {
 // Forward declarations
 class Visitor;
 struct TypeNode;
+struct AstNode;
+struct ExpressionNode;
 struct FunctionArgumentsNode;
 struct ReturnStatementNode;
 struct BlockNode;
@@ -39,6 +41,10 @@ struct GreaterNode;
 struct GreaterEqNode;
 struct LessNode;
 struct LessEqNode;
+struct AssignmentNode;
+struct DeclarationNode;
+struct NullNode;
+struct VariableNode;
 
 // --- Visitor Interface ---
 class Visitor {
@@ -72,6 +78,10 @@ public:
     virtual void visit(PlusNode& node) = 0;
     virtual void visit(MinusNode& node) = 0;
     virtual void visit(ProgramNode& node) = 0;
+    virtual void visit(DeclarationNode& node) = 0;
+    virtual void visit(AssignmentNode& node) = 0;
+    virtual void visit(NullNode& node) = 0;
+    virtual void visit(VariableNode& node) = 0;
 };
 
 // --- Base Nodes ---
@@ -81,16 +91,44 @@ public:
     virtual void accept(Visitor& v) = 0;
 };
 
-class ExpressionNode : public ASTNode {
+class BlockElementNode : public ASTNode {
+public:
+    virtual ~BlockElementNode() = default;
+    virtual void accept(Visitor& v) = 0;
+};
+
+
+class StatementNode : public BlockElementNode {
+public:
+    virtual ~StatementNode() = default;
+    virtual void accept(Visitor& v) override = 0;
+};
+
+class ExpressionNode : public StatementNode {
 public:
     virtual ~ExpressionNode() = default;
     virtual void accept(Visitor& v) override = 0;
 };
 
-class StatementNode : public ASTNode {
+class DeclarationNode : public BlockElementNode {
 public:
-    virtual ~StatementNode() = default;
-    virtual void accept(Visitor& v) override = 0;
+    std::shared_ptr<VariableNode> var_;
+    std::shared_ptr<TypeNode> type_;
+    std::optional<std::shared_ptr<ExpressionNode>> expr_;
+    ~DeclarationNode() = default;
+    DeclarationNode(
+        std::shared_ptr<VariableNode> var,
+        std::shared_ptr<TypeNode> type,
+        std::optional<std::shared_ptr<ExpressionNode>> expr)
+        : var_(var), type_(type), expr_(expr) {}
+    void accept(Visitor& v) override {v.visit(*this);}
+};
+
+class NullNode : public StatementNode {
+public:
+    ~NullNode() = default;
+    NullNode() = default;
+    void accept(Visitor& v) override {v.visit(*this);};
 };
 
 // --- Expressions ---
@@ -103,6 +141,14 @@ class IntegerValueNode : public ConstantValueNode {
 public:
     int value_;
     IntegerValueNode(int value) : value_(value) {}
+    void accept(Visitor& v) override {v.visit(*this);}
+};
+
+class VariableNode : public ExpressionNode {
+public:
+    std::string name_;
+    VariableNode() = default;
+    VariableNode(std::string name) : name_(std::move(name)) {}
     void accept(Visitor& v) override {v.visit(*this);}
 };
 
@@ -289,6 +335,14 @@ public:
     void accept(Visitor& v) override {v.visit(*this);}
 };
 
+class AssignmentNode : public ExpressionNode {
+public:
+    std::shared_ptr<ExpressionNode> left_, right_;
+    AssignmentNode(std::shared_ptr<ExpressionNode> left, std::shared_ptr<ExpressionNode> right)
+        :   left_(left), right_(right) {}
+    void accept(Visitor& v) override {v.visit(*this);}
+};
+
 // --- Structural Nodes ---
 struct FunctionArgument {
     Type type;
@@ -318,9 +372,9 @@ struct ReturnStatementNode : public StatementNode {
 };
 
 struct BlockNode : public ASTNode {
-    std::vector<std::shared_ptr<StatementNode>> statements_;
+    std::vector<std::shared_ptr<BlockElementNode>> statements_;
     BlockNode() = default;
-    BlockNode(std::vector<std::shared_ptr<StatementNode>> statements) 
+    BlockNode(std::vector<std::shared_ptr<BlockElementNode>> statements) 
         : statements_(std::move(statements)) {}
     void accept(Visitor& v) override {v.visit(*this);}
 };

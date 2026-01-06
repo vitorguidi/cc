@@ -5,28 +5,15 @@
 #include <cassert>
 
 /*
-Language so far:
-
-Program: [Function]*
-Function: Type NAME '(' FunctionArguments ')' StatementBlock
-Type: 'int'
-FunctionArguments: Type NAME [, Type NAME]*
-StatementBlock: '{' [Statement]* '}'
-Statement: 'return' Expression ';'
-Expression: INTEGER_VALUE | Unary Expression | (Expression)
-Unary: ('~' | '-')
-*/
-
-/*
 Moving to precedence climbing
 Program: [Function]*
-Function: Type NAME '(' FunctionArguments ')' StatementBlock
+Function: Type NAME '(' FunctionArguments ')' Block
+Block: { [declaration | statement ;]* }
+statement: RETURN EXPR | EXPR | NULL
 Type: 'int'
 FunctionArguments: Type NAME [, Type NAME]*
-StatementBlock: '{' [Statement]* '}'
-Statement: 'return' EXPR ';'
 EXPR: FACTOR | UNOP EXPR | EXPR BINOP EXPR
-FACTOR: INTEGER_VALUE | UNOP FACTOR | (EXPR)
+FACTOR: INTEGER_VALUE | VAR | UNOP FACTOR | (EXPR)
 BINOP: + | - | * | / | %
 UNOP: ('~' | '-')
 */
@@ -125,24 +112,100 @@ auto RecursiveDescentParser::parseFunctionArguments() -> std::optional<std::shar
 
 auto RecursiveDescentParser::parseBlock() -> std::optional<std::shared_ptr<CAst::BlockNode>> {
     if (tokens_.peek(0).kind != Lexer::TokenType::LBRACE) {
-        return std::nullopt;
+        throw std::runtime_error("Expected LBRACE while parsing block.");
     }
     tokens_.consume();
     CAst::BlockNode result;
-    while (true) {
-        std::optional<std::shared_ptr<CAst::StatementNode>> statement = parseStatement();
-        if (!statement.has_value()) {
-            break;
+    while (tokens_.peek(0).kind != Lexer::TokenType::RBRACE) {
+        if (tokens_.peek(0).kind == Lexer::TokenType::END_OF_FILE) {
+            throw std::runtime_error("END_OF_FILE found during block parsing, crashing to avoid infinite loop");
         }
-        result.statements_.push_back(statement.value());
+        if (tokens_.peek(0).kind == Lexer::TokenType::INTEGER_TYPE) {
+            std::optional<std::shared_ptr<CAst::DeclarationNode>> decl = parseDeclaration();
+            if(!decl) {throw std::runtime_error("Expected to parse statement within block.");}
+            result.statements_.push_back(decl.value());
+        } else {
+            std::optional<std::shared_ptr<CAst::StatementNode>> statement = parseStatement();
+            if(!statement) {throw std::runtime_error("Expected to parse statement within block.");}
+            result.statements_.push_back(statement.value());
+        }
+
     }
+    if (tokens_.peek(0).kind != Lexer::TokenType::RBRACE) {
+        throw std::runtime_error("Expected RBRACE at end of block");
+    }
+    tokens_.consume();
     return std::make_optional(std::make_shared<CAst::BlockNode>(std::move(result)));
 }
 
-auto RecursiveDescentParser::parseStatement() -> std::optional<std::shared_ptr<CAst::StatementNode>> {
-    if (tokens_.peek(0).kind != Lexer::TokenType::RETURN) {
-        return std::nullopt;
+auto RecursiveDescentParser::parseDeclaration() -> std::optional<std::shared_ptr<CAst::DeclarationNode>> {
+    auto type = std::make_shared<CAst::TypeNode>(CAst::Type::INTEGER);
+    tokens_.consume(); //get rid of type
+    if (tokens_.peek(0).kind != Lexer::TokenType::NAME) {
+        throw std::runtime_error("Expected NAME token after type in variable declaration");
     }
+    auto variable_name = tokens_.consume();
+
+    std::optional<std::shared_ptr<CAst::ExpressionNode>> expr = std::nullopt;
+
+    if (tokens_.peek(0).kind != Lexer::TokenType::SEMICOLON &&
+        tokens_.peek(0).kind != Lexer::TokenType::ASSIGNMENT) {
+        throw std::runtime_error("Expected either SEMICOLON after declaration, or a following ASSIGNMENT.");
+    }
+
+    if (tokens_.peek(0).kind == Lexer::TokenType::SEMICOLON) {
+        tokens_.consume();
+        return std::make_optional(std::make_shared<CAst::DeclarationNode>(
+            std::make_shared<CAst::VariableNode>(std::get<std::string>(variable_name.value)),
+            type,
+            expr
+        ));
+    }
+
+    if (tokens_.peek(0).kind != Lexer::TokenType::ASSIGNMENT) {
+        throw std::runtime_error("Expected assignment after declaration.");
+    }
+
+    tokens_.consume();
+
+    expr = parseExpression(0);
+
+    if (!expr) {
+        throw std::runtime_error("Expected expression after assignment in declaration.");
+    }
+
+    if (tokens_.peek(0).kind != Lexer::TokenType::SEMICOLON) {
+        throw std::runtime_error("Expected SEMICOLON after expression in assignment");
+    }
+
+    tokens_.consume();
+    return std::make_optional(std::make_shared<CAst::DeclarationNode>(
+        std::make_shared<CAst::VariableNode>(std::get<std::string>(variable_name.value)),
+        type,
+        expr.value()
+    ));
+}
+
+auto RecursiveDescentParser::parseStatement() -> std::optional<std::shared_ptr<CAst::StatementNode>> {
+    if (tokens_.peek(0).kind == Lexer::TokenType::RETURN) {
+        return parseReturnStatement();
+    }
+    if (tokens_.peek(0).kind == Lexer::TokenType::SEMICOLON) {
+        tokens_.consume();
+        return std::make_shared<CAst::NullNode>();
+    }
+    auto expr = parseExpression(0);
+    if (!expr) {
+        throw std::runtime_error("Expected expression as statement result");
+    }
+    if (tokens_.peek(0).kind != Lexer::TokenType::SEMICOLON) {
+        throw std::runtime_error("Expected SEMICOLON after expression statement");
+    }
+    tokens_.consume();
+    return expr;
+}
+
+auto RecursiveDescentParser::parseReturnStatement() -> std::optional<std::shared_ptr<CAst::ReturnStatementNode>> {
     tokens_.consume();
     auto expr = parseExpression(0);
     if (!expr.has_value()) {
@@ -172,6 +235,10 @@ auto RecursiveDescentParser::parseFactor() -> std::optional<std::shared_ptr<CAst
             }
             return unop;
         }
+        case Lexer::TokenType::NAME:
+            return std::make_shared<CAst::VariableNode>(
+                std::get<std::string>(tokens_.consume().value)
+            );
         case Lexer::TokenType::LPAREN: {
             tokens_.consume();
             auto inner_exp = parseExpression(0);
@@ -197,68 +264,74 @@ auto RecursiveDescentParser::parseExpression(int min_precedence) -> std::optiona
     auto next_token = tokens_.peek(0).kind;
     auto next_token_precedence = precedence(next_token);
     while(is_bin_op(next_token) && next_token_precedence.value() >= min_precedence) {
-        Lexer::Token op = tokens_.consume();
-        std::optional<std::shared_ptr<CAst::ExpressionNode>> right = parseExpression(next_token_precedence.value() + 1);
-        if (!right) {
-            throw std::runtime_error("Expected to parse right expression during precedence climbing");
-        }
-        switch (next_token) {
-            case Lexer::TokenType::PLUS:
-                left = std::make_optional(std::make_shared<CAst::PlusNode>(left.value(), right.value()));
-                break;
-            case Lexer::TokenType::MINUS:
-                left = std::make_optional(std::make_shared<CAst::MinusNode>(left.value(), right.value()));
-                break;
-            case Lexer::TokenType::MOD:
-                left = std::make_optional(std::make_shared<CAst::ModNode>(left.value(), right.value()));
-                break;
-            case Lexer::TokenType::DIV:
-                left = std::make_optional(std::make_shared<CAst::DivNode>(left.value(), right.value()));
-                break;
-            case Lexer::TokenType::MULT:
-                left = std::make_optional(std::make_shared<CAst::MultNode>(left.value(), right.value()));
-                break;
-            case Lexer::TokenType::AND:
-                left = std::make_optional(std::make_shared<CAst::AndNode>(left.value(), right.value()));
-                break;
-            case Lexer::TokenType::BITWISE_AND:
-                left = std::make_optional(std::make_shared<CAst::BitwiseAndNode>(left.value(), right.value()));
-                break;
-            case Lexer::TokenType::OR:
-                left = std::make_optional(std::make_shared<CAst::OrNode>(left.value(), right.value()));
-                break;
-            case Lexer::TokenType::BITWISE_OR:
-                left = std::make_optional(std::make_shared<CAst::BitwiseOrNode>(left.value(), right.value()));
-                break;
-            case Lexer::TokenType::BITWISE_XOR:
-                left = std::make_optional(std::make_shared<CAst::BitwiseXorNode>(left.value(), right.value()));
-                break;
-            case Lexer::TokenType::BITSHIFT_LEFT:
-                left = std::make_optional(std::make_shared<CAst::BitwiseLeftShiftNode>(left.value(), right.value()));
-                break;
-            case Lexer::TokenType::BITSHIFT_RIGHT:
-                left = std::make_optional(std::make_shared<CAst::BitwiseRightShiftNode>(left.value(), right.value()));
-                break;
-            case Lexer::TokenType::EQUAL:
-                left = std::make_optional(std::make_shared<CAst::EqualNode>(left.value(), right.value()));
-                break;
-            case Lexer::TokenType::NOT_EQUAL:
-                left = std::make_optional(std::make_shared<CAst::NotEqualNode>(left.value(), right.value()));
-                break;
-            case Lexer::TokenType::GREATER:
-                left = std::make_optional(std::make_shared<CAst::GreaterNode>(left.value(), right.value()));
-                break;
-            case Lexer::TokenType::GREATER_EQ:
-                left = std::make_optional(std::make_shared<CAst::GreaterEqNode>(left.value(), right.value()));
-                break;
-            case Lexer::TokenType::LESS:
-                left = std::make_optional(std::make_shared<CAst::LessNode>(left.value(), right.value()));
-                break;
-            case Lexer::TokenType::LESS_EQ:
-                left = std::make_optional(std::make_shared<CAst::LessEqNode>(left.value(), right.value()));
-                break;
-            default:
-                throw std::runtime_error("Unable to build bin exp from given token.");
+        if (tokens_.peek(0).kind == Lexer::TokenType::ASSIGNMENT) {
+            tokens_.consume();
+            auto right = parseExpression(next_token_precedence.value());
+            left = std::make_shared<CAst::AssignmentNode>(left.value(), right.value());
+        } else {
+            Lexer::Token op = tokens_.consume();
+            std::optional<std::shared_ptr<CAst::ExpressionNode>> right = parseExpression(next_token_precedence.value() + 1);
+            if (!right) {
+                throw std::runtime_error("Expected to parse right expression during precedence climbing");
+            }
+            switch (next_token) {
+                case Lexer::TokenType::PLUS:
+                    left = std::make_optional(std::make_shared<CAst::PlusNode>(left.value(), right.value()));
+                    break;
+                case Lexer::TokenType::MINUS:
+                    left = std::make_optional(std::make_shared<CAst::MinusNode>(left.value(), right.value()));
+                    break;
+                case Lexer::TokenType::MOD:
+                    left = std::make_optional(std::make_shared<CAst::ModNode>(left.value(), right.value()));
+                    break;
+                case Lexer::TokenType::DIV:
+                    left = std::make_optional(std::make_shared<CAst::DivNode>(left.value(), right.value()));
+                    break;
+                case Lexer::TokenType::MULT:
+                    left = std::make_optional(std::make_shared<CAst::MultNode>(left.value(), right.value()));
+                    break;
+                case Lexer::TokenType::AND:
+                    left = std::make_optional(std::make_shared<CAst::AndNode>(left.value(), right.value()));
+                    break;
+                case Lexer::TokenType::BITWISE_AND:
+                    left = std::make_optional(std::make_shared<CAst::BitwiseAndNode>(left.value(), right.value()));
+                    break;
+                case Lexer::TokenType::OR:
+                    left = std::make_optional(std::make_shared<CAst::OrNode>(left.value(), right.value()));
+                    break;
+                case Lexer::TokenType::BITWISE_OR:
+                    left = std::make_optional(std::make_shared<CAst::BitwiseOrNode>(left.value(), right.value()));
+                    break;
+                case Lexer::TokenType::BITWISE_XOR:
+                    left = std::make_optional(std::make_shared<CAst::BitwiseXorNode>(left.value(), right.value()));
+                    break;
+                case Lexer::TokenType::BITSHIFT_LEFT:
+                    left = std::make_optional(std::make_shared<CAst::BitwiseLeftShiftNode>(left.value(), right.value()));
+                    break;
+                case Lexer::TokenType::BITSHIFT_RIGHT:
+                    left = std::make_optional(std::make_shared<CAst::BitwiseRightShiftNode>(left.value(), right.value()));
+                    break;
+                case Lexer::TokenType::EQUAL:
+                    left = std::make_optional(std::make_shared<CAst::EqualNode>(left.value(), right.value()));
+                    break;
+                case Lexer::TokenType::NOT_EQUAL:
+                    left = std::make_optional(std::make_shared<CAst::NotEqualNode>(left.value(), right.value()));
+                    break;
+                case Lexer::TokenType::GREATER:
+                    left = std::make_optional(std::make_shared<CAst::GreaterNode>(left.value(), right.value()));
+                    break;
+                case Lexer::TokenType::GREATER_EQ:
+                    left = std::make_optional(std::make_shared<CAst::GreaterEqNode>(left.value(), right.value()));
+                    break;
+                case Lexer::TokenType::LESS:
+                    left = std::make_optional(std::make_shared<CAst::LessNode>(left.value(), right.value()));
+                    break;
+                case Lexer::TokenType::LESS_EQ:
+                    left = std::make_optional(std::make_shared<CAst::LessEqNode>(left.value(), right.value()));
+                    break;
+                default:
+                    throw std::runtime_error("Unable to build bin exp from given token.");
+            }
         }
         next_token = tokens_.peek(0).kind;
         next_token_precedence = precedence(next_token);
