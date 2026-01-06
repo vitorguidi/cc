@@ -9,6 +9,7 @@
 // #include "src/codegen/c_ast_to_tacky/c_ast_to_tacky.h"
 // #include "src/codegen/tacky_to_asm/tacky_to_asm.h"
 // #include "src/codegen/asm_dump/asm_dump.h"
+#include "src/semantic/semantic.h"
 #include "src/lexer/lexer.h"
 #include "src/parser/parser.h"
 
@@ -50,6 +51,15 @@ int main(int argc, char** argv) {
         Graphviz::GraphvizCAstVisitor c_ast_graphviz(std::string("asm_output/cast.dot"));
         auto program_raw = *(program_node.value());
         c_ast_graphviz.visit(program_raw);
+    }
+
+    auto semantic_visitor = Semantic::SemanticAnalysisVisitor();
+    auto semantic_c_program = semantic_visitor.process(*program_node.value());
+
+    {
+        std::cout << "Generating graphviz visualization for CAst after sem analysis..." << std::endl;
+        Graphviz::GraphvizCAstVisitor c_ast_graphviz(std::string("asm_output/cast_semantic.dot"));
+        c_ast_graphviz.visit(*semantic_c_program);
     }
 
     // auto tacky_visitor = Codegen::AstToTackyVisitor();

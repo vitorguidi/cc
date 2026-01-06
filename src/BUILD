@@ -6,7 +6,8 @@ cc_binary(
         "//src/parser:parser",
         "//src/ast:ast",
         "//src/graphviz",
-        "//src/codegen:codegen"
+        "//src/codegen:codegen",
+        "//src/semantic:semantic",
     ],
     visibility = ["//visibility:public"],
 )
