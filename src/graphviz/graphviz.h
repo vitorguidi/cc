@@ -1,9 +1,9 @@
 #ifndef AST_GRAPHVIZ_H
 #define AST_GRAPHVIZ_H
 
-#include "src/ast/ast.h"
-#include "src/tacky/tacky.h"
-#include "src/asm/asm_ast.h"
+#include "src/ast/c.h"
+#include "src/ast/tacky.h"
+#include "src/ast/x86_64_asm.h"
 #include <fstream>
 #include <utility>
 #include <string>

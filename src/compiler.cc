@@ -4,7 +4,7 @@
 #include <string>
 #include <filesystem>
 
-#include "src/ast/ast.h"
+#include "src/ast/c.h"
 #include "src/graphviz/graphviz.h"
 #include "src/codegen/c_ast_to_tacky/c_ast_to_tacky.h"
 #include "src/codegen/tacky_to_asm/tacky_to_asm.h"

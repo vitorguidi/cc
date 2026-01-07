@@ -9,8 +9,6 @@ cc_test(
         "//src/codegen:codegen",
         "//src/lexer:lexer",
         "//src/parser:parser",
-        "//src/tacky:tacky",
-        "//src/asm:asm",
     ],
     args = [
         "--seed=42",

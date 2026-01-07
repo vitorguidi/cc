@@ -18,8 +18,6 @@ cc_library(
     ],
     deps = [
         "//src/ast:ast",
-        "//src/tacky:tacky",
-        "//src/asm:asm",
     ],
     visibility = ["//visibility:public"],
 )

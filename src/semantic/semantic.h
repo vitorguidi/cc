@@ -1,7 +1,7 @@
 #ifndef _SEMANTIC_H_
 #define _SEMANTIC_H_
 
-#include "src/ast/ast.h"
+#include "src/ast/c.h"
 #include <vector>
 #include <unordered_map>
 #include <memory>

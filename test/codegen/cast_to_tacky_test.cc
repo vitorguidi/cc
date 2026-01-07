@@ -1,8 +1,8 @@
-#include "src/ast/ast.h"
+#include "src/ast/c.h"
 #include "src/parser/parser.h"
 #include "src/lexer/lexer.h"
 #include "gtest/gtest.h"
-#include "src/tacky/tacky.h"
+#include "src/ast/tacky.h"
 #include "src/codegen/c_ast_to_tacky/c_ast_to_tacky.h"
 #include <string>
 

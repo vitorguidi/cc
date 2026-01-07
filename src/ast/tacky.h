@@ -1,7 +1,7 @@
 #ifndef TACKY_H
 #define TACKY_H
 
-#include "src/ast/ast.h"
+#include "src/ast/c.h"
 #include <string>
 #include <vector>
 #include <memory>

@@ -1,5 +1,5 @@
-#ifndef ASM_H
-#define ASM_H
+#ifndef _X86_64_ASM_H
+#define _X86_64_ASM_H
 
 #include <memory>
 #include <vector>
@@ -425,4 +425,4 @@ public:
 };
 
 } //namespace ASM
-#endif // ASM_H
+#endif // _X86_64_ASM_H

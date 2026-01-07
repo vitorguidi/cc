@@ -1,13 +1,27 @@
-#ifndef _AST_H_
-#define _AST_H_
+#ifndef _C_H_
+#define _C_H_
 
 #include <vector>
 #include <list>
 #include <string>
 #include <memory>
-#include "src/ast/type.h"
 
 namespace CAst {
+
+enum Type {
+    INTEGER,
+    VOID,
+};
+
+inline std::string type_as_str(Type type) {
+    switch (type) {
+        case (Type::INTEGER) :
+            return std::string("int");
+        case Type::VOID :
+            return std::string("void");
+    }
+    return std::string("");
+};
 
 // Forward declarations
 class Visitor;
@@ -433,4 +447,4 @@ struct ProgramNode : public ASTNode {
 };
 
 } // namespace CAst
-#endif // _AST_H_
+#endif // _C_H_

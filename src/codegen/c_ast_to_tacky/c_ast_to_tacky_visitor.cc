@@ -1,5 +1,5 @@
 #include "src/codegen/c_ast_to_tacky/c_ast_to_tacky.h"
-#include "src/tacky/tacky.h"
+#include "src/ast/tacky.h"
 #include <memory>
 #include <algorithm>
 

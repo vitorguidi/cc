@@ -1,8 +1,8 @@
 #ifndef TACKY_TO_ASM_VISITOR_H
 #define TACKY_TO_ASM_VISITOR_H
 
-#include "src/tacky/tacky.h"
-#include "src/asm/asm_ast.h"
+#include "src/ast/tacky.h"
+#include "src/ast/x86_64_asm.h"
 #include <stdexcept>
 #include <unordered_map>
 #include <deque>

@@ -1,7 +1,7 @@
 #ifndef _PARSER_H_
 #define _PARSER_H_
 
-#include "src/ast/ast.h"
+#include "src/ast/c.h"
 #include <generator>
 #include "src/lexer/token.h"
 #include <optional>

@@ -1,5 +1,5 @@
-#include  "src/tacky/tacky.h"
-#include "src/ast/ast.h"
+#include  "src/ast/tacky.h"
+#include "src/ast/c.h"
 #include <stdexcept>
 
 namespace Codegen {

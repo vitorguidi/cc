@@ -2,7 +2,7 @@
 #include <random>
 #include <iostream>
 
-#include "src/ast/ast.h"
+#include "src/ast/c.h"
 #include "src/codegen/c_ast_to_tacky/c_ast_to_tacky.h"
 #include "src/codegen/tacky_to_asm/tacky_to_asm.h"
 #include "src/codegen/asm_dump/asm_dump.h"
@@ -42,6 +42,12 @@ public:
     void visit(CAst::BlockNode& node) override {}
     void visit(CAst::FunctionNode& node) override {}
     void visit(CAst::ProgramNode& node) override {}
+    void visit(CAst::IfNode& node) override {}
+    void visit(CAst::DeclarationNode& node) override {}
+    void visit(CAst::AssignmentNode& node) override {}
+    void visit(CAst::NullNode& node) override {}
+    void visit(CAst::TernaryNode& node) override {}
+    void visit(CAst::VariableNode& node) override {}
 
     void visit(CAst::ReturnStatementNode& node) override {
         expr_ += "return ";

@@ -1,6 +1,6 @@
 #include "src/parser/parser.h"
 #include "src/lexer/token.h"
-#include "src/ast/ast.h"
+#include "src/ast/c.h"
 #include <stdexcept>
 #include <cassert>
 
