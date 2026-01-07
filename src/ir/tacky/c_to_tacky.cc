@@ -1,9 +1,9 @@
-#include "src/codegen/tacky/c_to_tacky.h"
+#include "src/ir/tacky/c_to_tacky.h"
 #include "src/ast/tacky.h"
 #include <memory>
 #include <algorithm>
 
-namespace Codegen {
+namespace IR {
 
 template<typename T>
 std::shared_ptr<T> AstToTackyVisitor::get_result()
@@ -376,4 +376,4 @@ std::string AstToTackyVisitor::generate_temp_label() {
     return "_label_" + std::to_string(label_counter_++) + "_";
 }
 
-} // namespace Codegen
+} // namespace IR

@@ -3,7 +3,7 @@
 #include "src/lexer/lexer.h"
 #include "gtest/gtest.h"
 #include "src/ast/tacky.h"
-#include "src/codegen/c_ast_to_tacky/c_ast_to_tacky.h"
+#include "src/ir/tacky/c_to_tacky.h"
 #include <string>
 
 namespace Codegen {
@@ -21,7 +21,7 @@ TEST(TackyTest, BasicProgram) {
     ASSERT_TRUE(program_opt.has_value());
     auto program = program_opt.value();
 
-    Codegen::AstToTackyVisitor visitor;
+    IR::AstToTackyVisitor visitor;
     std::shared_ptr<Tacky::ProgramNode> tacky_program = visitor.get_tacky_from_c_ast(program);
 
     auto functions = tacky_program->functions_;

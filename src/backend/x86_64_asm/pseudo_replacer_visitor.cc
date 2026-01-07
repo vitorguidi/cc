@@ -1,6 +1,6 @@
-#include "src/codegen/x86_64_asm/tacky_to_asm.h"
+#include "src/backend/x86_64_asm/tacky_to_asm.h"
 
-namespace Codegen {
+namespace Backend {
 
 void PseudoReplacerVisitor::visit(ASM::PseudoNode& node) {
     if (stack_offsets_.count(node.name_) == 0) {
@@ -22,4 +22,4 @@ int PseudoReplacerVisitor::get_offset() {
 }
 
 
-} // namespace Codegen
+} // namespace Backend

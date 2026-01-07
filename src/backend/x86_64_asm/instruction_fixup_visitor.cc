@@ -1,8 +1,8 @@
-#include "src/codegen/x86_64_asm/tacky_to_asm.h"
+#include "src/backend/x86_64_asm/tacky_to_asm.h"
 
 #include <iostream>
 
-namespace Codegen {
+namespace Backend {
 
 void InstructionFixUpVisitor::visit(ASM::FunctionNode& node) {
     std::vector<std::shared_ptr<ASM::InstructionNode>> processed_instructions;
@@ -318,4 +318,4 @@ void InstructionFixUpVisitor::visit(ASM::CmpNode& node) {
     buffer_.push_back(std::make_shared<ASM::CmpNode>(new_operand1, new_operand2));
 }
 
-} // namespace Codegen
+} // namespace Backend

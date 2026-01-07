@@ -7,7 +7,7 @@
 #include <unordered_map>
 #include <deque>
 
-namespace Codegen {
+namespace Backend {
 
 template<typename T>
 inline std::shared_ptr<T> As(std::shared_ptr<ASM::AstNode>& node, const std::string& error_msg) {
@@ -66,15 +66,15 @@ public:
     std::vector<std::shared_ptr<ASM::AstNode>> buffer_;
 };
 
-class ASMRewriteVisitor : public ASM::Visitor {
+class x86_64_ASM_RewriteVisitor : public ASM::Visitor {
 private:
     template <std::derived_from<ASM::BinInstructionNode> T>
     void visit_binexp(ASM::BinInstructionNode& node);
     template <std::derived_from<ASM::UnaryInstructionNode> T>
     void visit_unexp(ASM::UnaryInstructionNode& node);
 public:
-    ~ASMRewriteVisitor() = default;
-    ASMRewriteVisitor() = default;
+    ~x86_64_ASM_RewriteVisitor() = default;
+    x86_64_ASM_RewriteVisitor() = default;
     void visit(ASM::ProgramNode& node) override;
     void visit(ASM::FunctionNode& node) override;
     void visit(ASM::ComplementNode& node) override;
@@ -106,7 +106,7 @@ public:
     std::deque<std::shared_ptr<ASM::AstNode>> buffer_;
 };
 
-class PseudoReplacerVisitor : public ASMRewriteVisitor {
+class PseudoReplacerVisitor : public x86_64_ASM_RewriteVisitor {
 public:
     ~PseudoReplacerVisitor() = default;
     PseudoReplacerVisitor() : current_offset_(0) {}
@@ -116,11 +116,11 @@ public:
     std::unordered_map<std::string, int> stack_offsets_;
 };
 
-class InstructionFixUpVisitor : public ASMRewriteVisitor {
+class InstructionFixUpVisitor : public x86_64_ASM_RewriteVisitor {
 public:
     ~InstructionFixUpVisitor() = default;
     InstructionFixUpVisitor(int offset)
-        : ASMRewriteVisitor(), max_stack_offset_(offset) {}
+        : x86_64_ASM_RewriteVisitor(), max_stack_offset_(offset) {}
     void visit(ASM::FunctionNode& node) override;
     void visit(ASM::MovNode& node) override;
     void visit(ASM::MovBNode& node) override;
@@ -137,6 +137,6 @@ public:
     int max_stack_offset_;
 };
 
-} // namespace Codegen
+} // namespace Backend
 
 #endif // TACKY_TO_ASM_VISITOR_H

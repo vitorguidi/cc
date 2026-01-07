@@ -2,7 +2,7 @@
 #include "src/ast/c.h"
 #include <stdexcept>
 
-namespace Codegen {
+namespace IR {
 
 class AstToTackyVisitor : public CAst::Visitor {
 public:
@@ -60,4 +60,4 @@ public:
     int label_counter_ = 0;
 };
 
-} // namespace Codegen
+} // namespace IR

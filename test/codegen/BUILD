@@ -5,7 +5,8 @@ cc_test(
     deps = [
         "@googletest//:gtest",
         "//src/ast:ast",
-        "//src/codegen:codegen",
+        "//src/ir:ir",
+        "//src/backend:backend",
         "//src/lexer:lexer",
         "//src/parser:parser",
     ],

@@ -3,7 +3,7 @@
 #include <string>
 #include <vector>
 
-namespace Codegen {
+namespace Backend {
 
 class ASMDumper : public ASM::Visitor {
 public:

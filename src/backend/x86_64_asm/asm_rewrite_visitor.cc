@@ -1,9 +1,9 @@
-#include "src/codegen/x86_64_asm/tacky_to_asm.h"
+#include "src/backend/x86_64_asm/tacky_to_asm.h"
 
-namespace Codegen {
+namespace Backend {
 
 template <std::derived_from<ASM::BinInstructionNode> T>
-void ASMRewriteVisitor::visit_binexp(ASM::BinInstructionNode& node) {
+void x86_64_ASM_RewriteVisitor::visit_binexp(ASM::BinInstructionNode& node) {
     node.left_->accept(*this);
     std::shared_ptr<ASM::OperandNode> casted_left = As<ASM::OperandNode>(
         buffer_.back(),
@@ -23,7 +23,7 @@ void ASMRewriteVisitor::visit_binexp(ASM::BinInstructionNode& node) {
 }
 
 template <std::derived_from<ASM::UnaryInstructionNode> T>
-void ASMRewriteVisitor::visit_unexp(ASM::UnaryInstructionNode& node) {
+void x86_64_ASM_RewriteVisitor::visit_unexp(ASM::UnaryInstructionNode& node) {
     node.src_->accept(*this);
     std::shared_ptr<ASM::OperandNode> casted_src = As<ASM::OperandNode>(
         buffer_.back(),
@@ -37,7 +37,7 @@ void ASMRewriteVisitor::visit_unexp(ASM::UnaryInstructionNode& node) {
     );
 }
 
-void ASMRewriteVisitor::visit(ASM::ProgramNode& node) {
+void x86_64_ASM_RewriteVisitor::visit(ASM::ProgramNode& node) {
     std::vector<std::shared_ptr<ASM::FunctionNode>> replaced_functions;
     for(auto& fn : node.functions_) {
         fn->accept(*this);
@@ -49,7 +49,7 @@ void ASMRewriteVisitor::visit(ASM::ProgramNode& node) {
     buffer_.push_back(std::make_shared<ASM::ProgramNode>(replaced_functions));
 }
 
-void ASMRewriteVisitor::visit(ASM::FunctionNode& node) {
+void x86_64_ASM_RewriteVisitor::visit(ASM::FunctionNode& node) {
     std::vector<std::shared_ptr<ASM::InstructionNode>> replaced_instructions;
     for(auto& instruction : node.instructions_) {
         instruction->accept(*this);
@@ -70,11 +70,11 @@ void ASMRewriteVisitor::visit(ASM::FunctionNode& node) {
     );
 }
 
-void ASMRewriteVisitor::visit(ASM::ComplementNode& node) {visit_unexp<ASM::ComplementNode>(node);}
-void ASMRewriteVisitor::visit(ASM::BitwiseNotNode& node) {visit_unexp<ASM::BitwiseNotNode>(node);}
+void x86_64_ASM_RewriteVisitor::visit(ASM::ComplementNode& node) {visit_unexp<ASM::ComplementNode>(node);}
+void x86_64_ASM_RewriteVisitor::visit(ASM::BitwiseNotNode& node) {visit_unexp<ASM::BitwiseNotNode>(node);}
 
 
-void ASMRewriteVisitor::visit(ASM::MovNode& node) {
+void x86_64_ASM_RewriteVisitor::visit(ASM::MovNode& node) {
     node.src_->accept(*this);
     std::shared_ptr<ASM::OperandNode> casted_src = As<ASM::OperandNode>(
         buffer_.back(),
@@ -95,7 +95,7 @@ void ASMRewriteVisitor::visit(ASM::MovNode& node) {
     );
 }
 
-void ASMRewriteVisitor::visit(ASM::MovBNode& node) {
+void x86_64_ASM_RewriteVisitor::visit(ASM::MovBNode& node) {
     node.src_->accept(*this);
     std::shared_ptr<ASM::OperandNode> casted_src = As<ASM::OperandNode>(
         buffer_.back(),
@@ -116,7 +116,7 @@ void ASMRewriteVisitor::visit(ASM::MovBNode& node) {
     );
 }
 
-void ASMRewriteVisitor::visit(ASM::DivNode& node) {
+void x86_64_ASM_RewriteVisitor::visit(ASM::DivNode& node) {
     node.src_->accept(*this);
     std::shared_ptr<ASM::OperandNode> casted_src = As<ASM::OperandNode>(
         buffer_.back(),
@@ -129,18 +129,18 @@ void ASMRewriteVisitor::visit(ASM::DivNode& node) {
 }
 
 // binary arithmetic exps
-void ASMRewriteVisitor::visit(ASM::MultNode& node) {visit_binexp<ASM::MultNode>(node);}
-void ASMRewriteVisitor::visit(ASM::AddNode& node) {visit_binexp<ASM::AddNode>(node);}
-void ASMRewriteVisitor::visit(ASM::SubNode& node) {visit_binexp<ASM::SubNode>(node);}
+void x86_64_ASM_RewriteVisitor::visit(ASM::MultNode& node) {visit_binexp<ASM::MultNode>(node);}
+void x86_64_ASM_RewriteVisitor::visit(ASM::AddNode& node) {visit_binexp<ASM::AddNode>(node);}
+void x86_64_ASM_RewriteVisitor::visit(ASM::SubNode& node) {visit_binexp<ASM::SubNode>(node);}
 
 // binary boolean exps
-void ASMRewriteVisitor::visit(ASM::BitwiseAndNode& node) {visit_binexp<ASM::BitwiseAndNode>(node);}
-void ASMRewriteVisitor::visit(ASM::BitwiseOrNode& node) {visit_binexp<ASM::BitwiseOrNode>(node);}
-void ASMRewriteVisitor::visit(ASM::BitwiseXorNode& node) {visit_binexp<ASM::BitwiseXorNode>(node);}
-void ASMRewriteVisitor::visit(ASM::SalNode& node) {visit_binexp<ASM::SalNode>(node);}
-void ASMRewriteVisitor::visit(ASM::SarNode& node) {visit_binexp<ASM::SarNode>(node);}
+void x86_64_ASM_RewriteVisitor::visit(ASM::BitwiseAndNode& node) {visit_binexp<ASM::BitwiseAndNode>(node);}
+void x86_64_ASM_RewriteVisitor::visit(ASM::BitwiseOrNode& node) {visit_binexp<ASM::BitwiseOrNode>(node);}
+void x86_64_ASM_RewriteVisitor::visit(ASM::BitwiseXorNode& node) {visit_binexp<ASM::BitwiseXorNode>(node);}
+void x86_64_ASM_RewriteVisitor::visit(ASM::SalNode& node) {visit_binexp<ASM::SalNode>(node);}
+void x86_64_ASM_RewriteVisitor::visit(ASM::SarNode& node) {visit_binexp<ASM::SarNode>(node);}
 
-void ASMRewriteVisitor::visit(ASM::CmpNode& node) {
+void x86_64_ASM_RewriteVisitor::visit(ASM::CmpNode& node) {
     node.operand1_->accept(*this);
     std::shared_ptr<ASM::OperandNode> casted_operand1 = As<ASM::OperandNode>(
         buffer_.back(),
@@ -157,7 +157,7 @@ void ASMRewriteVisitor::visit(ASM::CmpNode& node) {
     buffer_.push_back(std::make_shared<ASM::CmpNode>(casted_operand1, casted_operand2));
 }
 
-void ASMRewriteVisitor::visit(ASM::SetCCNode& node) {
+void x86_64_ASM_RewriteVisitor::visit(ASM::SetCCNode& node) {
     node.operand_->accept(*this);
     std::shared_ptr<ASM::OperandNode> casted_operand = As<ASM::OperandNode>(
         buffer_.back(),
@@ -167,7 +167,7 @@ void ASMRewriteVisitor::visit(ASM::SetCCNode& node) {
     buffer_.push_back(std::make_shared<ASM::SetCCNode>(node.cc_, casted_operand));
 }
 
-void ASMRewriteVisitor::visit(ASM::JumpCCNode& node) {
+void x86_64_ASM_RewriteVisitor::visit(ASM::JumpCCNode& node) {
     node.target_->accept(*this);
     std::shared_ptr<ASM::LabelNode> casted_target = As<ASM::LabelNode>(
         buffer_.back(),
@@ -180,7 +180,7 @@ void ASMRewriteVisitor::visit(ASM::JumpCCNode& node) {
     ));
 }
 
-void ASMRewriteVisitor::visit(ASM::JumpNode& node) {
+void x86_64_ASM_RewriteVisitor::visit(ASM::JumpNode& node) {
     node.target_->accept(*this);
     std::shared_ptr<ASM::LabelNode> casted_target = As<ASM::LabelNode>(
         buffer_.back(),
@@ -192,39 +192,39 @@ void ASMRewriteVisitor::visit(ASM::JumpNode& node) {
     ));
 }
 
-void ASMRewriteVisitor::visit(ASM::LabelNode& node) {
+void x86_64_ASM_RewriteVisitor::visit(ASM::LabelNode& node) {
     buffer_.push_back(std::make_shared<ASM::LabelNode>(node.name_));
 }
 
-void ASMRewriteVisitor::visit(ASM::CDQNode& node) {
+void x86_64_ASM_RewriteVisitor::visit(ASM::CDQNode& node) {
     buffer_.push_back(std::make_shared<ASM::CDQNode>());
 }
 
-void ASMRewriteVisitor::visit(ASM::RetNode& node) {
+void x86_64_ASM_RewriteVisitor::visit(ASM::RetNode& node) {
     buffer_.push_back(std::make_shared<ASM::RetNode>());
 }
 
-void ASMRewriteVisitor::visit(ASM::AllocateStackNode& node) {
+void x86_64_ASM_RewriteVisitor::visit(ASM::AllocateStackNode& node) {
     buffer_.push_back(std::make_shared<ASM::AllocateStackNode>(node.size_));
 }
 
-void ASMRewriteVisitor::visit(ASM::ImmNode& node) {
+void x86_64_ASM_RewriteVisitor::visit(ASM::ImmNode& node) {
     buffer_.push_back(std::make_shared<ASM::ImmNode>(node.val_));
 }
 
-void ASMRewriteVisitor::visit(ASM::StackNode& node) {
+void x86_64_ASM_RewriteVisitor::visit(ASM::StackNode& node) {
     buffer_.push_back(std::make_shared<ASM::StackNode>(node.size_));
 }
 
-void ASMRewriteVisitor::visit(ASM::RegisterNode& node) {
+void x86_64_ASM_RewriteVisitor::visit(ASM::RegisterNode& node) {
     buffer_.push_back(std::make_shared<ASM::RegisterNode>(node.reg_));
 }
 
-void ASMRewriteVisitor::visit(ASM::PseudoNode& node) {
+void x86_64_ASM_RewriteVisitor::visit(ASM::PseudoNode& node) {
     buffer_.push_back(std::make_shared<ASM::PseudoNode>(node.name_));
 }
 
-std::shared_ptr<ASM::ProgramNode> ASMRewriteVisitor::get_rewritten_asm_program(std::shared_ptr<ASM::ProgramNode> program) {
+std::shared_ptr<ASM::ProgramNode> x86_64_ASM_RewriteVisitor::get_rewritten_asm_program(std::shared_ptr<ASM::ProgramNode> program) {
     if (!buffer_.empty()) {
         throw std::runtime_error("Buffer must be empty before attempting to rewrite ASM Ast");
     }
@@ -237,4 +237,4 @@ std::shared_ptr<ASM::ProgramNode> ASMRewriteVisitor::get_rewritten_asm_program(s
     return As<ASM::ProgramNode>(result, "Failed to cast result into ASM::ProgramNode.");
 }
 
-} // namespace Codegen
+} // namespace Backend

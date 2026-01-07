@@ -1,7 +1,7 @@
-#include "src/codegen/x86_64_asm/tacky_to_asm.h"
+#include "src/backend/x86_64_asm/tacky_to_asm.h"
 #include <algorithm>
 
-namespace Codegen {
+namespace Backend {
 
 template<std::derived_from<ASM::BinInstructionNode> T>
 void TackyToAsmVisitor::visit_binexp(Tacky::BinaryOpNode& node) {
@@ -304,4 +304,4 @@ void TackyToAsmVisitor::visit(Tacky::VariableNode& node) {
     buffer_.push_back(std::make_shared<ASM::PseudoNode>(node.name_));
 }
 
-} //namespace Codegen
+} //namespace Backend

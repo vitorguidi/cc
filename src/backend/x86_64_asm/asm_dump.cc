@@ -1,6 +1,6 @@
-#include "src/codegen/x86_64_asm/asm_dump.h"
+#include "src/backend/x86_64_asm/asm_dump.h"
 
-namespace Codegen {
+namespace Backend {
 
 ASMDumper::ASMDumper(std::string filename) : target_filename_(filename) {
     of = std::ofstream(filename);
@@ -237,4 +237,4 @@ void ASMDumper::dump_assembly(std::shared_ptr<ASM::ProgramNode> asm_program) {
     asm_program->accept(*this);
 }
 
-} // namespace Codegen
+} // namespace Backend
