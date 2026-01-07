@@ -1,4 +1,4 @@
-#include "src/codegen/asm_dump/asm_dump.h"
+#include "src/codegen/x86_64_asm/asm_dump.h"
 
 namespace Codegen {
 

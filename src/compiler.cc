@@ -6,9 +6,9 @@
 
 #include "src/ast/c.h"
 #include "src/graphviz/graphviz.h"
-#include "src/codegen/c_ast_to_tacky/c_ast_to_tacky.h"
-#include "src/codegen/tacky_to_asm/tacky_to_asm.h"
-#include "src/codegen/asm_dump/asm_dump.h"
+#include "src/codegen/tacky/c_to_tacky.h"
+#include "src/codegen/x86_64_asm/tacky_to_asm.h"
+#include "src/codegen/x86_64_asm/asm_dump.h"
 #include "src/semantic/semantic.h"
 #include "src/lexer/lexer.h"
 #include "src/parser/parser.h"

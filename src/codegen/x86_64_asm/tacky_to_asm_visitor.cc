@@ -1,4 +1,4 @@
-#include "src/codegen/tacky_to_asm/tacky_to_asm.h"
+#include "src/codegen/x86_64_asm/tacky_to_asm.h"
 #include <algorithm>
 
 namespace Codegen {
