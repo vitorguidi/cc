@@ -28,6 +28,16 @@ const std::string some_relational_ops =
     "return 2 == 3 < 4 > 5 != 7 >= 8 <= 12;"
     "}\n";
 
+const std::string conditionals =
+    "int function(int x) {\n"
+    "   int y =  x>0 ? 1 : 0;\n"
+    "   if (x%2) {\n"
+    "       return 4;\n"
+    "   } else {\n"
+    "       return 2;\n"
+    "   }\n"
+    "}\n";
+
 const std::string basic_assignment =  "int main() {int a = 2; return a;}";
 
 namespace Lexer {
@@ -41,8 +51,8 @@ void assert_expected_lex_results(std::vector<Token>& expected_results, TokenStre
         for(; delta + idx_at < expected_results.size(); delta++) {
             Token peeked_token = results.peek(delta);
             Token expected_peek_token = expected_results[idx_at + delta];
-            EXPECT_EQ(peeked_token.kind, expected_peek_token.kind);
-            EXPECT_EQ(peeked_token.value, expected_peek_token.value);
+            EXPECT_EQ(peeked_token.kind, expected_peek_token.kind) << " at index: " << std::to_string(idx_at + delta);
+            EXPECT_EQ(peeked_token.value, expected_peek_token.value) << " at index: " << std::to_string(idx_at + delta);
         }
         // Ensure peeking beyond the expected results yields END_OF_FILE
         for(; idx_at + delta < 3*expected_results.size(); delta++) {
@@ -56,6 +66,63 @@ void assert_expected_lex_results(std::vector<Token>& expected_results, TokenStre
         EXPECT_EQ(consumed_token.value, expected_token.value);
         idx_at++;
     }
+}
+
+TEST(LexerTest, ConditionalsTest) {
+    std::vector<Token> expected_results = {
+        // int function(int x) {
+        Token{TokenType::INTEGER_TYPE, std::monostate{}},
+        Token{TokenType::NAME, std::string("function")},
+        Token{TokenType::LPAREN, std::monostate{}},
+        Token{TokenType::INTEGER_TYPE, std::monostate{}},
+        Token{TokenType::NAME, std::string("x")},
+        Token{TokenType::RPAREN, std::monostate{}},
+        Token{TokenType::LBRACE, std::monostate{}},
+
+        // int y = x > 0 ? 1 : 0;
+        Token{TokenType::INTEGER_TYPE, std::monostate{}},
+        Token{TokenType::NAME, std::string("y")},
+        Token{TokenType::ASSIGNMENT, std::monostate{}},
+        Token{TokenType::NAME, std::string("x")},
+        Token{TokenType::GREATER, std::monostate{}},
+        Token{TokenType::INTEGER_VALUE, 0},
+        Token{TokenType::QUESTION_MARK, std::monostate{}},
+        Token{TokenType::INTEGER_VALUE, 1},
+        Token{TokenType::COLON, std::monostate{}},
+        Token{TokenType::INTEGER_VALUE, 0},
+        Token{TokenType::SEMICOLON, std::monostate{}},
+
+        // if (x % 2) {
+        Token{TokenType::IF, std::monostate{}},
+        Token{TokenType::LPAREN, std::monostate{}},
+        Token{TokenType::NAME, std::string("x")},
+        Token{TokenType::MOD, std::monostate{}},
+        Token{TokenType::INTEGER_VALUE, 2},
+        Token{TokenType::RPAREN, std::monostate{}},
+        Token{TokenType::LBRACE, std::monostate{}},
+
+        // return 4;
+        Token{TokenType::RETURN, std::monostate{}},
+        Token{TokenType::INTEGER_VALUE, 4},
+        Token{TokenType::SEMICOLON, std::monostate{}},
+
+        // } else {
+        Token{TokenType::RBRACE, std::monostate{}},
+        Token{TokenType::ELSE, std::monostate{}},
+        Token{TokenType::LBRACE, std::monostate{}},
+
+        // return 2;
+        Token{TokenType::RETURN, std::monostate{}},
+        Token{TokenType::INTEGER_VALUE, 2},
+        Token{TokenType::SEMICOLON, std::monostate{}},
+
+        // } }
+        Token{TokenType::RBRACE, std::monostate{}},
+        Token{TokenType::RBRACE, std::monostate{}}
+    };
+    std::unique_ptr<Lexer> l = std::make_unique<ManualLexer>(conditionals);
+    auto results = l->Lex();
+    assert_expected_lex_results(expected_results, results);
 }
 
 TEST(LexerTest, BasicAssignmentTest) {

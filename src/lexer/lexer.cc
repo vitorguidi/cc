@@ -107,6 +107,26 @@ auto ManualLexer::tokenize() -> std::generator<Token>  {
             idx_++;
             continue;
         }
+        if (peek('?')) {
+            co_yield Token{TokenType::QUESTION_MARK, std::monostate{}};
+            idx_++;
+            continue;     
+        }
+        if (peek(':')) {
+            co_yield Token{TokenType::COLON, std::monostate{}};
+            idx_++;
+            continue;     
+        }
+        if (peek("if")) {
+            co_yield Token{TokenType::IF, std::monostate{}};
+            idx_+=2;
+            continue;     
+        }
+        if (peek("else")) {
+            co_yield Token{TokenType::ELSE, std::monostate{}};
+            idx_+=4;
+            continue;     
+        }
         if (peek('/')) {
             co_yield Token{TokenType::DIV, std::monostate{}};
             idx_++;

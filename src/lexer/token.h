@@ -44,6 +44,10 @@ enum TokenType {
     LESS_EQ,
     GREATER_EQ,
     ASSIGNMENT,
+    IF,
+    ELSE,
+    QUESTION_MARK,
+    COLON,
     END_OF_FILE,
 };
 
