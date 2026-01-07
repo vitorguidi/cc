@@ -299,6 +299,7 @@ void AstToTackyVisitor::visit(CAst::VariableNode& node) {
 void AstToTackyVisitor::visit(CAst::NullNode& node) {
     result_buffer_.push_back(std::make_shared<Tacky::NullNode>());
 }
+
 void AstToTackyVisitor::visit(CAst::DeclarationNode& node) {
     if (node.expr_) {
         node.expr_.value()->accept(*this);
@@ -310,6 +311,61 @@ void AstToTackyVisitor::visit(CAst::DeclarationNode& node) {
     }
     result_buffer_.push_back(std::make_shared<Tacky::NullNode>());
 
+}
+
+void AstToTackyVisitor::visit(CAst::IfNode& node) {
+    node.cond_->accept(*this);
+    auto cond_expr_result = get_result<Tacky::ValueNode>();
+    auto label = generate_temp_label();
+    auto else_label = label + "_else_";
+    auto end_label = label + "_end_";
+    instruction_buffer.push_back(std::make_shared<Tacky::JumpIfZeroNode>(
+        cond_expr_result,
+        std::make_shared<Tacky::LabelNode>(else_label)
+    ));
+    node.then_->accept(*this);
+    result_buffer_.pop_back();
+    instruction_buffer.push_back(std::make_shared<Tacky::JumpNode>(
+        std::make_shared<Tacky::LabelNode>(end_label)
+    ));
+    instruction_buffer.push_back(std::make_shared<Tacky::LabelNode>(else_label));
+    if (node.alt_) {
+        node.alt_.value()->accept(*this);
+        result_buffer_.pop_back();
+    }
+    instruction_buffer.push_back(std::make_shared<Tacky::LabelNode>(end_label));
+    result_buffer_.push_back(std::make_shared<Tacky::NullNode>());
+}
+
+void AstToTackyVisitor::visit(CAst::TernaryNode& node) {
+    node.cond_->accept(*this);
+    auto cond_expr_result = get_result<Tacky::ValueNode>();
+    auto label = generate_temp_label();
+    auto else_label = label + "_else_";
+    auto end_label = label + "_end_";
+    auto result_var = std::make_shared<Tacky::VariableNode>(generate_temp_var_name());
+    instruction_buffer.push_back(std::make_shared<Tacky::JumpIfZeroNode>(
+        cond_expr_result,
+        std::make_shared<Tacky::LabelNode>(else_label)
+    ));
+    node.then_->accept(*this);
+    auto then_result = get_result<Tacky::ValueNode>();
+    instruction_buffer.push_back(std::make_shared<Tacky::MovNode>(
+        then_result,
+        result_var
+    ));
+    instruction_buffer.push_back(std::make_shared<Tacky::JumpNode>(
+        std::make_shared<Tacky::LabelNode>(end_label)
+    ));
+    instruction_buffer.push_back(std::make_shared<Tacky::LabelNode>(else_label));
+    node.alt_->accept(*this);
+    auto alt_result = get_result<Tacky::ValueNode>();
+    instruction_buffer.push_back(std::make_shared<Tacky::MovNode>(
+        alt_result,
+        result_var
+    ));
+    instruction_buffer.push_back(std::make_shared<Tacky::LabelNode>(end_label));
+    result_buffer_.push_back(result_var);
 }
 
 std::string AstToTackyVisitor::generate_temp_var_name() {

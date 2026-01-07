@@ -39,6 +39,8 @@ public:
     void visit(CAst::AssignmentNode& node);
     void visit(CAst::DeclarationNode& node);
     void visit(CAst::VariableNode& node);
+    void visit(CAst::IfNode& node);
+    void visit(CAst::TernaryNode& node);
 
     template<std::derived_from<Tacky::BinaryOpNode> T>
     void visit_bin_exp(CAst::BinaryExpressionNode& node);
