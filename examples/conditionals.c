@@ -5,5 +5,6 @@ int main() {
         y = 4;
     else
         y = 8;
+    if (x!=3)   y=y+12;
     return x <= 4 ? 0 : 10;
 }

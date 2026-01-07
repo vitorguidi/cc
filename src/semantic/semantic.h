@@ -181,6 +181,49 @@ public:
         buffer_.push_back(std::make_shared<CAst::IntegerValueNode>(node.value_));
     }
 
+    void visit(CAst::IfNode& node) {
+        node.cond_->accept(*this);
+        auto processed_cond = As<CAst::ExpressionNode>(buffer_.back());
+        buffer_.pop_back();
+        node.then_->accept(*this);
+        auto processed_then = As<CAst::StatementNode>(buffer_.back());
+        buffer_.pop_back();
+        if (!node.alt_) {
+            buffer_.push_back(
+                std::make_shared<CAst::IfNode>(
+                    processed_cond,
+                    processed_then
+            ));
+            return;
+        }
+        node.alt_.value()->accept(*this);
+        auto processed_alt = As<CAst::StatementNode>(buffer_.back());
+        buffer_.pop_back();
+            buffer_.push_back(
+                std::make_shared<CAst::IfNode>(
+                    processed_cond,
+                    processed_then,
+                    processed_alt
+            ));
+    }
+
+    void visit(CAst::TernaryNode& node) {
+        node.cond_->accept(*this);
+        auto processed_cond = As<CAst::ExpressionNode>(buffer_.back());
+        buffer_.pop_back();
+        node.then_->accept(*this);
+        auto processed_then = As<CAst::ExpressionNode>(buffer_.back());
+        buffer_.pop_back();
+        node.alt_->accept(*this);
+        auto processed_alt = As<CAst::ExpressionNode>(buffer_.back());
+        buffer_.pop_back();
+        buffer_.push_back(std::make_shared<CAst::TernaryNode>(
+            processed_cond,
+            processed_then,
+            processed_alt
+        ));
+    }
+
     std::shared_ptr<CAst::ProgramNode> process(CAst::ProgramNode& node) {
         node.accept(*this);
         if (buffer_.size() != 1) {
