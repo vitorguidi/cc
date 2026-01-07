@@ -38,6 +38,15 @@ const std::string conditionals =
     "   }\n"
     "}\n";
 
+const std::string loops = 
+    "int main() {\n"
+    "   for(int x=2;x>0;x=x-1)\n"
+    "       break;\n"
+    "   do"
+    "       continue;\n"
+    "   while (1<0);\n"
+    "}";
+
 const std::string basic_assignment =  "int main() {int a = 2; return a;}";
 
 namespace Lexer {
@@ -121,6 +130,67 @@ TEST(LexerTest, ConditionalsTest) {
         Token{TokenType::RBRACE, std::monostate{}}
     };
     std::unique_ptr<Lexer> l = std::make_unique<ManualLexer>(conditionals);
+    auto results = l->Lex();
+    assert_expected_lex_results(expected_results, results);
+}
+
+TEST(LexerTest, LoopTest) {std::vector<Token> expected_results = {
+        // int main() {
+        Token{TokenType::INTEGER_TYPE, std::monostate{}},
+        Token{TokenType::NAME, std::string("main")},
+        Token{TokenType::LPAREN, std::monostate{}},
+        Token{TokenType::RPAREN, std::monostate{}},
+        Token{TokenType::LBRACE, std::monostate{}},
+
+        // for(
+        Token{TokenType::FOR, std::monostate{}},
+        Token{TokenType::LPAREN, std::monostate{}},
+    
+        //int x=2;
+        Token{TokenType::INTEGER_TYPE, std::monostate{}},
+        Token{TokenType::NAME, std::string("x")},
+        Token{TokenType::ASSIGNMENT, std::monostate{}},
+        Token{TokenType::INTEGER_VALUE, 2},
+        Token{TokenType::SEMICOLON, std::monostate{}},
+
+        // x>0;
+        Token{TokenType::NAME, std::string("x")},
+        Token{TokenType::GREATER, std::monostate{}},
+        Token{TokenType::INTEGER_VALUE, 0},
+        Token{TokenType::SEMICOLON, std::monostate{}},
+
+        // x=x-1)
+        Token{TokenType::NAME, std::string("x")},
+        Token{TokenType::ASSIGNMENT, std::monostate{}},
+        Token{TokenType::NAME, std::string("x")},
+        Token{TokenType::MINUS, std::monostate{}},
+        Token{TokenType::INTEGER_VALUE, 1},
+        Token{TokenType::RPAREN, std::monostate{}},
+
+        // break;
+        Token{TokenType::BREAK, std::monostate{}},
+        Token{TokenType::SEMICOLON, std::monostate{}},
+
+        // do
+        Token{TokenType::DO, std::monostate{}},
+
+        // continue;
+        Token{TokenType::CONTINUE, std::monostate{}},
+        Token{TokenType::SEMICOLON, std::monostate{}},
+
+        // while (1<0)
+        Token{TokenType::WHILE, std::monostate{}},
+        Token{TokenType::LPAREN, std::monostate{}},
+        Token{TokenType::INTEGER_VALUE, 1},
+        Token{TokenType::LESS, std::monostate{}},
+        Token{TokenType::INTEGER_VALUE, 0},
+        Token{TokenType::RPAREN, std::monostate{}},
+        Token{TokenType::SEMICOLON, std::monostate{}},
+
+        // }
+        Token{TokenType::RBRACE, std::monostate{}}
+    };
+    std::unique_ptr<Lexer> l = std::make_unique<ManualLexer>(loops);
     auto results = l->Lex();
     assert_expected_lex_results(expected_results, results);
 }

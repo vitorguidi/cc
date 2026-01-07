@@ -7,6 +7,7 @@
 #include <stdexcept>
 #include <memory>
 #include <algorithm>
+#include <iostream>
 
 namespace Lexer {
 
@@ -29,6 +30,7 @@ Token TokenStream::consume() {
     Token t = buffer_[idx_at_];
     buffer_.erase(idx_at_);
     idx_at_++;
+    std::cout << "Consumed token: " << token_type_to_string(t.kind) << std::endl;
     return t;
 }
 
@@ -220,6 +222,31 @@ auto ManualLexer::tokenize() -> std::generator<Token>  {
         if (peek(std::string("return"))) {
             co_yield Token{TokenType::RETURN, std::monostate{}};
             idx_+=6;
+            continue;
+        }
+        if (peek(std::string("do"))) {
+            co_yield Token{TokenType::DO, std::monostate{}};
+            idx_+=2;
+            continue;
+        }
+        if (peek(std::string("while"))) {
+            co_yield Token{TokenType::WHILE, std::monostate{}};
+            idx_+=5;
+            continue;
+        }
+        if (peek(std::string("for"))) {
+            co_yield Token{TokenType::FOR, std::monostate{}};
+            idx_+=3;
+            continue;
+        }
+        if (peek(std::string("break"))) {
+            co_yield Token{TokenType::BREAK, std::monostate{}};
+            idx_+=5;
+            continue;
+        }
+        if (peek(std::string("continue"))) {
+            co_yield Token{TokenType::CONTINUE, std::monostate{}};
+            idx_+=8;
             continue;
         }
         //TODO: handle int_min and int_max
