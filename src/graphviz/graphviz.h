@@ -51,6 +51,8 @@ public:
     void visit(CAst::AssignmentNode& node) override;
     void visit(CAst::NullNode& node) override;
     void visit(CAst::VariableNode& node) override;
+    void visit(CAst::TernaryNode& node) override;
+    void visit(CAst::IfNode& node) override;
 
     void visit_bin_exp(std::string node_name, CAst::BinaryExpressionNode& node);
     void visit_un_exp(std::string node_name, CAst::UnaryExpressionNode& node);

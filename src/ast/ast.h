@@ -45,6 +45,8 @@ struct AssignmentNode;
 struct DeclarationNode;
 struct NullNode;
 struct VariableNode;
+struct IfNode;
+struct TernaryNode;
 
 // --- Visitor Interface ---
 class Visitor {
@@ -82,6 +84,8 @@ public:
     virtual void visit(AssignmentNode& node) = 0;
     virtual void visit(NullNode& node) = 0;
     virtual void visit(VariableNode& node) = 0;
+    virtual void visit(IfNode& node) = 0;
+    virtual void visit(TernaryNode& node) = 0;
 };
 
 // --- Base Nodes ---
@@ -343,6 +347,18 @@ public:
     void accept(Visitor& v) override {v.visit(*this);}
 };
 
+class TernaryNode : public ExpressionNode {
+public:
+    std::shared_ptr<CAst::ExpressionNode> cond_, then_, alt_;
+    ~TernaryNode() = default;
+    TernaryNode(
+        std::shared_ptr<CAst::ExpressionNode> cond,
+        std::shared_ptr<CAst::ExpressionNode> then,
+        std::shared_ptr<CAst::ExpressionNode> alt)
+        :   cond_(cond), then_(then), alt_(alt) {}
+    void accept(Visitor& v) override{v.visit(*this);}
+};
+
 // --- Structural Nodes ---
 struct FunctionArgument {
     Type type;
@@ -368,6 +384,21 @@ struct ReturnStatementNode : public StatementNode {
     std::shared_ptr<ExpressionNode> return_value_;
     ReturnStatementNode(Type return_type, std::shared_ptr<ExpressionNode> return_value)
         : type_(return_type), return_value_(std::move(return_value)) {}
+    void accept(Visitor& v) override {v.visit(*this);}
+};
+
+struct IfNode : public StatementNode {
+public:
+    std::shared_ptr<ExpressionNode> cond_;
+    std::shared_ptr<StatementNode> then_;
+    std::optional<std::shared_ptr<StatementNode>> alt_;
+    ~IfNode() = default;
+    IfNode(std::shared_ptr<ExpressionNode> cond, std::shared_ptr<StatementNode> then)
+        : cond_(cond), then_(then), alt_(std::nullopt) {}
+    IfNode(
+        std::shared_ptr<ExpressionNode> cond,
+        std::shared_ptr<StatementNode> then,
+        std::shared_ptr<StatementNode> alt) : cond_(cond), then_(then), alt_(std::make_optional(alt)) {}
     void accept(Visitor& v) override {v.visit(*this);}
 };
 

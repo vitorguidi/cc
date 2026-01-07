@@ -190,6 +190,36 @@ void GraphvizCAstVisitor::visit(CAst::ReturnStatementNode& node) {
     buffer_.push_back(my_id);
 }
 
+void GraphvizCAstVisitor::visit(CAst::IfNode& node) {
+    auto my_id = std::to_string(node_count_++);
+    auto node_repr = labeled_node_with_kv_pairs(
+        my_id,
+        "IfNode",
+        {}
+    );
+    of << node_repr;
+    visit_child(my_id, std::string("cond"), node.cond_);
+    visit_child(my_id, std::string("then"), node.then_);
+    if (node.alt_) {
+        visit_child(my_id, std::string("else"), node.alt_.value());
+    }
+    buffer_.push_back(my_id);
+}
+
+void GraphvizCAstVisitor::visit(CAst::TernaryNode& node) {
+    auto my_id = std::to_string(node_count_++);
+    auto node_repr = labeled_node_with_kv_pairs(
+        my_id,
+        "TernaryNode",
+        {}
+    );
+    of << node_repr;
+    visit_child(my_id, std::string("if"), node.cond_);
+    visit_child(my_id, std::string("then"), node.then_);
+    visit_child(my_id, std::string("else"), node.alt_);
+    buffer_.push_back(my_id);
+}
+
 // Unary Expressions
 void GraphvizCAstVisitor::visit(CAst::BitwiseNotUnaryExpressionNode& node) {visit_un_exp(std::string("BitwiseNotUnaryExpressionNode"), node);}
 void GraphvizCAstVisitor::visit(CAst::NotUnaryExpressionNode& node) {visit_un_exp(std::string("NotUnaryExpressionNode"), node);}

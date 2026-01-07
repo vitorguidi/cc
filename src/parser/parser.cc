@@ -9,10 +9,10 @@ Moving to precedence climbing
 Program: [Function]*
 Function: Type NAME '(' FunctionArguments ')' Block
 Block: { [declaration | statement ;]* }
-statement: RETURN EXPR | EXPR | NULL
+statement: RETURN EXPR | EXPR | IF (EXPR) STATEMENT [ELSE STATEMENT] | NULL
 Type: 'int'
 FunctionArguments: Type NAME [, Type NAME]*
-EXPR: FACTOR | UNOP EXPR | EXPR BINOP EXPR
+EXPR: FACTOR | UNOP EXPR | EXPR BINOP EXPR | exp ? exp : exp
 FACTOR: INTEGER_VALUE | VAR | UNOP FACTOR | (EXPR)
 BINOP: + | - | * | / | %
 UNOP: ('~' | '-')
@@ -194,6 +194,9 @@ auto RecursiveDescentParser::parseStatement() -> std::optional<std::shared_ptr<C
         tokens_.consume();
         return std::make_shared<CAst::NullNode>();
     }
+    if (tokens_.peek(0).kind == Lexer::TokenType::IF) {
+        return parseIfStatement();
+    }
     auto expr = parseExpression(0);
     if (!expr) {
         throw std::runtime_error("Expected expression as statement result");
@@ -203,6 +206,43 @@ auto RecursiveDescentParser::parseStatement() -> std::optional<std::shared_ptr<C
     }
     tokens_.consume();
     return expr;
+}
+
+auto RecursiveDescentParser::parseIfStatement() -> std::optional<std::shared_ptr<CAst::IfNode>> {
+    tokens_.consume();
+    if (tokens_.peek(0).kind != Lexer::TokenType::LPAREN) {
+        throw std::runtime_error("Expected LPAREN before conditional expression");
+    }
+    tokens_.consume();
+    auto expr = parseExpression(0);
+    if (!expr.has_value()) {
+        throw std::runtime_error("Expected conditional expression");
+    }
+    if (tokens_.peek(0).kind != Lexer::TokenType::RPAREN) {
+        throw std::runtime_error("Expected RPAREN before conditional expression");
+    }
+    tokens_.consume();
+    auto then = parseStatement();
+    if (!then) {
+        throw std::runtime_error("Expected statement after conditional expression");
+    }
+    if (tokens_.peek(0).kind != Lexer::TokenType::ELSE) {
+        return std::make_optional(
+            std::make_shared<CAst::IfNode>(
+                expr.value(),
+                then.value()
+            )
+        );
+    }
+    tokens_.consume();
+    auto alt = parseStatement();
+    return std::make_optional(
+        std::make_shared<CAst::IfNode>(
+            expr.value(),
+            then.value(),
+            alt.value()
+        )
+    );
 }
 
 auto RecursiveDescentParser::parseReturnStatement() -> std::optional<std::shared_ptr<CAst::ReturnStatementNode>> {
@@ -268,6 +308,18 @@ auto RecursiveDescentParser::parseExpression(int min_precedence) -> std::optiona
             tokens_.consume();
             auto right = parseExpression(next_token_precedence.value());
             left = std::make_shared<CAst::AssignmentNode>(left.value(), right.value());
+        } else if(tokens_.peek(0).kind == Lexer::TokenType::QUESTION_MARK) {
+            tokens_.consume();
+            auto middle = parseExpression(0);
+            if (tokens_.peek(0).kind != Lexer::TokenType::COLON) {
+                throw std::runtime_error("Expected COLON after then expression in TERNARY operator");
+            }
+            tokens_.consume();
+            auto right = parseExpression(next_token_precedence.value());
+            left = std::make_optional(
+                std::make_shared<CAst::TernaryNode>(
+                    left.value(), middle.value(), right.value()
+            ));
         } else {
             Lexer::Token op = tokens_.consume();
             std::optional<std::shared_ptr<CAst::ExpressionNode>> right = parseExpression(next_token_precedence.value() + 1);

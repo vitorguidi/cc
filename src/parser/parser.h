@@ -35,6 +35,7 @@ inline bool is_bin_op(Lexer::TokenType token_type) {
         case Lexer::TokenType::LESS:
         case Lexer::TokenType::LESS_EQ:
         case Lexer::TokenType::ASSIGNMENT:
+        case Lexer::TokenType::QUESTION_MARK:
             return true;
         default:
             return false;
@@ -100,6 +101,8 @@ inline std::optional<Precedence> precedence(Lexer::TokenType token_type) {
             return std::make_optional(25);
         case Lexer::TokenType::OR:
             return std::make_optional(20);
+        case Lexer::TokenType::QUESTION_MARK:
+            return std::make_optional(15);
         case Lexer::TokenType::ASSIGNMENT:
             return std::make_optional(10);
         default:
@@ -128,6 +131,7 @@ private:
     std::optional<std::shared_ptr<CAst::DeclarationNode>> parseDeclaration();
     std::optional<std::shared_ptr<CAst::StatementNode>> parseStatement();
     std::optional<std::shared_ptr<CAst::ReturnStatementNode>> parseReturnStatement();
+    std::optional<std::shared_ptr<CAst::IfNode>> parseIfStatement();
     std::optional<std::shared_ptr<CAst::ExpressionNode>> parseExpression(int min_precedence);
     std::optional<std::shared_ptr<CAst::ExpressionNode>> parseFactor();
     std::optional<std::shared_ptr<CAst::UnaryExpressionNode>> parseUnaryExpression();
