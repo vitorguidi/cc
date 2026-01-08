@@ -27,7 +27,7 @@ public:
     void visit(CAst::DeclarationNode& node) {
         auto var_name = node.var_->name_;
 
-        if (lookup_symbol(node.var_->name_)) {
+        if (lookup_symbol_current_scope(node.var_->name_)) {
             throw std::runtime_error("Variable already declared: " + var_name);
         }
 
@@ -224,6 +224,80 @@ public:
         ));
     }
 
+    void visit(CAst::ForNode& node) {
+        symbol_table_.emplace_back();
+
+        node.init_->accept(*this);
+        auto processed_init = As<CAst::BlockElementNode>(buffer_.back());
+        buffer_.pop_back();
+
+        node.body_->accept(*this);
+        auto processed_body = As<CAst::StatementNode>(buffer_.back());
+        buffer_.pop_back();
+
+        std::optional<std::shared_ptr<CAst::ExpressionNode>> processed_cond = std::nullopt;
+        if (node.cond_) {
+            node.cond_.value()->accept(*this);
+            processed_cond = As<CAst::ExpressionNode>(buffer_.back());
+            buffer_.pop_back();
+        }
+        std::optional<std::shared_ptr<CAst::ExpressionNode>> processed_post = std::nullopt;
+        if (node.post_) {
+            node.post_.value()->accept(*this);
+            processed_post = As<CAst::ExpressionNode>(buffer_.back());
+            buffer_.pop_back();
+        }
+
+        symbol_table_.pop_back();
+
+        buffer_.push_back(
+            std::make_shared<CAst::ForNode>(
+                processed_init,
+                processed_cond,
+                processed_post,
+                processed_body,
+                node.label_
+            )
+        );
+
+    }
+
+    void visit(CAst::DoWhileNode& node) {
+        node.cond_->accept(*this);
+        auto processed_cond = As<CAst::ExpressionNode>(buffer_.back());
+        buffer_.pop_back();
+        node.body_->accept(*this);
+        auto processed_body = As<CAst::StatementNode>(buffer_.back());
+        buffer_.pop_back();
+        buffer_.push_back(std::make_shared<CAst::DoWhileNode>(
+           processed_cond,
+           processed_body,
+           node.label_ 
+        ));
+    }
+
+    void visit(CAst::WhileNode& node) {
+        node.cond_->accept(*this);
+        auto processed_cond = As<CAst::ExpressionNode>(buffer_.back());
+        buffer_.pop_back();
+        node.body_->accept(*this);
+        auto processed_body = As<CAst::StatementNode>(buffer_.back());
+        buffer_.pop_back();
+        buffer_.push_back(std::make_shared<CAst::WhileNode>(
+           processed_cond,
+           processed_body,
+           node.label_ 
+        ));
+    }
+
+    void visit(CAst::BreakNode& node) {
+        buffer_.push_back(std::make_shared<CAst::BreakNode>(node.label_));
+    }
+
+    void visit(CAst::ContinueNode& node) {
+        buffer_.push_back(std::make_shared<CAst::BreakNode>(node.label_));
+    }
+
     std::shared_ptr<CAst::ProgramNode> process(CAst::ProgramNode& node) {
         node.accept(*this);
         if (buffer_.size() != 1) {
@@ -238,6 +312,13 @@ private:
     std::vector<std::unordered_map<std::string, std::string>> symbol_table_;
     int var_counter_;
     std::vector<std::shared_ptr<CAst::ASTNode>> buffer_;
+    std::optional<std::string> lookup_symbol_current_scope(std::string name) {
+        if (symbol_table_.empty()) {return std::nullopt;}
+        auto& m = symbol_table_.back();
+        auto entry = m.find(name);
+        if (entry == m.end())   return std::nullopt;
+        return entry->second;
+    }
     std::optional<std::string> lookup_symbol(std::string name) {
         if (symbol_table_.empty()) {return std::nullopt;}
         for(auto m = symbol_table_.rbegin(); m != symbol_table_.rend(); m++) {
