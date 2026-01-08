@@ -41,6 +41,11 @@ public:
     void visit(CAst::VariableNode& node);
     void visit(CAst::IfNode& node);
     void visit(CAst::TernaryNode& node);
+    void visit(CAst::ForNode& node);
+    void visit(CAst::WhileNode& node);
+    void visit(CAst::DoWhileNode& node);
+    void visit(CAst::BreakNode& node);
+    void visit(CAst::ContinueNode& node);
 
     template<std::derived_from<Tacky::BinaryOpNode> T>
     void visit_bin_exp(CAst::BinaryExpressionNode& node);
