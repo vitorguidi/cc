@@ -391,7 +391,31 @@ void AstToTackyVisitor::visit(CAst::ForNode& node) {
 }
 
 void AstToTackyVisitor::visit(CAst::WhileNode& node) {
+    auto continue_label = std::make_shared<Tacky::LabelNode>(
+        loop_label(node.label_, LoopLabelSuffix::CONTINUE)
+    );
+    
+    auto break_label = std::make_shared<Tacky::LabelNode>(
+        loop_label(node.label_, LoopLabelSuffix::BREAK)
+    );
+
+    instruction_buffer.push_back(continue_label);
+
+    node.cond_->accept(*this);
+    auto cond_result = get_result<Tacky::ValueNode>();
+
+    instruction_buffer.push_back(std::make_shared<Tacky::JumpIfZeroNode>(
+        cond_result,
+        break_label
+    ));
+
+    node.body_->accept(*this);
+
+    instruction_buffer.push_back(std::make_shared<Tacky::JumpNode>(continue_label));
+    instruction_buffer.push_back(break_label);
+
     result_buffer_.push_back(std::make_shared<Tacky::NullNode>());
+
 }
 
 void AstToTackyVisitor::visit(CAst::DoWhileNode& node) {
@@ -410,7 +434,7 @@ void AstToTackyVisitor::visit(CAst::DoWhileNode& node) {
 
     node.body_->accept(*this);
     // do not pop a result, since statements do not return values
-    
+
     instruction_buffer.push_back(continue_label);
 
     node.cond_->accept(*this);

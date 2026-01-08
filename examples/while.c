@@ -1,4 +1,6 @@
 int main() {
-    while(2<4)
-        2<4;
+    int x=10;
+    while(x>0)
+        x=x-1;
+    return x;
 }
