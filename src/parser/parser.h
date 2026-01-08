@@ -122,7 +122,10 @@ public:
     auto parse() -> std::optional<std::shared_ptr<CAst::ProgramNode>> override;
     ~RecursiveDescentParser() = default;
 private:
+    int loop_label_count_;
     Lexer::TokenStream tokens_;
+    std::string generate_loop_label();
+    std::vector<std::string> loop_label_stack_;
     std::optional<std::shared_ptr<CAst::ProgramNode>> parseProgram();
     std::optional<std::shared_ptr<CAst::FunctionNode>> parseFunction();
     std::optional<std::shared_ptr<CAst::TypeNode>> parseType();
@@ -131,7 +134,13 @@ private:
     std::optional<std::shared_ptr<CAst::DeclarationNode>> parseDeclaration();
     std::optional<std::shared_ptr<CAst::StatementNode>> parseStatement();
     std::optional<std::shared_ptr<CAst::ReturnStatementNode>> parseReturnStatement();
+    std::optional<std::shared_ptr<CAst::BreakNode>> parseBreakStatement();
+    std::optional<std::shared_ptr<CAst::ContinueNode>> parseContinueStatement();
     std::optional<std::shared_ptr<CAst::IfNode>> parseIfStatement();
+    std::optional<std::shared_ptr<CAst::ForNode>> parseForStatement();
+    std::optional<std::shared_ptr<CAst::BlockElementNode>> parseForInitStatement();
+    std::optional<std::shared_ptr<CAst::WhileNode>> parseWhileStatement();
+    std::optional<std::shared_ptr<CAst::DoWhileNode>> parseDoWhileStatement();
     std::optional<std::shared_ptr<CAst::ExpressionNode>> parseExpression(int min_precedence);
     std::optional<std::shared_ptr<CAst::ExpressionNode>> parseFactor();
     std::optional<std::shared_ptr<CAst::UnaryExpressionNode>> parseUnaryExpression();

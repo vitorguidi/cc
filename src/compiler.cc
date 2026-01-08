@@ -53,61 +53,61 @@ int main(int argc, char** argv) {
         c_ast_graphviz.visit(program_raw);
     }
 
-    auto semantic_visitor = Semantic::SemanticAnalysisVisitor();
-    auto semantic_c_program = semantic_visitor.process(*program_node.value());
+    // auto semantic_visitor = Semantic::SemanticAnalysisVisitor();
+    // auto semantic_c_program = semantic_visitor.process(*program_node.value());
 
-    {
-        std::cout << "Generating graphviz visualization for CAst after sem analysis..." << std::endl;
-        Graphviz::GraphvizCAstVisitor c_ast_graphviz(std::string("asm_output/cast_semantic.dot"));
-        c_ast_graphviz.visit(*semantic_c_program);
-    }
+    // {
+    //     std::cout << "Generating graphviz visualization for CAst after sem analysis..." << std::endl;
+    //     Graphviz::GraphvizCAstVisitor c_ast_graphviz(std::string("asm_output/cast_semantic.dot"));
+    //     c_ast_graphviz.visit(*semantic_c_program);
+    // }
 
-    auto tacky_visitor = IR::AstToTackyVisitor();
-    std::cout << "Generating TACKY AST from C AST..." << std::endl;
-    std::shared_ptr<Tacky::ProgramNode> tacky_program = tacky_visitor.get_tacky_from_c_ast(semantic_c_program);
-    {
-        std::cout << "Generating graphviz visualization for Tacky AST..." << std::endl;
-        Graphviz::GraphvizTackyVisitor tacky_graphviz(std::string("asm_output/tacky.dot"));
-        tacky_graphviz.visit(*tacky_program);
-    }
+    // auto tacky_visitor = IR::AstToTackyVisitor();
+    // std::cout << "Generating TACKY AST from C AST..." << std::endl;
+    // std::shared_ptr<Tacky::ProgramNode> tacky_program = tacky_visitor.get_tacky_from_c_ast(semantic_c_program);
+    // {
+    //     std::cout << "Generating graphviz visualization for Tacky AST..." << std::endl;
+    //     Graphviz::GraphvizTackyVisitor tacky_graphviz(std::string("asm_output/tacky.dot"));
+    //     tacky_graphviz.visit(*tacky_program);
+    // }
 
-    std::cout << "First pass: ASM from Tacky..." << std::endl;
-    auto asm_visitor = Backend::TackyToAsmVisitor();
-    std::shared_ptr<ASM::ProgramNode> asm_program = asm_visitor.get_asm_from_tacky(tacky_program);
+    // std::cout << "First pass: ASM from Tacky..." << std::endl;
+    // auto asm_visitor = Backend::TackyToAsmVisitor();
+    // std::shared_ptr<ASM::ProgramNode> asm_program = asm_visitor.get_asm_from_tacky(tacky_program);
 
-    {
-        std::cout << "Generating graphviz visualization for ASM AST first pass..." << std::endl;
-        Graphviz::GraphvizASMVisitor asm_graphviz(std::string("asm_output/asm_1st_pass.dot"));
-        asm_graphviz.visit(*asm_program);
-    }
+    // {
+    //     std::cout << "Generating graphviz visualization for ASM AST first pass..." << std::endl;
+    //     Graphviz::GraphvizASMVisitor asm_graphviz(std::string("asm_output/asm_1st_pass.dot"));
+    //     asm_graphviz.visit(*asm_program);
+    // }
 
-    auto pseudo_replacement_visitor = Backend::PseudoReplacerVisitor();
-    std::cout << "Second pass: removing pseudo registers from ASM..." << std::endl;
-    auto no_pseudo_asm_program = pseudo_replacement_visitor.get_rewritten_asm_program(asm_program);
+    // auto pseudo_replacement_visitor = Backend::PseudoReplacerVisitor();
+    // std::cout << "Second pass: removing pseudo registers from ASM..." << std::endl;
+    // auto no_pseudo_asm_program = pseudo_replacement_visitor.get_rewritten_asm_program(asm_program);
 
-    {
-        std::cout << "Generating graphviz visualization for ASM AST second pass..." << std::endl;
-        Graphviz::GraphvizASMVisitor asm_graphviz(std::string("asm_output/asm_2nd_pass.dot"));
-        asm_graphviz.visit(*no_pseudo_asm_program);
-    }
+    // {
+    //     std::cout << "Generating graphviz visualization for ASM AST second pass..." << std::endl;
+    //     Graphviz::GraphvizASMVisitor asm_graphviz(std::string("asm_output/asm_2nd_pass.dot"));
+    //     asm_graphviz.visit(*no_pseudo_asm_program);
+    // }
 
-    int max_offset = pseudo_replacement_visitor.get_offset();
+    // int max_offset = pseudo_replacement_visitor.get_offset();
 
-    std::cout << "Third pass: ASM instruction fixup..." << std::endl;
-    auto instruction_fixup_visitor = Backend::InstructionFixUpVisitor(max_offset);
-    auto fixed_asm_program = instruction_fixup_visitor.get_rewritten_asm_program(no_pseudo_asm_program);
+    // std::cout << "Third pass: ASM instruction fixup..." << std::endl;
+    // auto instruction_fixup_visitor = Backend::InstructionFixUpVisitor(max_offset);
+    // auto fixed_asm_program = instruction_fixup_visitor.get_rewritten_asm_program(no_pseudo_asm_program);
 
-    {
-        std::cout << "Generating graphviz visualization for ASM AST third pass..." << std::endl;
-        Graphviz::GraphvizASMVisitor asm_graphviz(std::string("asm_output/asm_3rd_pass.dot"));
-        asm_graphviz.visit(*fixed_asm_program);
-    }
+    // {
+    //     std::cout << "Generating graphviz visualization for ASM AST third pass..." << std::endl;
+    //     Graphviz::GraphvizASMVisitor asm_graphviz(std::string("asm_output/asm_3rd_pass.dot"));
+    //     asm_graphviz.visit(*fixed_asm_program);
+    // }
 
-    {
-        std::cout << "Dumping ASM code..." << std::endl;
-        auto asm_dump_visitor = Backend::ASMDumper(std::string(output_asm_file));
-        asm_dump_visitor.dump_assembly(fixed_asm_program);
-    }
+    // {
+    //     std::cout << "Dumping ASM code..." << std::endl;
+    //     auto asm_dump_visitor = Backend::ASMDumper(std::string(output_asm_file));
+    //     asm_dump_visitor.dump_assembly(fixed_asm_program);
+    // }
 
     // GraphViz Image generation
 

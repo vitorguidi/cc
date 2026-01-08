@@ -10,6 +10,9 @@ Program: [Function]*
 Function: Type NAME '(' FunctionArguments ')' Block
 Block: { [declaration | statement ;]* }
 statement: RETURN EXPR | EXPR | IF (EXPR) STATEMENT [ELSE STATEMENT] | NULL
+            | FOR(FOR_INIT [expr]; [expr]) | while([EXPR]) statement
+            | do STATEMENT while([expr]);
+FOR_INIT: [declaration | [expr]];
 Type: 'int'
 FunctionArguments: Type NAME [, Type NAME]*
 EXPR: FACTOR | UNOP EXPR | EXPR BINOP EXPR | exp ? exp : exp
@@ -190,6 +193,21 @@ auto RecursiveDescentParser::parseStatement() -> std::optional<std::shared_ptr<C
     if (tokens_.peek(0).kind == Lexer::TokenType::RETURN) {
         return parseReturnStatement();
     }
+    if (tokens_.peek(0).kind == Lexer::TokenType::FOR) {
+        return parseForStatement();
+    }
+    if (tokens_.peek(0).kind == Lexer::TokenType::WHILE) {
+        return parseWhileStatement();
+    }
+    if (tokens_.peek(0).kind == Lexer::TokenType::DO) {
+        return parseDoWhileStatement();
+    }
+    if (tokens_.peek(0).kind == Lexer::TokenType::BREAK) {
+        return parseBreakStatement();
+    }
+    if (tokens_.peek(0).kind == Lexer::TokenType::CONTINUE) {
+        return parseContinueStatement();
+    }
     if (tokens_.peek(0).kind == Lexer::TokenType::SEMICOLON) {
         tokens_.consume();
         return std::make_shared<CAst::NullNode>();
@@ -243,6 +261,165 @@ auto RecursiveDescentParser::parseIfStatement() -> std::optional<std::shared_ptr
             alt.value()
         )
     );
+}
+
+std::string RecursiveDescentParser::generate_loop_label() {
+    return "_loop_" + std::to_string(loop_label_count_++) + "_";
+}
+
+auto RecursiveDescentParser::parseForStatement() -> std::optional<std::shared_ptr<CAst::ForNode>> {
+    loop_label_stack_.push_back(generate_loop_label());
+    tokens_.consume(); // consume for
+    if (tokens_.peek(0).kind != Lexer::TokenType::LPAREN) {
+        throw std::runtime_error("Expected LPAREN after FOR");
+    }
+    tokens_.consume(); // consume (
+    auto for_init = parseForInitStatement();
+    if (!for_init) {
+        throw std::runtime_error("For init block is mandatory");
+    }
+    std::optional<std::shared_ptr<CAst::ExpressionNode>> cond = std::nullopt;
+    std::optional<std::shared_ptr<CAst::ExpressionNode>> post = std::nullopt;
+    if (tokens_.peek(0).kind != Lexer::TokenType::SEMICOLON) {
+        cond = parseExpression(0);
+        if (!cond) {
+            throw std::runtime_error("Next token not SEMICOLON, expected conditional expression in FOR loop.");   
+        }
+    }
+    if (tokens_.peek(0).kind != Lexer::TokenType::SEMICOLON) {
+        throw std::runtime_error("Expected SEMICOLON after conditional expression in FOR loop.");   
+    }
+    tokens_.consume();  //consume ;
+    if (tokens_.peek(0).kind != Lexer::TokenType::RPAREN) {
+        post = parseExpression(0);
+        if (!post) {
+            throw std::runtime_error("Next token not LPAREN, expected post expression in FOR loop.");   
+        }
+    }
+    if (tokens_.peek(0).kind != Lexer::TokenType::RPAREN) {
+        throw std::runtime_error("Expected RPAREN after post expression in FOR loop.");   
+    }
+    tokens_.consume();  // consume )
+
+    auto body = parseStatement();
+    if (!body) {
+        throw std::runtime_error("Expected body in FOR loop.");
+    }
+    auto result = std::make_optional(
+        std::make_shared<CAst::ForNode>(
+            for_init.value(),
+            cond,
+            post,
+            body.value(),
+            loop_label_stack_.back()
+        )
+    );
+    loop_label_stack_.pop_back();
+    return result;
+}
+
+auto RecursiveDescentParser::parseForInitStatement() -> std::optional<std::shared_ptr<CAst::BlockElementNode>> {
+    if (tokens_.peek(0).kind == Lexer::TokenType::INTEGER_TYPE) {
+        return parseDeclaration();
+    }
+    auto expr = parseExpression(0);
+    if (!expr) {
+        throw std::runtime_error("Expected expression as for init.");
+    }
+    if (tokens_.peek(0).kind != Lexer::TokenType::SEMICOLON) {
+        throw std::runtime_error("Expected SEMICOLON after expr in for init.");
+    }
+    return expr;
+}
+
+auto RecursiveDescentParser::parseWhileStatement() -> std::optional<std::shared_ptr<CAst::WhileNode>> {
+    loop_label_stack_.push_back(generate_loop_label());
+    tokens_.consume();  // consume while
+    if (tokens_.peek(0).kind != Lexer::TokenType::LPAREN) {
+        throw std::runtime_error("Expected LPAREN after WHILE, got: " + Lexer::token_type_to_string(tokens_.peek(0).kind));
+    }
+    tokens_.consume();  // consume (
+    auto cond = parseExpression(0);
+    if (!cond) {
+        throw std::runtime_error("Expected cond expression after WHILE");
+    }
+    if (tokens_.peek(0).kind != Lexer::TokenType::RPAREN) {
+        throw std::runtime_error("Expected RPAREN after FOR");
+    }
+    tokens_.consume(); // consume )
+    auto body = parseStatement();
+    if (!body) {
+        throw std::runtime_error("Expected body in a WHILE loop");
+    }
+    auto result = std::make_optional(std::make_shared<CAst::WhileNode>(
+        cond.value(),
+        body.value(),
+        loop_label_stack_.back()
+    ));
+    loop_label_stack_.pop_back();
+    return result;
+}
+
+auto RecursiveDescentParser::parseDoWhileStatement() -> std::optional<std::shared_ptr<CAst::DoWhileNode>> {
+    loop_label_stack_.push_back(generate_loop_label());
+    tokens_.consume();
+    auto body = parseStatement();
+    if (!body) {
+        throw std::runtime_error("Expected body after DO");
+    }
+    if (tokens_.peek(0).kind != Lexer::TokenType::WHILE) {
+        throw std::runtime_error("Expected WHILE after body in do while");
+    }
+    tokens_.consume();
+    if (tokens_.peek(0).kind != Lexer::TokenType::LPAREN) {
+        throw std::runtime_error("Expected LPAREN after WHILE in do while");
+    }
+    tokens_.consume();
+    auto cond = parseExpression(0);
+    if (!cond) {
+        throw std::runtime_error("Expected cond expression in DO WHILE loop");
+    }
+    if (tokens_.peek(0).kind != Lexer::TokenType::RPAREN) {
+        throw std::runtime_error("Expected RPAREN after WHILE in do while");
+    }
+    tokens_.consume();
+    if (tokens_.peek(0).kind != Lexer::TokenType::SEMICOLON) {
+        throw std::runtime_error("Expected SEMICOLON after (cond expr) in do while");
+    }
+    tokens_.consume();
+    auto result = std::make_optional(
+        std::make_shared<CAst::DoWhileNode>(
+            cond.value(),
+            body.value(),
+            loop_label_stack_.back()
+        )
+    );
+    loop_label_stack_.pop_back();
+    return result;
+}
+
+auto RecursiveDescentParser::parseContinueStatement() -> std::optional<std::shared_ptr<CAst::ContinueNode>> {
+    tokens_.consume();
+    if(tokens_.peek(0).kind != Lexer::TokenType::SEMICOLON) {
+        throw std::runtime_error("Expected SEMICOLON after continue");
+    }
+    tokens_.consume();
+    if (loop_label_stack_.empty()) {
+        throw std::runtime_error("Expected label to be present for continue statement");
+    }
+    return std::make_optional(std::make_shared<CAst::ContinueNode>(loop_label_stack_.back()));
+}
+
+auto RecursiveDescentParser::parseBreakStatement() -> std::optional<std::shared_ptr<CAst::BreakNode>> {
+    tokens_.consume();
+    if(tokens_.peek(0).kind != Lexer::TokenType::SEMICOLON) {
+        throw std::runtime_error("Expected SEMICOLON after break");
+    }
+    tokens_.consume();
+    if (loop_label_stack_.empty()) {
+        throw std::runtime_error("Expected label to be present for break statement");
+    }
+    return std::make_optional(std::make_shared<CAst::BreakNode>(loop_label_stack_.back()));
 }
 
 auto RecursiveDescentParser::parseReturnStatement() -> std::optional<std::shared_ptr<CAst::ReturnStatementNode>> {

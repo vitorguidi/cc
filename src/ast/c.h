@@ -61,6 +61,11 @@ struct NullNode;
 struct VariableNode;
 struct IfNode;
 struct TernaryNode;
+struct ForNode;
+struct WhileNode;
+struct DoWhileNode;
+struct ContinueNode;
+struct BreakNode;
 
 // --- Visitor Interface ---
 class Visitor {
@@ -100,6 +105,11 @@ public:
     virtual void visit(VariableNode& node) = 0;
     virtual void visit(IfNode& node) = 0;
     virtual void visit(TernaryNode& node) = 0;
+    virtual void visit(ForNode& node) = 0;
+    virtual void visit(WhileNode& node) = 0;
+    virtual void visit(DoWhileNode& node) = 0;
+    virtual void visit(ContinueNode& node) = 0;
+    virtual void visit(BreakNode& node) = 0;
 };
 
 // --- Base Nodes ---
@@ -413,6 +423,67 @@ public:
         std::shared_ptr<ExpressionNode> cond,
         std::shared_ptr<StatementNode> then,
         std::shared_ptr<StatementNode> alt) : cond_(cond), then_(then), alt_(std::make_optional(alt)) {}
+    void accept(Visitor& v) override {v.visit(*this);}
+};
+
+struct ForNode : public StatementNode {
+public:
+    std::shared_ptr<BlockElementNode> init_;
+    std::optional<std::shared_ptr<ExpressionNode>> cond_, post_;
+    std::shared_ptr<StatementNode> body_;
+    std::string label_;
+    ~ForNode() = default;
+    ForNode(
+        std::shared_ptr<BlockElementNode> init,
+        std::optional<std::shared_ptr<ExpressionNode>> cond,
+        std::optional<std::shared_ptr<ExpressionNode>> post,
+        std::shared_ptr<StatementNode> body,
+        std::string label)
+            : init_(init), cond_(cond), post_(post), body_(body), label_(label) {}
+    void accept(Visitor& v) override {v.visit(*this);}
+};
+
+struct WhileNode : public StatementNode {
+public:
+    std::shared_ptr<ExpressionNode> cond_;
+    std::shared_ptr<StatementNode> body_;
+    std::string label_;
+    ~WhileNode() = default;
+    WhileNode(
+        std::shared_ptr<ExpressionNode> cond,
+        std::shared_ptr<StatementNode> body,
+        std::string label)
+            : cond_(cond), body_(body), label_(label) {}
+    void accept(Visitor& v) override {v.visit(*this);}
+};
+
+struct DoWhileNode : public StatementNode {
+public:
+    std::shared_ptr<ExpressionNode> cond_;
+    std::shared_ptr<StatementNode> body_;
+    std::string label_;
+    ~DoWhileNode() = default;
+    DoWhileNode(
+        std::shared_ptr<ExpressionNode> cond,
+        std::shared_ptr<StatementNode> body,
+        std::string label)
+            : cond_(cond), body_(body), label_(label) {}
+    void accept(Visitor& v) override {v.visit(*this);}
+};
+
+class BreakNode : public StatementNode {
+public:
+    std::string label_;
+    ~BreakNode() = default;
+    BreakNode(std::string label) : label_(label) {}
+    void accept(Visitor& v) override {v.visit(*this);}
+};
+
+class ContinueNode : public StatementNode {
+public:
+    std::string label_;
+    ~ContinueNode() = default;
+    ContinueNode(std::string label) : label_(label) {}
     void accept(Visitor& v) override {v.visit(*this);}
 };
 

@@ -53,6 +53,11 @@ public:
     void visit(CAst::VariableNode& node) override;
     void visit(CAst::TernaryNode& node) override;
     void visit(CAst::IfNode& node) override;
+    void visit(CAst::BreakNode& node) override;
+    void visit(CAst::ContinueNode& node) override;
+    void visit(CAst::ForNode& node) override;
+    void visit(CAst::WhileNode& node) override;
+    void visit(CAst::DoWhileNode& node) override;
 
     void visit_bin_exp(std::string node_name, CAst::BinaryExpressionNode& node);
     void visit_un_exp(std::string node_name, CAst::UnaryExpressionNode& node);
