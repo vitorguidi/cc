@@ -410,6 +410,7 @@ void AstToTackyVisitor::visit(CAst::WhileNode& node) {
     ));
 
     node.body_->accept(*this);
+    auto body_result = get_result<Tacky::ValueNode>();
 
     instruction_buffer.push_back(std::make_shared<Tacky::JumpNode>(continue_label));
     instruction_buffer.push_back(break_label);
@@ -434,6 +435,7 @@ void AstToTackyVisitor::visit(CAst::DoWhileNode& node) {
 
     node.body_->accept(*this);
     // do not pop a result, since statements do not return values
+    auto body_result = get_result<Tacky::ValueNode>();
 
     instruction_buffer.push_back(continue_label);
 
