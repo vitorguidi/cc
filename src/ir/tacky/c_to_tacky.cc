@@ -387,7 +387,52 @@ void AstToTackyVisitor::visit(CAst::TernaryNode& node) {
 }
 
 void AstToTackyVisitor::visit(CAst::ForNode& node) {
+    auto start_label = std::make_shared<Tacky::LabelNode>(
+        loop_label(node.label_, LoopLabelSuffix::START));
+
+    auto continue_label = std::make_shared<Tacky::LabelNode>(
+        loop_label(node.label_, LoopLabelSuffix::CONTINUE)
+    );
+    
+    auto break_label = std::make_shared<Tacky::LabelNode>(
+        loop_label(node.label_, LoopLabelSuffix::BREAK)
+    );
+
+    node.init_->accept(*this);
+    auto init_result = get_result<Tacky::ValueNode>();
+
+    instruction_buffer.push_back(start_label);
+    if (node.cond_) {
+        node.cond_.value()->accept(*this);
+        auto cond_result = get_result<Tacky::ValueNode>();
+        instruction_buffer.push_back(
+            std::make_shared<Tacky::JumpIfZeroNode>(
+                cond_result,
+                break_label
+            )
+        );
+    }
+
+    node.body_->accept(*this);
+    auto body_result = get_result<Tacky::ValueNode>();
+
+    instruction_buffer.push_back(continue_label);
+
+    if(node.post_) {
+        node.post_.value()->accept(*this);
+        auto post_result = get_result<Tacky::ValueNode>();
+    }
+
+    instruction_buffer.push_back(
+        std::make_shared<Tacky::JumpNode>(
+            start_label
+        )
+    );
+
+    instruction_buffer.push_back(break_label);
+
     result_buffer_.push_back(std::make_shared<Tacky::NullNode>());
+
 }
 
 void AstToTackyVisitor::visit(CAst::WhileNode& node) {

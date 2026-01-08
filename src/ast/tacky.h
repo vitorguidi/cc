@@ -371,7 +371,7 @@ public:
     void accept(Visitor& v) override {v.visit(*this);}
 };
 
-class NullNode : public AstNode {
+class NullNode : public ValueNode {
 public:
     ~NullNode() = default;
     NullNode() = default;
