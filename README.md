@@ -59,7 +59,7 @@ The compiler will automatically dump Graphviz plots for all stages of the AST in
 - [x] Chapter 4: Logical and Relational Operators
 - [x] Chapter 5: Local Variables
 - [x] Chapter 6: if Statements and Conditional Expressions
-- [ ] Chapter 7: Compound Statements
+- [x] Chapter 7: Compound Statements
 - [x] Chapter 8: Loops
 - [ ] Chapter 9: Functions
 - [ ] Chapter 10: File Scope Variable Declarations and Storage-Class Specifiers

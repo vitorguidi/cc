@@ -121,11 +121,8 @@ void AstToTackyVisitor::visit(CAst::ProgramNode& node) {
 }
 
 void AstToTackyVisitor::visit(CAst::FunctionNode& node) {
-    for (auto& statement : node.body_->statements_) {
-        statement->accept(*this);
-        // Forcefully remove the result of expression statements
-        result_buffer_.pop_back(); 
-    }
+    node.body_->accept(*this);
+    auto result = get_result<Tacky::ValueNode>();
 
     auto tacky_instructions = get_instructions<Tacky::InstructionNode>();
 
@@ -292,7 +289,14 @@ void AstToTackyVisitor::visit(CAst::TypeNode& node) {}
 
 void AstToTackyVisitor::visit(CAst::FunctionArgumentsNode& node) {}
 
-void AstToTackyVisitor::visit(CAst::BlockNode& node) {}
+void AstToTackyVisitor::visit(CAst::BlockNode& node) {
+    for (auto& statement : node.statements_) {
+        statement->accept(*this);
+        // Forcefully remove the result of expression statements
+        auto result = get_result<Tacky::ValueNode>(); 
+    }
+    result_buffer_.push_back(std::make_shared<Tacky::NullNode>());
+}
 
 void AstToTackyVisitor::visit(CAst::AssignmentNode& node) {
     node.right_->accept(*this);

@@ -112,6 +112,9 @@ void GraphvizCAstVisitor::visit(CAst::FunctionArgumentsNode& node) {
 
 void GraphvizCAstVisitor::visit(CAst::BlockNode& node) {
     auto my_id = std::to_string(node_count_++);
+    of << "  subgraph cluster_" << my_id << " {\n";
+    of << "    label = \"Block Scope\";\n"; // Optional label for the box
+    of << "    color = blue;\n";             // Box border color
     auto node_repr = labeled_node_with_kv_pairs(
         my_id,
         "BlockNode",
@@ -122,6 +125,7 @@ void GraphvizCAstVisitor::visit(CAst::BlockNode& node) {
     for(auto& stmt : node.statements_) {
         last_parent = visit_child(last_parent, std::string("next statement"), stmt);
     }
+    of << "  }\n";
     buffer_.push_back(my_id);
 }
 

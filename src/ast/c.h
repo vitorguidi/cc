@@ -487,7 +487,7 @@ public:
     void accept(Visitor& v) override {v.visit(*this);}
 };
 
-struct BlockNode : public ASTNode {
+struct BlockNode : public StatementNode {
     std::vector<std::shared_ptr<BlockElementNode>> statements_;
     BlockNode() = default;
     BlockNode(std::vector<std::shared_ptr<BlockElementNode>> statements) 

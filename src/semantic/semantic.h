@@ -105,6 +105,7 @@ public:
     }
 
     void visit(CAst::BlockNode& node) {
+        symbol_table_.emplace_back();
         std::vector<std::shared_ptr<CAst::BlockElementNode>> els;
         for(auto& el : node.statements_) {
             el->accept(*this);
@@ -115,6 +116,7 @@ public:
         buffer_.push_back(std::make_shared<CAst::BlockNode>(
             std::move(els)
         ));
+        symbol_table_.pop_back();
     }
 
     void visit(CAst::ReturnStatementNode& node) {

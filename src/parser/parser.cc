@@ -190,6 +190,9 @@ auto RecursiveDescentParser::parseDeclaration() -> std::optional<std::shared_ptr
 }
 
 auto RecursiveDescentParser::parseStatement() -> std::optional<std::shared_ptr<CAst::StatementNode>> {
+    if (tokens_.peek(0).kind == Lexer::TokenType::LBRACE) {
+        return parseBlock();
+    }
     if (tokens_.peek(0).kind == Lexer::TokenType::RETURN) {
         return parseReturnStatement();
     }
