@@ -37,13 +37,16 @@ void SemanticCAstRewriter::visit(CAst::VariableNode& node) {
 }
 
 void SemanticCAstRewriter::visit(CAst::ProgramNode& node) {
+    is_on_file_scope = true;
     symbol_table_.emplace_back();
     std::vector<std::shared_ptr<CAst::FunctionNode>> functions;
     for (auto fn : node.functions_) {
+        is_on_file_scope = false;
         fn->accept(*this);
         auto processed_fn = As<CAst::FunctionNode>(buffer_.back());
         functions.push_back(processed_fn);
         buffer_.pop_back();
+        is_on_file_scope = true;
     }
     buffer_.push_back(std::make_shared<CAst::ProgramNode>(std::move(functions)));
     symbol_table_.pop_back();
@@ -292,7 +295,7 @@ void SemanticCAstRewriter::visit(CAst::ContinueNode& node) {
     buffer_.push_back(std::make_shared<CAst::ContinueNode>(node.label_));
 }
 
-std::optional<std::string> SemanticCAstRewriter::lookup_symbol_current_scope(std::string name) {
+std::optional<SymbolEntry> SemanticCAstRewriter::lookup_symbol_current_scope(std::string name) {
     if (symbol_table_.empty()) {return std::nullopt;}
     auto& m = symbol_table_.back();
     auto entry = m.find(name);
@@ -300,7 +303,7 @@ std::optional<std::string> SemanticCAstRewriter::lookup_symbol_current_scope(std
     return entry->second;
 }
 
-std::optional<std::string> SemanticCAstRewriter::lookup_symbol(std::string name) {
+std::optional<SymbolEntry> SemanticCAstRewriter::lookup_symbol(std::string name) {
     if (symbol_table_.empty()) {return std::nullopt;}
     for(auto m = symbol_table_.rbegin(); m != symbol_table_.rend(); m++) {
         auto entry = m->find(name);
@@ -309,7 +312,7 @@ std::optional<std::string> SemanticCAstRewriter::lookup_symbol(std::string name)
     }
     return std::nullopt;
 }
-void SemanticCAstRewriter::insert_symbol(std::string key, std::string value) {
+void SemanticCAstRewriter::insert_symbol(std::string key, SymbolEntry value) {
     if(symbol_table_.empty()) throw std::runtime_error("Cannot insert into a symbol table with an empty map stack.");
     auto& m = symbol_table_.back();
     m[key] = value;

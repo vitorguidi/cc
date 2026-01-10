@@ -6,8 +6,23 @@
 #include <unordered_map>
 #include <memory>
 #include <optional>
+#include <variant>
 
 namespace Semantic {
+
+struct FunctionMetadata {
+    bool was_defined;
+    std::vector<CAst::Type> arg_types;
+};
+
+typedef std::variant<FunctionMetadata, std::monostate> SymbolMetadata;
+
+struct SymbolEntry {
+    std::string name;
+    bool has_external_linkage;
+    CAst::Type type;
+    std::variant<std::monostate, SymbolMetadata> metadata;
+};
 
 template<typename T>
 inline std::shared_ptr<T> As(std::shared_ptr<CAst::ASTNode>& node) {
@@ -67,12 +82,13 @@ public:
     template<std::derived_from<CAst::UnaryExpressionNode> T>
     void visit_unexp(CAst::UnaryExpressionNode& node);
     std::shared_ptr<CAst::ProgramNode> process(CAst::ProgramNode& node);
-    std::optional<std::string> lookup_symbol_current_scope(std::string name);
-    std::optional<std::string> lookup_symbol(std::string name);
-    void insert_symbol(std::string key, std::string value);
+    std::optional<SymbolEntry> lookup_symbol_current_scope(std::string name);
+    std::optional<SymbolEntry> lookup_symbol(std::string name);
+    void insert_symbol(std::string key, SymbolEntry value);
 protected:
-    std::vector<std::unordered_map<std::string, std::string>> symbol_table_;
+    std::vector<std::unordered_map<std::string, SymbolEntry>> symbol_table_;
     std::vector<std::shared_ptr<CAst::ASTNode>> buffer_;
+    bool is_on_file_scope;
 };
 
 class VariableResolutionVisitor : public SemanticCAstRewriter{
