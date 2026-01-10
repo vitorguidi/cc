@@ -37,7 +37,7 @@ public:
     void visit(CAst::LessEqNode& node);
     void visit(CAst::NullNode& node);
     void visit(CAst::AssignmentNode& node);
-    void visit(CAst::DeclarationNode& node);
+    void visit(CAst::VariableDeclarationNode& node);
     void visit(CAst::VariableNode& node);
     void visit(CAst::IfNode& node);
     void visit(CAst::TernaryNode& node);

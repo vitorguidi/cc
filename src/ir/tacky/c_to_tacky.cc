@@ -322,7 +322,7 @@ void AstToTackyVisitor::visit(CAst::NullNode& node) {
     result_buffer_.push_back(std::make_shared<Tacky::NullNode>());
 }
 
-void AstToTackyVisitor::visit(CAst::DeclarationNode& node) {
+void AstToTackyVisitor::visit(CAst::VariableDeclarationNode& node) {
     if (node.expr_) {
         node.expr_.value()->accept(*this);
         auto val = get_result<Tacky::ValueNode>();

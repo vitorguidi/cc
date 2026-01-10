@@ -43,7 +43,7 @@ public:
     void visit(CAst::FunctionNode& node) override {}
     void visit(CAst::ProgramNode& node) override {}
     void visit(CAst::IfNode& node) override {}
-    void visit(CAst::DeclarationNode& node) override {}
+    void visit(CAst::VariableDeclarationNode& node) override {}
     void visit(CAst::AssignmentNode& node) override {}
     void visit(CAst::NullNode& node) override {}
     void visit(CAst::TernaryNode& node) override {}

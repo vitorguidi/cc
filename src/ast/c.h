@@ -56,7 +56,7 @@ struct GreaterEqNode;
 struct LessNode;
 struct LessEqNode;
 struct AssignmentNode;
-struct DeclarationNode;
+struct VariableDeclarationNode;
 struct NullNode;
 struct VariableNode;
 struct IfNode;
@@ -99,7 +99,7 @@ public:
     virtual void visit(PlusNode& node) = 0;
     virtual void visit(MinusNode& node) = 0;
     virtual void visit(ProgramNode& node) = 0;
-    virtual void visit(DeclarationNode& node) = 0;
+    virtual void visit(VariableDeclarationNode& node) = 0;
     virtual void visit(AssignmentNode& node) = 0;
     virtual void visit(NullNode& node) = 0;
     virtual void visit(VariableNode& node) = 0;
@@ -138,13 +138,14 @@ public:
     virtual void accept(Visitor& v) override = 0;
 };
 
-class DeclarationNode : public BlockElementNode {
+
+class VariableDeclarationNode : public BlockElementNode {
 public:
     std::shared_ptr<VariableNode> var_;
     std::shared_ptr<TypeNode> type_;
     std::optional<std::shared_ptr<ExpressionNode>> expr_;
-    ~DeclarationNode() = default;
-    DeclarationNode(
+    ~VariableDeclarationNode() = default;
+    VariableDeclarationNode(
         std::shared_ptr<VariableNode> var,
         std::shared_ptr<TypeNode> type,
         std::optional<std::shared_ptr<ExpressionNode>> expr)

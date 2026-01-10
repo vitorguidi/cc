@@ -131,7 +131,7 @@ private:
     std::optional<std::shared_ptr<CAst::TypeNode>> parseType();
     std::optional<std::shared_ptr<CAst::FunctionArgumentsNode>> parseFunctionArguments();
     std::optional<std::shared_ptr<CAst::BlockNode>> parseBlock();
-    std::optional<std::shared_ptr<CAst::DeclarationNode>> parseDeclaration();
+    std::optional<std::shared_ptr<CAst::VariableDeclarationNode>> parseDeclaration();
     std::optional<std::shared_ptr<CAst::StatementNode>> parseStatement();
     std::optional<std::shared_ptr<CAst::ReturnStatementNode>> parseReturnStatement();
     std::optional<std::shared_ptr<CAst::BreakNode>> parseBreakStatement();

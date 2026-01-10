@@ -151,11 +151,11 @@ void GraphvizCAstVisitor::visit(CAst::VariableNode& node) {
     buffer_.push_back(my_id);
 }
 
-void GraphvizCAstVisitor::visit(CAst::DeclarationNode& node) {
+void GraphvizCAstVisitor::visit(CAst::VariableDeclarationNode& node) {
     auto my_id = std::to_string(node_count_++);
     auto node_repr = labeled_node_with_kv_pairs(
         my_id,
-        "DeclarationNode",
+        "VariableDeclarationNode",
         {
             std::make_pair("name", node.var_->name_),
             std::make_pair("type",type_as_str(node.type_->type_))

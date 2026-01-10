@@ -24,7 +24,7 @@ public:
 
     // the ones with actual sem analysis
 
-    void visit(CAst::DeclarationNode& node) {
+    void visit(CAst::VariableDeclarationNode& node) {
         auto var_name = node.var_->name_;
 
         if (lookup_symbol_current_scope(node.var_->name_)) {
@@ -40,7 +40,7 @@ public:
             converted_expr = As<CAst::ExpressionNode>(buffer_.back());
             buffer_.pop_back();
         }
-        buffer_.push_back(std::make_shared<CAst::DeclarationNode>(
+        buffer_.push_back(std::make_shared<CAst::VariableDeclarationNode>(
             std::make_shared<CAst::VariableNode>(new_name),
             node.type_,
             converted_expr

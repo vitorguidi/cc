@@ -47,7 +47,7 @@ public:
     void visit(CAst::LessEqNode& node) override;
     void visit(CAst::GreaterNode& node) override;
     void visit(CAst::GreaterEqNode& node) override;
-    void visit(CAst::DeclarationNode& node) override;
+    void visit(CAst::VariableDeclarationNode& node) override;
     void visit(CAst::AssignmentNode& node) override;
     void visit(CAst::NullNode& node) override;
     void visit(CAst::VariableNode& node) override;

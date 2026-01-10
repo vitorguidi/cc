@@ -124,7 +124,7 @@ auto RecursiveDescentParser::parseBlock() -> std::optional<std::shared_ptr<CAst:
             throw std::runtime_error("END_OF_FILE found during block parsing, crashing to avoid infinite loop");
         }
         if (tokens_.peek(0).kind == Lexer::TokenType::INTEGER_TYPE) {
-            std::optional<std::shared_ptr<CAst::DeclarationNode>> decl = parseDeclaration();
+            std::optional<std::shared_ptr<CAst::VariableDeclarationNode>> decl = parseDeclaration();
             if(!decl) {throw std::runtime_error("Expected to parse statement within block.");}
             result.statements_.push_back(decl.value());
         } else {
@@ -141,7 +141,7 @@ auto RecursiveDescentParser::parseBlock() -> std::optional<std::shared_ptr<CAst:
     return std::make_optional(std::make_shared<CAst::BlockNode>(std::move(result)));
 }
 
-auto RecursiveDescentParser::parseDeclaration() -> std::optional<std::shared_ptr<CAst::DeclarationNode>> {
+auto RecursiveDescentParser::parseDeclaration() -> std::optional<std::shared_ptr<CAst::VariableDeclarationNode>> {
     auto type = std::make_shared<CAst::TypeNode>(CAst::Type::INTEGER);
     tokens_.consume(); //get rid of type
     if (tokens_.peek(0).kind != Lexer::TokenType::NAME) {
@@ -158,7 +158,7 @@ auto RecursiveDescentParser::parseDeclaration() -> std::optional<std::shared_ptr
 
     if (tokens_.peek(0).kind == Lexer::TokenType::SEMICOLON) {
         tokens_.consume();
-        return std::make_optional(std::make_shared<CAst::DeclarationNode>(
+        return std::make_optional(std::make_shared<CAst::VariableDeclarationNode>(
             std::make_shared<CAst::VariableNode>(std::get<std::string>(variable_name.value)),
             type,
             expr
@@ -182,7 +182,7 @@ auto RecursiveDescentParser::parseDeclaration() -> std::optional<std::shared_ptr
     }
 
     tokens_.consume();
-    return std::make_optional(std::make_shared<CAst::DeclarationNode>(
+    return std::make_optional(std::make_shared<CAst::VariableDeclarationNode>(
         std::make_shared<CAst::VariableNode>(std::get<std::string>(variable_name.value)),
         type,
         expr.value()
