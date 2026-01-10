@@ -101,11 +101,12 @@ public:
 class FunctionNode : public AstNode {
 public:
     ~FunctionNode() = default;
-    FunctionNode(std::string name, std::vector<std::shared_ptr<InstructionNode>> instructions)
-        : name_(name), instructions_(std::move(instructions)) {}
+    FunctionNode(std::string name, std::vector<std::shared_ptr<InstructionNode>> instructions, int stack_offset)
+        : name_(name), instructions_(std::move(instructions)), stack_offset_(stack_offset) {}
     void accept(Visitor& v) override {v.visit(*this);}
     std::string name_;
     std::vector<std::shared_ptr<InstructionNode>> instructions_;
+    int stack_offset_;
 };
 
 class InstructionNode : public AstNode {
@@ -131,10 +132,10 @@ public:
 
 enum Register {
     AX,
+    CL,
     CX,
     DI,
     DX,
-    CL,
     R8,
     R9,
     R10,

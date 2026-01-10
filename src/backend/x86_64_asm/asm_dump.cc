@@ -41,6 +41,23 @@ void ASMDumper::visit(ASM::ComplementNode& node) {
     of << "\tnegl   " + operand_as_str + "\n";
 }
 
+void ASMDumper::visit(ASM::CallNode& node) {
+    of << "\tcall   " << node.name_ << "\n";
+}
+
+void ASMDumper::visit(ASM::DeallocateStackNode& node) {
+    of << "\addq   $" << std::to_string(node.size_) << ",   %rsp\n";
+}
+
+void ASMDumper::visit(ASM::PushNode& node) {
+    node.operand_->accept(*this);
+    auto operand_as_str = buffer_.back();
+    buffer_.pop_back();
+    of << "\tushq   " + operand_as_str + "\n";
+}
+
+void ASMDumper::visit(ASM::NullNode& node) {}
+
 void ASMDumper::visit(ASM::BitwiseNotNode& node) {
     node.src_->accept(*this);
     auto src_as_str = buffer_.back();
@@ -91,17 +108,35 @@ void ASMDumper::visit(ASM::RegisterNode& node) {
         case ASM::Register::AX:
             buffer_.push_back("\%eax");
             break;
+        case ASM::Register::CL:
+            buffer_.push_back("\%cl");
+            break;
+        case ASM::Register::CX:
+            buffer_.push_back("\%cx");
+            break;
+        case ASM::Register::DI:
+            buffer_.push_back("\%edi");
+            break;
         case ASM::Register::DX:
             buffer_.push_back("\%edx");
             break;
-        case ASM::Register::CL:
-            buffer_.push_back("\%cl");
+        case ASM::Register::R8:
+            buffer_.push_back("\%r8d");
+            break;
+        case ASM::Register::R9:
+            buffer_.push_back("\%r9d");
             break;
         case ASM::Register::R10:
             buffer_.push_back("\%r10d");
             break;
+        case ASM::Register::R10b:
+            buffer_.push_back("\%r10b");
+            break;
         case ASM::Register::R11:
             buffer_.push_back("\%r11d");
+            break;
+        case ASM::Register::SI:
+            buffer_.push_back("\%rsi");
             break;
         default:
             throw std::runtime_error("Unknown register type");

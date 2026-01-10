@@ -65,7 +65,8 @@ void x86_64_ASM_RewriteVisitor::visit(ASM::FunctionNode& node) {
     buffer_.push_back(
         std::make_shared<ASM::FunctionNode>(
             node.name_,
-            std::move(replaced_instructions)
+            std::move(replaced_instructions),
+            node.stack_offset_
         )
     );
 }
@@ -126,6 +127,10 @@ void x86_64_ASM_RewriteVisitor::visit(ASM::DivNode& node) {
     buffer_.push_back(std::make_shared<ASM::DivNode>(
         casted_src
     ));
+}
+
+void x86_64_ASM_RewriteVisitor::visit(ASM::NullNode& node) {
+    buffer_.push_back(std::make_shared<ASM::NullNode>());
 }
 
 // binary arithmetic exps
@@ -222,6 +227,24 @@ void x86_64_ASM_RewriteVisitor::visit(ASM::RegisterNode& node) {
 
 void x86_64_ASM_RewriteVisitor::visit(ASM::PseudoNode& node) {
     buffer_.push_back(std::make_shared<ASM::PseudoNode>(node.name_));
+}
+
+void x86_64_ASM_RewriteVisitor::visit(ASM::PushNode& node) {
+    node.operand_->accept(*this);
+    std::shared_ptr<ASM::OperandNode> casted_operand = As<ASM::OperandNode>(
+        buffer_.back(),
+        "Failed to cast buffered operand into ASM::OperandNode"
+    );
+    buffer_.pop_back();
+    buffer_.push_back(std::make_shared<ASM::PushNode>(casted_operand));
+}
+
+void x86_64_ASM_RewriteVisitor::visit(ASM::CallNode& node) {
+    buffer_.push_back(std::make_shared<ASM::CallNode>(node.name_));
+}
+
+void x86_64_ASM_RewriteVisitor::visit(ASM::DeallocateStackNode& node) {
+    buffer_.push_back(std::make_shared<ASM::DeallocateStackNode>(node.size_));
 }
 
 std::shared_ptr<ASM::ProgramNode> x86_64_ASM_RewriteVisitor::get_rewritten_asm_program(std::shared_ptr<ASM::ProgramNode> program) {

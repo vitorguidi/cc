@@ -12,13 +12,30 @@ void PseudoReplacerVisitor::visit(ASM::PseudoNode& node) {
     );
 }
 
-int PseudoReplacerVisitor::get_offset() {
-    // this is consumed by the instruction fix up visitor
-    // let's return a positive value for sanity
-    if (current_offset_ > 0) {
-        throw std::runtime_error("Offset should be <=0, it is " + std::to_string(current_offset_));
+void PseudoReplacerVisitor::visit(ASM::FunctionNode& node) {
+    std::vector<std::shared_ptr<ASM::InstructionNode>> replaced_instructions;
+    current_offset_ = 0;
+    stack_offsets_.clear();
+    for(auto& instruction : node.instructions_) {
+        instruction->accept(*this);
+        while(!buffer_.empty()) {
+            auto casted_instruction = As<ASM::InstructionNode>(
+                buffer_.front(),
+                std::string("Failed to cast buffered node into ASM::InstructionNode.")
+            );
+            buffer_.pop_front();
+            replaced_instructions.push_back(std::move(casted_instruction));
+        }
     }
-    return -1*current_offset_;
+    int stack_offset = (-1*current_offset_ + 15)/16;
+    stack_offset*=16;
+    buffer_.push_back(
+        std::make_shared<ASM::FunctionNode>(
+            node.name_,
+            std::move(replaced_instructions),
+            stack_offset
+        )
+    );
 }
 
 

@@ -157,10 +157,7 @@ void TackyToAsmVisitor::visit(Tacky::FunctionCallNode& node) {
 }
 
 void TackyToAsmVisitor::visit_conditional_jump(ASM::ConditionCode cc, Tacky::ConditionalJumpNode& node) {
-    node.dst_->accept(*this);
-    auto dst = As<ASM::LabelNode>(
-        result_buffer_.back(), "Failed to cast destination in JumpIfZero to ASM::LabelNode");
-    result_buffer_.pop_back();
+    auto dst = std::make_shared<ASM::LabelNode>(node.dst_->name_);
 
     node.operand_->accept(*this);
     auto operand = As<ASM::OperandNode>(
@@ -244,7 +241,7 @@ void TackyToAsmVisitor::visit(Tacky::FunctionNode& node) {
     }
 
     std::reverse(converted_instructions.begin(), converted_instructions.end());
-    auto converted_fn = std::make_shared<ASM::FunctionNode>(node.name_, converted_instructions);
+    auto converted_fn = std::make_shared<ASM::FunctionNode>(node.name_, converted_instructions, -1);
     result_buffer_.push_back(std::move(converted_fn));
 }
 
@@ -385,11 +382,8 @@ void TackyToAsmVisitor::visit(Tacky::LessEqNode& node) {visit_relational_exp(ASM
 
 // jump nodes
 void TackyToAsmVisitor::visit(Tacky::JumpNode& node) {
-    node.dst_->accept(*this);
-    auto target = As<ASM::LabelNode>(
-        result_buffer_.back(), "Failed to cast target to ASM::OperandNode");
-    result_buffer_.pop_back();
-    instruction_buffer_.push_back(std::make_shared<ASM::JumpNode>(target));
+    auto dst = std::make_shared<ASM::LabelNode>(node.dst_->name_);
+    instruction_buffer_.push_back(std::make_shared<ASM::JumpNode>(dst));
     result_buffer_.push_back(std::make_shared<ASM::NullNode>());
 }
 
@@ -397,7 +391,8 @@ void TackyToAsmVisitor::visit(Tacky::JumpIfZeroNode& node) {visit_conditional_ju
 void TackyToAsmVisitor::visit(Tacky::JumpIfNotZeroNode& node) {visit_conditional_jump(ASM::ConditionCode::NOT_EQUAL, node);}
 
 void TackyToAsmVisitor::visit(Tacky::LabelNode& node) {
-    result_buffer_.push_back(std::make_shared<ASM::LabelNode>(node.name_));
+    instruction_buffer_.push_back(std::make_shared<ASM::LabelNode>(node.name_));
+    result_buffer_.push_back(std::make_shared<ASM::NullNode>());
 }
 
 void TackyToAsmVisitor::visit(Tacky::MovNode& node) {

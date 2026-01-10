@@ -100,25 +100,29 @@ std::shared_ptr<Tacky::ProgramNode> AstToTackyVisitor::get_tacky_from_c_ast(std:
         throw std::runtime_error("Buffers not empty at start of conversion");
     }
     root_node->accept(*this);
-    if (instruction_buffer.size() != 1) {
+    if (result_buffer_.size() != 1) {
         throw std::runtime_error("Expected exactly one Tacky AST root node");
     }
-    auto result_node = std::dynamic_pointer_cast<Tacky::ProgramNode>(instruction_buffer.back());
-    instruction_buffer.pop_back();
+    auto result_node = std::dynamic_pointer_cast<Tacky::ProgramNode>(result_buffer_.back());
+    result_buffer_.pop_back();
     if (!result_node) {
         throw std::runtime_error("Expected Tacky ProgramNode as conversion result");
+    }
+    if (!instruction_buffer.empty() || !result_buffer_.empty()) {
+        throw std::runtime_error("Buffers not empty at end of conversion");
     }
     return result_node;
 }
 
 void AstToTackyVisitor::visit(CAst::ProgramNode& node) {
+    std::vector<std::shared_ptr<Tacky::FunctionNode>> processed_funcs;
     for (auto& function : node.functions_) {
         function->accept(*this);
-        get_result<Tacky::ValueNode>();
+        auto fn =get_result<Tacky::FunctionNode>();
+        processed_funcs.push_back(fn);
     }
-    auto functions = get_instructions<Tacky::FunctionNode>();
-    auto result = std::make_shared<Tacky::ProgramNode>(std::move(functions) );
-    instruction_buffer.push_back(result);
+    auto result = std::make_shared<Tacky::ProgramNode>(std::move(processed_funcs) );
+    result_buffer_.push_back(result);
 }
 
 void AstToTackyVisitor::visit(CAst::FunctionNode& node) {
@@ -143,8 +147,10 @@ void AstToTackyVisitor::visit(CAst::FunctionNode& node) {
     );
 
     if (!tacky_instructions.empty()) {
-        instruction_buffer.push_back(function_result);
+        result_buffer_.push_back(function_result);
+        return;
     }
+
     result_buffer_.push_back(std::make_shared<Tacky::NullNode>());
 }
 
@@ -281,7 +287,7 @@ void AstToTackyVisitor::visit(CAst::OrNode& node) {
     auto true_label = std::make_shared<Tacky::LabelNode>(base_label + "true_");
     auto end_label = std::make_shared<Tacky::LabelNode>(base_label + "end_");
 
-    auto dst = std::make_shared<Tacky::VariableNode>(generate_temp_label());
+    auto dst = std::make_shared<Tacky::VariableNode>(generate_temp_var_name());
 
     node.left_->accept(*this);
     auto left_expression_result = get_result<Tacky::ValueNode>();

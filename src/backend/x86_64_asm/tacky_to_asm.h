@@ -105,6 +105,7 @@ public:
     void visit(ASM::JumpNode& node) override;
     void visit(ASM::CallNode& node) override;
     void visit(ASM::PushNode& node) override;
+    void visit(ASM::NullNode& node) override;
     void visit(ASM::DeallocateStackNode& node) override;
     std::shared_ptr<ASM::ProgramNode> get_rewritten_asm_program(std::shared_ptr<ASM::ProgramNode> program);
     std::deque<std::shared_ptr<ASM::AstNode>> buffer_;
@@ -115,6 +116,7 @@ public:
     ~PseudoReplacerVisitor() = default;
     PseudoReplacerVisitor() : current_offset_(0) {}
     void visit(ASM::PseudoNode& node) override;
+    void visit(ASM::FunctionNode& node) override;
     int get_offset();
     int current_offset_;
     std::unordered_map<std::string, int> stack_offsets_;
@@ -123,8 +125,8 @@ public:
 class InstructionFixUpVisitor : public x86_64_ASM_RewriteVisitor {
 public:
     ~InstructionFixUpVisitor() = default;
-    InstructionFixUpVisitor(int offset)
-        : x86_64_ASM_RewriteVisitor(), max_stack_offset_(offset) {}
+    InstructionFixUpVisitor()
+        : x86_64_ASM_RewriteVisitor() {}
     void visit(ASM::FunctionNode& node) override;
     void visit(ASM::MovNode& node) override;
     void visit(ASM::MovBNode& node) override;
@@ -138,7 +140,6 @@ public:
     void visit(ASM::SalNode& node) override;
     void visit(ASM::SarNode& node) override;
     void visit(ASM::CmpNode& node) override;
-    int max_stack_offset_;
 };
 
 } // namespace Backend

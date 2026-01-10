@@ -17,7 +17,7 @@ void InstructionFixUpVisitor::visit(ASM::FunctionNode& node) {
             processed_instructions.push_back(processed_instruction);
         }
     }
-    int aligned_stack_size = (8 + max_stack_offset_ + 15)/16;
+    int aligned_stack_size = (node.stack_offset_ + 15)/16;
     aligned_stack_size *= 16;
     processed_instructions.insert(
         processed_instructions.begin(),
@@ -26,7 +26,8 @@ void InstructionFixUpVisitor::visit(ASM::FunctionNode& node) {
     buffer_.push_back(
         std::make_shared<ASM::FunctionNode>(
             node.name_,
-            std::move(processed_instructions)
+            std::move(processed_instructions),
+            node.stack_offset_
         )
     );
 }

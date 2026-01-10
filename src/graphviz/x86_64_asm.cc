@@ -75,7 +75,10 @@ void GraphvizASMVisitor::visit(ASM::FunctionNode& node) {
     auto node_repr = labeled_node_with_kv_pairs(
         my_id,
         "FunctionNode",
-        {std::make_pair("name", node.name_)}
+        {
+            std::make_pair("name", node.name_),
+            std::make_pair("stack offset", std::to_string(node.stack_offset_))
+        }
     );
     of << node_repr;
     auto last_parent = my_id;

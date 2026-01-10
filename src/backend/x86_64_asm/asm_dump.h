@@ -38,6 +38,7 @@ public:
     void visit(ASM::LabelNode& node) override;
     void visit(ASM::CallNode& node) override;
     void visit(ASM::PushNode& node) override;
+    void visit(ASM::NullNode& node) override;
     void visit(ASM::DeallocateStackNode& node) override;
     void dump_assembly(std::shared_ptr<ASM::ProgramNode> asm_program);
     std::vector<std::string> asm_text_dump_, buffer_;
