@@ -78,7 +78,9 @@ void GraphvizCAstVisitor::visit(CAst::FunctionNode& node) {
     of << node_repr;
 
     visit_child(my_id, "args", node.arguments_node_);
-    visit_child(my_id, "stmts", node.body_);
+    if (node.body_) {
+        visit_child(my_id, "stmts", node.body_.value());
+    }
     visit_child(my_id, "args", node.type_node_);
 
     buffer_.push_back(my_id);

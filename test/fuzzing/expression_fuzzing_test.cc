@@ -48,6 +48,11 @@ public:
     void visit(CAst::NullNode& node) override {}
     void visit(CAst::TernaryNode& node) override {}
     void visit(CAst::VariableNode& node) override {}
+    void visit(CAst::WhileNode& node) override {}
+    void visit(CAst::DoWhileNode& node) override {}
+    void visit(CAst::ForNode& node) override {}
+    void visit(CAst::ContinueNode& node) override {}
+    void visit(CAst::BreakNode& node) override {}
 
     void visit(CAst::ReturnStatementNode& node) override {
         expr_ += "return ";

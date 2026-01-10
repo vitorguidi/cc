@@ -121,17 +121,20 @@ void AstToTackyVisitor::visit(CAst::ProgramNode& node) {
 }
 
 void AstToTackyVisitor::visit(CAst::FunctionNode& node) {
-    node.body_->accept(*this);
-    auto result = get_result<Tacky::ValueNode>();
+    if (node.body_.value()) {
+        node.body_.value()->accept(*this);
+        auto result = get_result<Tacky::ValueNode>();
 
-    auto tacky_instructions = get_instructions<Tacky::InstructionNode>();
+        auto tacky_instructions = get_instructions<Tacky::InstructionNode>();
 
-    auto function_result = std::make_shared<Tacky::FunctionNode>(
-        node.name_,
-        tacky_instructions
-    );
+        auto function_result = std::make_shared<Tacky::FunctionNode>(
+            node.name_,
+            tacky_instructions
+        );
 
-    instruction_buffer.push_back(function_result);
+        instruction_buffer.push_back(function_result);
+    }
+
 }
 
 void AstToTackyVisitor::visit(CAst::ReturnStatementNode& node) {

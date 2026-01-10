@@ -496,15 +496,15 @@ struct BlockNode : public StatementNode {
     void accept(Visitor& v) override {v.visit(*this);}
 };
 
-struct FunctionNode : public ASTNode {
+struct FunctionNode : public BlockElementNode {
     std::string name_;
     std::shared_ptr<TypeNode> type_node_;
     std::shared_ptr<FunctionArgumentsNode> arguments_node_;
-    std::shared_ptr<BlockNode> body_;
+    std::optional<std::shared_ptr<BlockNode>> body_;
 
     FunctionNode(std::string name, std::shared_ptr<TypeNode> type_node, 
                  std::shared_ptr<FunctionArgumentsNode> arguments, 
-                 std::shared_ptr<BlockNode> body)
+                 std::optional<std::shared_ptr<BlockNode>> body)
     : name_(std::move(name)), type_node_(std::move(type_node)), 
       arguments_node_(std::move(arguments)), body_(std::move(body)) {}
     void accept(Visitor& v) override {v.visit(*this);}

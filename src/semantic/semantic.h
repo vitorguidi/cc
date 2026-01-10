@@ -83,11 +83,19 @@ public:
         node.arguments_node_->accept(*this);
         auto args = As<CAst::FunctionArgumentsNode>(buffer_.back());
         buffer_.pop_back();
-        symbol_table_.emplace_back();
-        node.body_->accept(*this);
-        symbol_table_.pop_back();
-        auto body = As<CAst::BlockNode>(buffer_.back());
-        buffer_.pop_back();
+
+        std::optional<std::shared_ptr<CAst::BlockNode>> body = std::nullopt;
+
+        if (node.body_) {
+            symbol_table_.emplace_back();
+            node.body_.value()->accept(*this);
+
+            body = std::make_optional(As<CAst::BlockNode>(buffer_.back()));
+            buffer_.pop_back();
+            symbol_table_.pop_back();
+        }
+ 
+
         buffer_.push_back(std::make_shared<CAst::FunctionNode>(
             node.name_,
             node.type_node_,

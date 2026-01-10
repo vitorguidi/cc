@@ -38,11 +38,12 @@ TEST(ParserTest, SomeBinexps) {
     // Assert zero args
     ASSERT_EQ(main_function->arguments_node_->arguments_.size(), 0);
 
+    ASSERT_TRUE(main_function->body_);
     // Assert one statement
-    ASSERT_EQ(main_function->body_->statements_.size(), 1);
+    ASSERT_EQ(main_function->body_.value()->statements_.size(), 1);
 
     // Assert return statement present
-    auto return_stmt = std::dynamic_pointer_cast<CAst::ReturnStatementNode>(main_function->body_->statements_[0]);
+    auto return_stmt = std::dynamic_pointer_cast<CAst::ReturnStatementNode>(main_function->body_.value()->statements_[0]);
     ASSERT_NE(return_stmt, nullptr);
 
 
@@ -104,10 +105,11 @@ TEST(ParserTest, AnotherBasicProgram) {
     // Assert int return type and no args
     ASSERT_EQ(main_function->type_node_->type_, CAst::Type::INTEGER);
     ASSERT_EQ(main_function->arguments_node_->arguments_.size(), 0);
-    ASSERT_EQ(main_function->body_->statements_.size(), 1);
+    ASSERT_TRUE(main_function->body_);
+    ASSERT_EQ(main_function->body_.value()->statements_.size(), 1);
 
     // Assert return statement present
-    auto return_stmt = std::dynamic_pointer_cast<CAst::ReturnStatementNode>(main_function->body_->statements_[0]);
+    auto return_stmt = std::dynamic_pointer_cast<CAst::ReturnStatementNode>(main_function->body_.value()->statements_[0]);
     ASSERT_NE(return_stmt, nullptr);
 
     // Assert return val is a tilde unary op
@@ -139,8 +141,9 @@ TEST(ParserTest, BasicProgram) {
     ASSERT_EQ(main_function->name_, "main");
     ASSERT_EQ(main_function->type_node_->type_, CAst::Type::INTEGER);
     ASSERT_EQ(main_function->arguments_node_->arguments_.size(), 0);
-    ASSERT_EQ(main_function->body_->statements_.size(), 1);
-    auto return_stmt = std::dynamic_pointer_cast<CAst::ReturnStatementNode>(main_function->body_->statements_[0]);
+    ASSERT_TRUE(main_function->body_);
+    ASSERT_EQ(main_function->body_.value()->statements_.size(), 1);
+    auto return_stmt = std::dynamic_pointer_cast<CAst::ReturnStatementNode>(main_function->body_.value()->statements_[0]);
     ASSERT_NE(return_stmt, nullptr);
     auto return_value = std::dynamic_pointer_cast<CAst::IntegerValueNode>(return_stmt->return_value_);
     ASSERT_NE(return_value, nullptr);
