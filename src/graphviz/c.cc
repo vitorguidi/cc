@@ -70,18 +70,29 @@ void GraphvizCAstVisitor::visit(CAst::ProgramNode& node) {
 
 void GraphvizCAstVisitor::visit(CAst::FunctionNode& node) {
     auto my_id = std::to_string(node_count_++);
+    std::vector<std::pair<std::string, std::string>> labels;
+    labels.push_back(std::make_pair("name", node.name_));
+    labels.push_back(std::make_pair("return type", CAst::type_as_str(node.type_node_->type_)));
+
+    int i=0;
+    for(auto arg : node.arguments_node_->arguments_) {
+        labels.push_back(
+            std::make_pair(
+                "arg" + std::to_string(i++),
+                CAst::type_as_str(arg.type)
+        ));
+    }
+
     auto node_repr = labeled_node_with_kv_pairs(
         my_id,
         "FunctionNode",
-        {std::make_pair("Name", node.name_)}
+        labels
     );
     of << node_repr;
 
-    visit_child(my_id, "args", node.arguments_node_);
     if (node.body_) {
         visit_child(my_id, "stmts", node.body_.value());
     }
-    visit_child(my_id, "args", node.type_node_);
 
     buffer_.push_back(my_id);
 }
@@ -290,6 +301,20 @@ void GraphvizCAstVisitor::visit(CAst::BreakNode& node) {
         {std::make_pair("label", node.label_)}
     );
     of << node_repr;
+    buffer_.push_back(my_id);
+}
+
+void GraphvizCAstVisitor::visit(CAst::FunctionCallNode& node) {
+    auto my_id = std::to_string(node_count_++);    
+    auto node_repr = labeled_node_with_kv_pairs(
+        my_id,
+        "FunctionCallNode",
+        {std::make_pair("name", node.name_)}
+    );
+    of << node_repr;
+    for(size_t i=0;i<node.args_.size();i++) {
+        visit_child(my_id, "arg" + std::to_string(i), node.args_[i]);
+    }
     buffer_.push_back(my_id);
 }
 

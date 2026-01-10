@@ -520,6 +520,8 @@ void AstToTackyVisitor::visit(CAst::BreakNode& node) {
     result_buffer_.push_back(std::make_shared<Tacky::NullNode>());
 }
 
+void AstToTackyVisitor::visit(CAst::FunctionCallNode& node) {}
+
 std::string AstToTackyVisitor::generate_temp_var_name() {
     return "_tacky_temp_" + std::to_string(temp_var_counter_++);
 }

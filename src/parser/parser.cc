@@ -36,9 +36,6 @@ auto RecursiveDescentParser::parseProgram() -> std::optional<std::shared_ptr<CAs
     CAst::ProgramNode program;
     while (tokens_.peek(0).kind != Lexer::TokenType::END_OF_FILE) {
         auto func = parseFunction();
-        if (!func.has_value()) {
-            break;
-        }
         program.functions_.push_back(std::move(func.value()));
     }
     return std::make_shared<CAst::ProgramNode>(program);
@@ -46,26 +43,32 @@ auto RecursiveDescentParser::parseProgram() -> std::optional<std::shared_ptr<CAs
 
 auto RecursiveDescentParser::parseFunction() -> std::optional<std::shared_ptr<CAst::FunctionNode>> {
     auto return_type_opt = parseType();
-    if (!return_type_opt.has_value()) {
-        return std::nullopt;
-    }
+
     auto function_name = tokens_.consume();
     if (function_name.kind != Lexer::TokenType::NAME) {
         throw std::runtime_error("Expected function name");
     }
+
     auto arguments_opt = parseFunctionArguments();
     if (!arguments_opt.has_value()) {
         throw std::runtime_error("Expected function arguments");
     }
-    auto body_opt = parseBlock();
-    if (!body_opt.has_value()) {
-        throw std::runtime_error("Expected function body");
+
+    std::optional<std::shared_ptr<CAst::BlockNode>> body = std::nullopt;
+    if (tokens_.peek(0).kind == Lexer::TokenType::LBRACE) {
+        body = parseBlock();
+    } else {
+        auto semicolon = tokens_.consume();
+        if (semicolon.kind != Lexer::TokenType::SEMICOLON) {
+            throw std::runtime_error("Expected SEMICOLON after function declaration");
+        }
     }
+
     return std::make_shared<CAst::FunctionNode>(
         std::get<std::string>(function_name.value),
         return_type_opt.value(),
         arguments_opt.value(),
-        body_opt.value()
+        body
     );
 }
 
@@ -77,7 +80,7 @@ auto RecursiveDescentParser::parseType() -> std::optional<std::shared_ptr<CAst::
             return std::make_optional(std::make_shared<CAst::TypeNode>(CAst::Type::INTEGER));
         }
         default:
-            return std::nullopt;
+            throw std::runtime_error("Expected type while parsing");
     }
     return std::nullopt;
 }
@@ -123,8 +126,13 @@ auto RecursiveDescentParser::parseBlock() -> std::optional<std::shared_ptr<CAst:
         if (tokens_.peek(0).kind == Lexer::TokenType::END_OF_FILE) {
             throw std::runtime_error("END_OF_FILE found during block parsing, crashing to avoid infinite loop");
         }
-        if (tokens_.peek(0).kind == Lexer::TokenType::INTEGER_TYPE) {
-            std::optional<std::shared_ptr<CAst::VariableDeclarationNode>> decl = parseDeclaration();
+        if (tokens_.peek(0).kind == Lexer::TokenType::INTEGER_TYPE &&
+            tokens_.peek(2).kind == Lexer::TokenType::LPAREN) {
+            std::optional<std::shared_ptr<CAst::FunctionNode>> decl = parseFunction();
+            if(!decl) {throw std::runtime_error("Expected to parse function within block.");}
+            result.statements_.push_back(decl.value());
+        } else if (tokens_.peek(0).kind == Lexer::TokenType::INTEGER_TYPE) {
+            std::optional<std::shared_ptr<CAst::VariableDeclarationNode>> decl = parseVariableDeclaration();
             if(!decl) {throw std::runtime_error("Expected to parse statement within block.");}
             result.statements_.push_back(decl.value());
         } else {
@@ -141,7 +149,7 @@ auto RecursiveDescentParser::parseBlock() -> std::optional<std::shared_ptr<CAst:
     return std::make_optional(std::make_shared<CAst::BlockNode>(std::move(result)));
 }
 
-auto RecursiveDescentParser::parseDeclaration() -> std::optional<std::shared_ptr<CAst::VariableDeclarationNode>> {
+auto RecursiveDescentParser::parseVariableDeclaration() -> std::optional<std::shared_ptr<CAst::VariableDeclarationNode>> {
     auto type = std::make_shared<CAst::TypeNode>(CAst::Type::INTEGER);
     tokens_.consume(); //get rid of type
     if (tokens_.peek(0).kind != Lexer::TokenType::NAME) {
@@ -323,7 +331,7 @@ auto RecursiveDescentParser::parseForStatement() -> std::optional<std::shared_pt
 
 auto RecursiveDescentParser::parseForInitStatement() -> std::optional<std::shared_ptr<CAst::BlockElementNode>> {
     if (tokens_.peek(0).kind == Lexer::TokenType::INTEGER_TYPE) {
-        return parseDeclaration();
+        return parseVariableDeclaration();
     }
     auto expr = parseExpression(0);
     if (!expr) {
@@ -441,6 +449,41 @@ auto RecursiveDescentParser::parseReturnStatement() -> std::optional<std::shared
     ));
 }
 
+auto RecursiveDescentParser::parseFunctionCall() -> std::optional<std::shared_ptr<CAst::FunctionCallNode>> {
+    if (tokens_.peek(0).kind != Lexer::TokenType::NAME) {
+        throw std::runtime_error("Expected NAME token initiating a function call");
+    }
+    auto function_name = tokens_.consume();
+    if (tokens_.peek(0).kind != Lexer::TokenType::LPAREN) {
+        throw std::runtime_error("Expected LPAREN token after name in a function call");
+    }
+    tokens_.consume();
+    std::vector<std::shared_ptr<CAst::ExpressionNode>> args;
+    while(tokens_.peek(0).kind != Lexer::TokenType::RPAREN) {
+        auto arg = parseExpression(0);
+        args.push_back(arg.value());
+        auto nxt_token = tokens_.peek(0).kind;
+        if (nxt_token == Lexer::TokenType::RPAREN) {
+            continue;
+        } else if (nxt_token == Lexer::TokenType::COMMA) {
+            tokens_.consume();
+            continue;
+        } else {
+            throw std::runtime_error("expected either RPAREN or COMMA after argument in function call");
+        }
+    }
+    if (tokens_.peek(0).kind != Lexer::TokenType::RPAREN) {
+            throw std::runtime_error("expected either RPAREN after args list in function call");
+    }
+    tokens_.consume();
+    return std::make_optional(
+        std::make_shared<CAst::FunctionCallNode>(
+            std::get<std::string>(function_name.value),
+            std::move(args)
+        )
+    );
+}
+
 auto RecursiveDescentParser::parseFactor() -> std::optional<std::shared_ptr<CAst::ExpressionNode>> {
     auto cur_token = tokens_.peek(0);
     switch (cur_token.kind) {
@@ -456,6 +499,9 @@ auto RecursiveDescentParser::parseFactor() -> std::optional<std::shared_ptr<CAst
             return unop;
         }
         case Lexer::TokenType::NAME:
+            if (tokens_.peek(1).kind == Lexer::TokenType::LPAREN) {
+                return parseFunctionCall();
+            }
             return std::make_shared<CAst::VariableNode>(
                 std::get<std::string>(tokens_.consume().value)
             );

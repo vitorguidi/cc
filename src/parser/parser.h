@@ -131,7 +131,7 @@ private:
     std::optional<std::shared_ptr<CAst::TypeNode>> parseType();
     std::optional<std::shared_ptr<CAst::FunctionArgumentsNode>> parseFunctionArguments();
     std::optional<std::shared_ptr<CAst::BlockNode>> parseBlock();
-    std::optional<std::shared_ptr<CAst::VariableDeclarationNode>> parseDeclaration();
+    std::optional<std::shared_ptr<CAst::VariableDeclarationNode>> parseVariableDeclaration();
     std::optional<std::shared_ptr<CAst::StatementNode>> parseStatement();
     std::optional<std::shared_ptr<CAst::ReturnStatementNode>> parseReturnStatement();
     std::optional<std::shared_ptr<CAst::BreakNode>> parseBreakStatement();
@@ -144,6 +144,7 @@ private:
     std::optional<std::shared_ptr<CAst::ExpressionNode>> parseExpression(int min_precedence);
     std::optional<std::shared_ptr<CAst::ExpressionNode>> parseFactor();
     std::optional<std::shared_ptr<CAst::UnaryExpressionNode>> parseUnaryExpression();
+    std::optional<std::shared_ptr<CAst::FunctionCallNode>> parseFunctionCall();
     std::optional<std::shared_ptr<CAst::ConstantValueNode>> parseConstantValue();
 };
 

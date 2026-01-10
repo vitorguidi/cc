@@ -53,6 +53,7 @@ public:
     void visit(CAst::ForNode& node) override {}
     void visit(CAst::ContinueNode& node) override {}
     void visit(CAst::BreakNode& node) override {}
+    void visit(CAst::FunctionCallNode& node) override {}
 
     void visit(CAst::ReturnStatementNode& node) override {
         expr_ += "return ";

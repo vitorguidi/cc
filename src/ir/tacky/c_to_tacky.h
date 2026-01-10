@@ -46,6 +46,7 @@ public:
     void visit(CAst::DoWhileNode& node);
     void visit(CAst::BreakNode& node);
     void visit(CAst::ContinueNode& node);
+    void visit(CAst::FunctionCallNode& node);
 
     template<std::derived_from<Tacky::BinaryOpNode> T>
     void visit_bin_exp(CAst::BinaryExpressionNode& node);

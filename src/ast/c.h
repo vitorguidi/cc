@@ -66,6 +66,7 @@ struct WhileNode;
 struct DoWhileNode;
 struct ContinueNode;
 struct BreakNode;
+struct FunctionCallNode;
 
 // --- Visitor Interface ---
 class Visitor {
@@ -110,6 +111,7 @@ public:
     virtual void visit(DoWhileNode& node) = 0;
     virtual void visit(ContinueNode& node) = 0;
     virtual void visit(BreakNode& node) = 0;
+    virtual void visit(FunctionCallNode& node) = 0;
 };
 
 // --- Base Nodes ---
@@ -381,6 +383,16 @@ public:
         std::shared_ptr<CAst::ExpressionNode> then,
         std::shared_ptr<CAst::ExpressionNode> alt)
         :   cond_(cond), then_(then), alt_(alt) {}
+    void accept(Visitor& v) override{v.visit(*this);}
+};
+
+struct FunctionCallNode : public ExpressionNode {
+public:
+    std::string name_;
+    std::vector<std::shared_ptr<ExpressionNode>> args_;
+    ~FunctionCallNode() = default;
+    FunctionCallNode(std::string name, std::vector<std::shared_ptr<ExpressionNode>> args)
+        : name_(name), args_(std::move(args)) {}
     void accept(Visitor& v) override{v.visit(*this);}
 };
 

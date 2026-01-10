@@ -104,6 +104,8 @@ public:
         ));
     }
 
+    void visit(CAst::FunctionCallNode& node) {}
+
     void visit(CAst::TypeNode& node) {
         buffer_.push_back(std::make_shared<CAst::TypeNode>(node.type_));
     }
