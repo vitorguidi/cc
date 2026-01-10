@@ -71,15 +71,15 @@ int main(int argc, char** argv) {
         tacky_graphviz.visit(*tacky_program);
     }
 
-    // std::cout << "First pass: ASM from Tacky..." << std::endl;
-    // auto asm_visitor = Backend::TackyToAsmVisitor();
-    // std::shared_ptr<ASM::ProgramNode> asm_program = asm_visitor.get_asm_from_tacky(tacky_program);
+    std::cout << "First pass: ASM from Tacky..." << std::endl;
+    auto asm_visitor = Backend::TackyToAsmVisitor();
+    std::shared_ptr<ASM::ProgramNode> asm_program = asm_visitor.get_asm_from_tacky(tacky_program);
 
-    // {
-    //     std::cout << "Generating graphviz visualization for ASM AST first pass..." << std::endl;
-    //     Graphviz::GraphvizASMVisitor asm_graphviz(std::string("asm_output/asm_1st_pass.dot"));
-    //     asm_graphviz.visit(*asm_program);
-    // }
+    {
+        std::cout << "Generating graphviz visualization for ASM AST first pass..." << std::endl;
+        Graphviz::GraphvizASMVisitor asm_graphviz(std::string("asm_output/asm_1st_pass.dot"));
+        asm_graphviz.visit(*asm_program);
+    }
 
     // auto pseudo_replacement_visitor = Backend::PseudoReplacerVisitor();
     // std::cout << "Second pass: removing pseudo registers from ASM..." << std::endl;

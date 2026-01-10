@@ -85,6 +85,51 @@ void GraphvizASMVisitor::visit(ASM::FunctionNode& node) {
     buffer_.push_back(my_id);
 }
 
+void GraphvizASMVisitor::visit(ASM::CallNode& node) {
+    auto my_id = std::to_string(node_count_++);
+    auto node_repr = labeled_node_with_kv_pairs(
+        my_id,
+        "CallNode",
+        {std::make_pair("name", node.name_)}
+    );
+    of << node_repr;
+    buffer_.push_back(my_id);
+}
+
+void GraphvizASMVisitor::visit(ASM::DeallocateStackNode& node) {
+    auto my_id = std::to_string(node_count_++);
+    auto node_repr = labeled_node_with_kv_pairs(
+        my_id,
+        "DeallocateStackNode",
+        {std::make_pair("size", std::to_string(node.size_))}
+    );
+    of << node_repr;
+    buffer_.push_back(my_id);
+}
+
+void GraphvizASMVisitor::visit(ASM::PushNode& node) {
+    auto my_id = std::to_string(node_count_++);
+    auto node_repr = labeled_node_with_kv_pairs(
+        my_id,
+        "PushNode",
+        {}
+    );
+    of << node_repr;
+    visit_child(my_id, "operand", node.operand_);
+    buffer_.push_back(my_id);
+}
+
+void GraphvizASMVisitor::visit(ASM::NullNode& node) {
+    auto my_id = std::to_string(node_count_++);
+    auto node_repr = labeled_node_with_kv_pairs(
+        my_id,
+        "NullNode",
+        {}
+    );
+    of << node_repr;
+    buffer_.push_back(my_id);
+}
+
 // Unary exps
 void GraphvizASMVisitor::visit(ASM::ComplementNode& node) {visit_un_exp("NegNode", node);}
 void GraphvizASMVisitor::visit(ASM::BitwiseNotNode& node) {visit_un_exp("NotNode", node);}

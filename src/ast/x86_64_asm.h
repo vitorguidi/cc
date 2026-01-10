@@ -18,6 +18,10 @@ class MovNode;
 class MovBNode;
 class RetNode;
 class AllocateStackNode;
+class DeallocateStackNode;
+class PushNode;
+class CallNode;
+class NullNode;
 class ImmNode;
 class StackNode;
 class RegisterNode;
@@ -49,6 +53,10 @@ public:
     virtual void visit(MovBNode& node) = 0;
     virtual void visit(RetNode& node) = 0;
     virtual void visit(AllocateStackNode& node) = 0;
+    virtual void visit(DeallocateStackNode& node) = 0;
+    virtual void visit(PushNode& node) = 0;
+    virtual void visit(CallNode& node) = 0;
+    virtual void visit(NullNode& node) = 0;
     virtual void visit(ImmNode& node) = 0;
     virtual void visit(StackNode& node) = 0;
     virtual void visit(RegisterNode& node) = 0;
@@ -123,27 +131,42 @@ public:
 
 enum Register {
     AX,
+    CX,
+    DI,
     DX,
     CL,
+    R8,
+    R9,
     R10,
     R10b,
     R11,
+    SI,
 };
 
 inline std::string register_as_string(Register reg) {
     switch(reg) {
         case Register::AX:
             return "AX";
+        case Register::CX:
+            return "CX";
+        case Register::DI:
+            return "DI";
         case Register::DX:
             return "DX";
         case Register::CL:
             return "CL";
+        case Register::R8:
+            return "R8";
+        case Register::R9:
+            return "R9";
         case Register::R10:
             return "R10";
         case Register::R10b:
             return "R10b";
         case Register::R11:
             return "R11";
+        case Register::SI:
+            return "SI";
         default:
             throw std::runtime_error("Unexpected register type for string conversion");
     }
@@ -417,10 +440,41 @@ public:
     int size_;
 };
 
+class DeallocateStackNode : public InstructionNode {
+public:
+    ~DeallocateStackNode() = default;
+    DeallocateStackNode(int size) : size_(size) {}
+    void accept(Visitor& v) override {v.visit(*this);}
+    int size_;
+};
+
+class CallNode : public InstructionNode {
+public:
+    ~CallNode() = default;
+    CallNode(std::string name) : name_(name) {}
+    void accept(Visitor& v) override {v.visit(*this);}
+    std::string name_;
+};
+
+class PushNode : public InstructionNode {
+public:
+    ~PushNode() = default;
+    PushNode(std::shared_ptr<OperandNode> operand) : operand_(operand) {}
+    void accept(Visitor& v) override {v.visit(*this);}
+    std::shared_ptr<OperandNode> operand_;
+};
+
 class RetNode : public InstructionNode {
 public:
     ~RetNode() = default;
     RetNode() = default;
+    void accept(Visitor& v) override {v.visit(*this);}
+};
+
+class NullNode : public OperandNode {
+public:
+    ~NullNode() = default;
+    NullNode() = default;
     void accept(Visitor& v) override {v.visit(*this);}
 };
 

@@ -64,7 +64,7 @@ public:
     void visit_conditional_jump(ASM::ConditionCode cc, Tacky::ConditionalJumpNode& node);
 
     std::shared_ptr<ASM::ProgramNode> get_asm_from_tacky(std::shared_ptr<Tacky::ProgramNode> tacky_program);
-    std::vector<std::shared_ptr<ASM::AstNode>> buffer_;
+    std::vector<std::shared_ptr<ASM::AstNode>> result_buffer_, instruction_buffer_;
 };
 
 class x86_64_ASM_RewriteVisitor : public ASM::Visitor {
@@ -103,6 +103,9 @@ public:
     void visit(ASM::LabelNode& node) override;
     void visit(ASM::JumpCCNode& node) override;
     void visit(ASM::JumpNode& node) override;
+    void visit(ASM::CallNode& node) override;
+    void visit(ASM::PushNode& node) override;
+    void visit(ASM::DeallocateStackNode& node) override;
     std::shared_ptr<ASM::ProgramNode> get_rewritten_asm_program(std::shared_ptr<ASM::ProgramNode> program);
     std::deque<std::shared_ptr<ASM::AstNode>> buffer_;
 };

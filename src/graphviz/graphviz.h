@@ -120,6 +120,10 @@ public:
     GraphvizASMVisitor(std::string filename);
     void visit(ASM::ProgramNode& node) override;
     void visit(ASM::FunctionNode& node) override;
+    void visit(ASM::CallNode& node) override;
+    void visit(ASM::DeallocateStackNode& node) override;
+    void visit(ASM::PushNode& node) override;
+    void visit(ASM::NullNode& node) override;
     void visit(ASM::ComplementNode& node) override;
     void visit(ASM::BitwiseNotNode& node) override;
     void visit(ASM::MovNode& node) override;
