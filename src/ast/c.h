@@ -11,6 +11,7 @@ namespace CAst {
 enum Type {
     INTEGER,
     VOID,
+    FUNCTION
 };
 
 inline std::string type_as_str(Type type) {
@@ -19,6 +20,8 @@ inline std::string type_as_str(Type type) {
             return std::string("int");
         case Type::VOID :
             return std::string("void");
+        case Type::FUNCTION:
+            return std::string("function");
     }
     return std::string("");
 };

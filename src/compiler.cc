@@ -53,14 +53,14 @@ int main(int argc, char** argv) {
         c_ast_graphviz.visit(program_raw);
     }
 
-    // auto semantic_visitor = Semantic::SemanticAnalysisVisitor();
-    // auto semantic_c_program = semantic_visitor.process(*program_node.value());
+    auto semantic_visitor = Semantic::VariableResolutionVisitor();
+    auto semantic_c_program = semantic_visitor.process(*program_node.value());
 
-    // {
-    //     std::cout << "Generating graphviz visualization for CAst after sem analysis..." << std::endl;
-    //     Graphviz::GraphvizCAstVisitor c_ast_graphviz(std::string("asm_output/cast_semantic.dot"));
-    //     c_ast_graphviz.visit(*semantic_c_program);
-    // }
+    {
+        std::cout << "Generating graphviz visualization for CAst after sem analysis..." << std::endl;
+        Graphviz::GraphvizCAstVisitor c_ast_graphviz(std::string("asm_output/cast_semantic.dot"));
+        c_ast_graphviz.visit(*semantic_c_program);
+    }
 
     // auto tacky_visitor = IR::AstToTackyVisitor();
     // std::cout << "Generating TACKY AST from C AST..." << std::endl;

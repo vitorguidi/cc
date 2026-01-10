@@ -3,7 +3,7 @@ load("@rules_cc//cc:cc_library.bzl", "cc_library")
 
 cc_library(
     name = "semantic",
-    srcs = [],
+    srcs = ["rewriter.cc", "variable_resolution.cc", "typecheck.cc"],
     hdrs = ["semantic.h"],
     deps = [
         "//src/ast:ast",
