@@ -62,14 +62,14 @@ int main(int argc, char** argv) {
         c_ast_graphviz.visit(*semantic_c_program);
     }
 
-    // auto tacky_visitor = IR::AstToTackyVisitor();
-    // std::cout << "Generating TACKY AST from C AST..." << std::endl;
-    // std::shared_ptr<Tacky::ProgramNode> tacky_program = tacky_visitor.get_tacky_from_c_ast(semantic_c_program);
-    // {
-    //     std::cout << "Generating graphviz visualization for Tacky AST..." << std::endl;
-    //     Graphviz::GraphvizTackyVisitor tacky_graphviz(std::string("asm_output/tacky.dot"));
-    //     tacky_graphviz.visit(*tacky_program);
-    // }
+    auto tacky_visitor = IR::AstToTackyVisitor();
+    std::cout << "Generating TACKY AST from C AST..." << std::endl;
+    std::shared_ptr<Tacky::ProgramNode> tacky_program = tacky_visitor.get_tacky_from_c_ast(semantic_c_program);
+    {
+        std::cout << "Generating graphviz visualization for Tacky AST..." << std::endl;
+        Graphviz::GraphvizTackyVisitor tacky_graphviz(std::string("asm_output/tacky.dot"));
+        tacky_graphviz.visit(*tacky_program);
+    }
 
     // std::cout << "First pass: ASM from Tacky..." << std::endl;
     // auto asm_visitor = Backend::TackyToAsmVisitor();

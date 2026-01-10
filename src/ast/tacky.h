@@ -12,6 +12,7 @@ class Visitor;
 class AstNode;
 class ProgramNode;
 class FunctionNode;
+class FunctionCallNode;
 class InstructionNode;
 class ReturnNode;
 class UnaryNode;
@@ -50,6 +51,7 @@ public:
     virtual ~Visitor() = default;
     virtual void visit(ProgramNode& node) = 0;
     virtual void visit(FunctionNode& node) = 0;
+    virtual void visit(FunctionCallNode& node) = 0;
     virtual void visit(ReturnNode& node) = 0;
     virtual void visit(BitwiseNotNode& node) = 0;
     virtual void visit(ComplementNode& node) = 0;
@@ -99,20 +101,38 @@ public:
     std::vector<std::shared_ptr<FunctionNode>> functions_;
 };
 
-class FunctionNode : public AstNode {
-public:
-    FunctionNode(std::string name, std::vector<std::shared_ptr<InstructionNode>> instructions) : 
-        name_(std::move(name)), instructions_(std::move(instructions)) {}
-    ~FunctionNode() = default;
-    void accept(Visitor& v) override { v.visit(*this); }
-    std::string name_;
-    std::vector<std::shared_ptr<InstructionNode>> instructions_;
-};
-
 class InstructionNode : public AstNode {
 public:
     virtual ~InstructionNode() = default;
     virtual void accept(Visitor& v) = 0;
+};
+
+class FunctionNode : public InstructionNode {
+public:
+    FunctionNode(
+        std::string name,
+        std::vector<std::shared_ptr<InstructionNode>> instructions,
+        std::vector<std::string> args) : 
+        name_(std::move(name)), instructions_(std::move(instructions)), args_(std::move(args)) {}
+    ~FunctionNode() = default;
+    void accept(Visitor& v) override { v.visit(*this); }
+    std::string name_;
+    std::vector<std::shared_ptr<InstructionNode>> instructions_;
+    std::vector<std::string> args_;
+};
+
+class FunctionCallNode : public InstructionNode {
+public:
+    ~FunctionCallNode() = default;
+    FunctionCallNode(
+        std::string name,
+        std::vector<std::shared_ptr<ValueNode>> args,
+        std::shared_ptr<ValueNode> dst)
+        : name_(name), args_(args), dst_(dst) {}
+    std::string name_;
+    std::vector<std::shared_ptr<ValueNode>> args_;
+    std::shared_ptr<ValueNode> dst_;
+    void accept(Visitor& v) override { v.visit(*this); }
 };
 
 class ReturnNode : public InstructionNode {

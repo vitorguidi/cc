@@ -76,6 +76,8 @@ void TackyToAsmVisitor::visit_relational_exp(ASM::ConditionCode cc, Tacky::Relat
     buffer_.push_back(std::make_shared<ASM::SetCCNode>(cc, converted_dst));
 }
 
+void TackyToAsmVisitor::visit(Tacky::FunctionCallNode& node) {}
+
 void TackyToAsmVisitor::visit_conditional_jump(ASM::ConditionCode cc, Tacky::ConditionalJumpNode& node) {
     node.dst_->accept(*this);
     auto dst = As<ASM::LabelNode>(

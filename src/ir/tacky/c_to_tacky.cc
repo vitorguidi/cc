@@ -114,6 +114,7 @@ std::shared_ptr<Tacky::ProgramNode> AstToTackyVisitor::get_tacky_from_c_ast(std:
 void AstToTackyVisitor::visit(CAst::ProgramNode& node) {
     for (auto& function : node.functions_) {
         function->accept(*this);
+        get_result<Tacky::ValueNode>();
     }
     auto functions = get_instructions<Tacky::FunctionNode>();
     auto result = std::make_shared<Tacky::ProgramNode>(std::move(functions) );
@@ -121,20 +122,52 @@ void AstToTackyVisitor::visit(CAst::ProgramNode& node) {
 }
 
 void AstToTackyVisitor::visit(CAst::FunctionNode& node) {
-    if (node.body_.value()) {
+
+    std::vector<std::shared_ptr<Tacky::InstructionNode>> tacky_instructions;
+
+    if (node.body_.has_value()) {
         node.body_.value()->accept(*this);
         auto result = get_result<Tacky::ValueNode>();
-
-        auto tacky_instructions = get_instructions<Tacky::InstructionNode>();
-
-        auto function_result = std::make_shared<Tacky::FunctionNode>(
-            node.name_,
-            tacky_instructions
-        );
-
-        instruction_buffer.push_back(function_result);
+        tacky_instructions = get_instructions<Tacky::InstructionNode>();
     }
 
+    std::vector<std::string> args;
+    for(auto arg : node.arguments_node_->arguments_) {
+        args.push_back(arg.name);
+    }
+
+    auto function_result = std::make_shared<Tacky::FunctionNode>(
+        node.name_,
+        tacky_instructions,
+        std::move(args)
+    );
+
+    if (!tacky_instructions.empty()) {
+        instruction_buffer.push_back(function_result);
+    }
+    result_buffer_.push_back(std::make_shared<Tacky::NullNode>());
+}
+
+void AstToTackyVisitor::visit(CAst::FunctionCallNode& node) {
+
+    std::vector<std::shared_ptr<Tacky::ValueNode>> processed_args;
+    for(auto arg : node.args_) {
+        arg->accept(*this);
+        processed_args.push_back(get_result<Tacky::ValueNode>());
+    }
+
+    auto dst = std::make_shared<Tacky::VariableNode>(generate_temp_var_name());
+
+    instruction_buffer.push_back(
+        std::make_shared<Tacky::FunctionCallNode>(
+            node.name_,
+            std::move(processed_args),
+            dst
+        )
+    );
+
+    result_buffer_.push_back(dst);
+    
 }
 
 void AstToTackyVisitor::visit(CAst::ReturnStatementNode& node) {
@@ -519,8 +552,6 @@ void AstToTackyVisitor::visit(CAst::BreakNode& node) {
     );
     result_buffer_.push_back(std::make_shared<Tacky::NullNode>());
 }
-
-void AstToTackyVisitor::visit(CAst::FunctionCallNode& node) {}
 
 std::string AstToTackyVisitor::generate_temp_var_name() {
     return "_tacky_temp_" + std::to_string(temp_var_counter_++);

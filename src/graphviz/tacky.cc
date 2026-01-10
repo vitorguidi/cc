@@ -86,6 +86,22 @@ void GraphvizTackyVisitor::visit(Tacky::FunctionNode& node) {
     buffer_.push_back(my_id);
 }
 
+void GraphvizTackyVisitor::visit(Tacky::FunctionCallNode& node) {
+    auto my_id = std::to_string(node_count_++);
+    std::string node_repr = labeled_node_with_kv_pairs(
+        my_id,
+        "FunctionCallNode",
+        {std::make_pair("name", node.name_)}
+    );
+    of << node_repr;
+    auto last_parent = my_id;
+    int i=0;
+    for(auto& arg : node.args_) {
+        last_parent = visit_child(last_parent, "arg" + std::to_string(i++), arg);
+    }
+    buffer_.push_back(my_id);
+}
+
 void GraphvizTackyVisitor::visit(Tacky::ReturnNode& node) {
     auto my_id = std::to_string(node_count_++);
     std::string node_repr = labeled_node_with_kv_pairs(

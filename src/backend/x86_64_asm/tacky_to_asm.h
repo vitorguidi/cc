@@ -24,6 +24,7 @@ public:
     TackyToAsmVisitor() = default;
     void visit(Tacky::ProgramNode& node) override;
     void visit(Tacky::FunctionNode& node) override;
+    void visit(Tacky::FunctionCallNode& node) override;
     void visit(Tacky::ReturnNode& node) override;
     void visit(Tacky::BitwiseNotNode& node) override;
     void visit(Tacky::ComplementNode& node) override;
