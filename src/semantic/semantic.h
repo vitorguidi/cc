@@ -21,7 +21,7 @@ struct SymbolEntry {
     std::string name;
     bool has_external_linkage;
     CAst::Type type;
-    std::variant<std::monostate, SymbolMetadata> metadata;
+    SymbolMetadata metadata;
 };
 
 template<typename T>
@@ -94,12 +94,16 @@ protected:
 class VariableResolutionVisitor : public SemanticCAstRewriter{
 public:
     ~VariableResolutionVisitor() = default;
-    VariableResolutionVisitor() : SemanticCAstRewriter(), var_counter_(0) {}
+    VariableResolutionVisitor() : SemanticCAstRewriter(), var_counter_(0), is_within_function_(false) {}
     void visit(CAst::VariableNode& node) override;
     void visit(CAst::VariableDeclarationNode& node) override;
+    void visit(CAst::FunctionNode& node) override;
+    void visit(CAst::FunctionCallNode& node) override;
+    void new_decl(std::string name, CAst::Type type);
     std::shared_ptr<CAst::ProgramNode> process(CAst::ProgramNode& node);
 private:
     int var_counter_;
+    bool is_within_function_ = false;
     std::string generate_unique_var_name();
 };
 
