@@ -112,7 +112,7 @@ void ASMDumper::visit(ASM::RegisterNode& node) {
             buffer_.push_back("\%cl");
             break;
         case ASM::Register::CX:
-            buffer_.push_back("\%cx");
+            buffer_.push_back("\%ecx");
             break;
         case ASM::Register::DI:
             buffer_.push_back("\%edi");
@@ -136,7 +136,7 @@ void ASMDumper::visit(ASM::RegisterNode& node) {
             buffer_.push_back("\%r11d");
             break;
         case ASM::Register::SI:
-            buffer_.push_back("\%rsi");
+            buffer_.push_back("\%esi");
             break;
         default:
             throw std::runtime_error("Unknown register type");
