@@ -119,7 +119,8 @@ void AstToTackyVisitor::visit(CAst::ProgramNode& node) {
     for (auto& function : node.functions_) {
         function->accept(*this);
         auto fn =get_result<Tacky::FunctionNode>();
-        processed_funcs.push_back(fn);
+        if(!fn->instructions_.empty())
+            processed_funcs.push_back(fn);
     }
     auto result = std::make_shared<Tacky::ProgramNode>(std::move(processed_funcs) );
     result_buffer_.push_back(result);
@@ -146,12 +147,8 @@ void AstToTackyVisitor::visit(CAst::FunctionNode& node) {
         std::move(args)
     );
 
-    if (!tacky_instructions.empty()) {
-        result_buffer_.push_back(function_result);
-        return;
-    }
+    result_buffer_.push_back(function_result);
 
-    result_buffer_.push_back(std::make_shared<Tacky::NullNode>());
 }
 
 void AstToTackyVisitor::visit(CAst::FunctionCallNode& node) {
@@ -335,7 +332,7 @@ void AstToTackyVisitor::visit(CAst::BlockNode& node) {
     for (auto& statement : node.statements_) {
         statement->accept(*this);
         // Forcefully remove the result of expression statements
-        auto result = get_result<Tacky::ValueNode>(); 
+        auto result = get_result<Tacky::AstNode>(); 
     }
     result_buffer_.push_back(std::make_shared<Tacky::NullNode>());
 }
